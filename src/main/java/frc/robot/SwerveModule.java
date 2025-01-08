@@ -12,7 +12,6 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -43,8 +42,9 @@ class SwerveModule {
   public void setSMS(SwerveModuleState desiredState) {
     Rotation2d currentWheelAngle = Rotation2d.fromDegrees(getWheelAngle());
     desiredState.optimize(currentWheelAngle); // Minimizes the amount a wheel needs to rotate by inverting the direction of the drive motor in some situations. 
+    desiredState.cosineScale(currentWheelAngle); // Cosine compensation. If a wheel is not at its angular setpoint, its velocity setpoint is reduced.
     setAngle(desiredState.angle.getDegrees());
-    setVel(desiredState.speedMetersPerSecond*desiredState.angle.minus(currentWheelAngle).getCos()); // Cosine compensation. If a wheel is not at its angular setpoint, its velocity setpoint is reduced.
+    setVel(desiredState.speedMetersPerSecond);
   }
   
   // Returns the postion and angle of the module.
@@ -84,8 +84,8 @@ class SwerveModule {
     motorConfigs.CurrentLimits.StatorCurrentLimit = currentLimit;
 
     // VelocityVoltage closed-loop control configuration.
-    motorConfigs.Slot0.kP = 0.25; // Units: volts per 1 motor rotation per second of error.
-    motorConfigs.Slot0.kI = 0.5; // Units: volts per 1 motor rotation per second * 1 second of error.
+    motorConfigs.Slot0.kP = 0.2; // Units: volts per 1 motor rotation per second of error.
+    motorConfigs.Slot0.kI = 0.4; // Units: volts per 1 motor rotation per second * 1 second of error.
     motorConfigs.Slot0.kD = 0.0; // Units: volts per 1 motor rotation per second / 1 second of error.
     motorConfigs.Slot0.kV = 0.12; // The amount of voltage required to create 1 motor rotation per second.
     motorConfigs.Slot0.kS = 0.16; // The amount of voltage required to barely overcome static friction in the swerve wheel.
@@ -105,9 +105,9 @@ class SwerveModule {
     motorConfigs.CurrentLimits.StatorCurrentLimit = currentLimit;
 
     // MotionMagicTorqueFOC closed-loop control configuration.
-    motorConfigs.Slot0.kP = 800.0; // Units: amperes per 1 swerve wheel rotation of error.
+    motorConfigs.Slot0.kP = 500.0; // Units: amperes per 1 swerve wheel rotation of error.
     motorConfigs.Slot0.kI = 0.0; // Units: amperes per 1 swerve wheel rotation * 1 second of error.
-    motorConfigs.Slot0.kD = 18.0; // Units: amperes per 1 swerve wheel rotation / 1 second of error.
+    motorConfigs.Slot0.kD = 28.0; // Units: amperes per 1 swerve wheel rotation / 1 second of error.
     motorConfigs.MotionMagic.MotionMagicAcceleration = 1000.0/turnGearRatio; // Units: rotations per second per second.
     motorConfigs.MotionMagic.MotionMagicCruiseVelocity = 100.0/turnGearRatio; // Units: roations per second.
 

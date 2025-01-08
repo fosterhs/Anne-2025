@@ -1,11 +1,9 @@
 package frc.robot;
 
 import java.util.ArrayList;
-
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
@@ -20,7 +18,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -30,7 +27,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.LimelightHelpers.PoseEstimate;
 
 class Drivetrain {
-  public static final double maxAcc = 0.7*9.80665; // The maximum acceleration of the robot, typically limited by the coefficient of friction between the swerve wheels and the field.
+  public static final double maxAcc = 0.5*9.80665; // The maximum acceleration of the robot, typically limited by the coefficient of friction between the swerve wheels and the field.
   public static final double wheelbaseX = (24.0-2*2.625)*0.0254; // The length of the robot from front to back in units of meters. Measured from the centers of each swerve wheel.
   public static final double wheelbaseY = (24.0-2*2.625)*0.0254; // The length of the robot from left to right in units of meters. Measured from the centers of each swerve wheel.
   public static final double wheelbaseR = Math.sqrt(Math.pow(wheelbaseX/2.0, 2) + Math.pow(wheelbaseY/2.0, 2)); // The "radius" of the robot from robot center to the center of the swerve wheel in units of meters.
@@ -52,10 +49,10 @@ class Drivetrain {
   private static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftModulePos, frontRightModulePos, backRightModulePos, backLeftModulePos);
 
   // Initializes each swerve module.
-  private final SwerveModule frontLeftModule = new SwerveModule(1, 2, 1, false, -0.188232, "canivore"); 
-  private final SwerveModule frontRightModule = new SwerveModule(3, 4, 2, true, 0.105957 , "canivore");
-  private final SwerveModule backRightModule = new SwerveModule(5, 6, 3, true, 0.161621 , "canivore");
-  private final SwerveModule backLeftModule = new SwerveModule(7, 8, 4, false, 0.293457, "canivore");
+  private final SwerveModule frontLeftModule = new SwerveModule(1, 2, 1, false, -0.215820, "canivore"); 
+  private final SwerveModule frontRightModule = new SwerveModule(3, 4, 2, true, 0.100586 , "canivore");
+  private final SwerveModule backRightModule = new SwerveModule(5, 6, 3, true, 0.163086 , "canivore");
+  private final SwerveModule backLeftModule = new SwerveModule(7, 8, 4, false, 0.338623, "canivore");
   private final SwerveModule[] modules = {frontLeftModule, frontRightModule, backRightModule, backLeftModule};
 
   private final Pigeon2 pigeon = new Pigeon2(0, "canivore"); // Pigeon 2.0 CAN Gyroscope
@@ -194,14 +191,11 @@ class Drivetrain {
   // initialAngVel: Robot angular velocity at the begining of the path. Usually 0. Units: degrees per second
   // initialAngle: Robot's angle at the begining of the path. Units: degrees 
   public void loadPath(String pathName, double initialXVel, double initialYVel, double initialAngleVel, double initialAngle) {
-    DCMotor motorConfig = new DCMotor(12.0, 9.36, 476.1, 2.0, 5800.0*2*Math.PI/60.0, 1);
-    ModuleConfig moduleConfig = new ModuleConfig(SwerveModule.wheelCirc/(2*Math.PI), SwerveModule.maxVel, 0.7, motorConfig, 120.0, 1);
-    RobotConfig robotConfig = new RobotConfig(60.0, 6.0, moduleConfig, frontLeftModulePos, frontRightModulePos, backLeftModulePos, backRightModulePos);
     try {
-      PathPlannerTrajectory path = PathPlannerPath.fromPathFile(pathName).generateTrajectory(new ChassisSpeeds(initialXVel, initialYVel, initialAngleVel*Math.PI/180.0), Rotation2d.fromDegrees(initialAngle), robotConfig);
+      PathPlannerTrajectory path = PathPlannerPath.fromPathFile(pathName).generateTrajectory(new ChassisSpeeds(initialXVel, initialYVel, initialAngleVel*Math.PI/180.0), Rotation2d.fromDegrees(initialAngle), RobotConfig.fromGUISettings());
       paths.add(path);
     } catch (Exception e) {
-      System.out.println("Unable to load path.");
+        DriverStation.reportError("PathPlanner Error: " + e.getMessage(), e.getStackTrace());
     }
   }
 
@@ -430,30 +424,30 @@ class Drivetrain {
   // Publishes information to the dashboard. Should be called each period.
   public void updateDash() {
     SmartDashboard.putNumber("Vision Calibration Timer", getCalibrationTimer());
-    //SmartDashboard.putNumber("Front Left Swerve Module Position", frontLeftModule.getDriveMotorPos());
-    //SmartDashboard.putNumber("Front Right Swerve Module Position", frontRightModule.getDriveMotorPos());
-    //SmartDashboard.putNumber("Back Right Swerve Module Position", backRightModule.getDriveMotorPos());
-    //SmartDashboard.putNumber("Back Left Swerve Module Position", backLeftModule.getDriveMotorPos());
-    //SmartDashboard.putNumber("Front Left Swerve Module Wheel Encoder Angle", frontLeftModule.getWheelAngle());
-    //SmartDashboard.putNumber("Front Right Swerve Module Wheel Encoder Angle", frontRightModule.getWheelAngle());
-    //SmartDashboard.putNumber("Back Right Swerve Module Wheel Encoder Angle", backRightModule.getWheelAngle());
-    //SmartDashboard.putNumber("Back Left Swerve Module Wheel Encoder Angle", backLeftModule.getWheelAngle());
-    //SmartDashboard.putNumber("Robot X Position", getXPos());
-    //SmartDashboard.putNumber("Robot Y Position", getYPos());
-    //SmartDashboard.putNumber("Robot Angular Position (Fused)", getFusedAng());
-    //SmartDashboard.putNumber("Robot Angular Position (Gyro)", getGyroAng());
-    //SmartDashboard.putNumber("Robot Pitch", getGyroPitch());
-    //SmartDashboard.putNumber("Robot Demanded X Velocity", getXVel());
-    //SmartDashboard.putNumber("Robot Demanded Y Velocity", getYVel());
-    //SmartDashboard.putNumber("Robot Demanded Angular Velocity", getAngVel());
-    //SmartDashboard.putNumber("Path X Position", pathXPos);
-    //SmartDashboard.putNumber("Path Y Position", pathYPos);
-    //SmartDashboard.putNumber("Path Angular Position", pathAngPos);
-    //SmartDashboard.putNumber("Path Position Error", getPathPosError());
-    //SmartDashboard.putNumber("Path Angle Error", getPathAngleError());
-    //SmartDashboard.putBoolean("Path At Endpoint", atPathEndpoint(0));
-    //SmartDashboard.putBoolean("isRedAllaince", isRedAlliance());
-    //SmartDashboard.putBoolean("isBlueAllaince", isBlueAlliance());   
+    SmartDashboard.putNumber("Front Left Swerve Module Position", frontLeftModule.getDriveMotorPos());
+    SmartDashboard.putNumber("Front Right Swerve Module Position", frontRightModule.getDriveMotorPos());
+    SmartDashboard.putNumber("Back Right Swerve Module Position", backRightModule.getDriveMotorPos());
+    SmartDashboard.putNumber("Back Left Swerve Module Position", backLeftModule.getDriveMotorPos());
+    SmartDashboard.putNumber("Front Left Swerve Module Wheel Encoder Angle", frontLeftModule.getWheelAngle());
+    SmartDashboard.putNumber("Front Right Swerve Module Wheel Encoder Angle", frontRightModule.getWheelAngle());
+    SmartDashboard.putNumber("Back Right Swerve Module Wheel Encoder Angle", backRightModule.getWheelAngle());
+    SmartDashboard.putNumber("Back Left Swerve Module Wheel Encoder Angle", backLeftModule.getWheelAngle());
+    SmartDashboard.putNumber("Robot X Position", getXPos());
+    SmartDashboard.putNumber("Robot Y Position", getYPos());
+    SmartDashboard.putNumber("Robot Angular Position (Fused)", getFusedAng());
+    SmartDashboard.putNumber("Robot Angular Position (Gyro)", getGyroAng());
+    SmartDashboard.putNumber("Robot Pitch", getGyroPitch());
+    SmartDashboard.putNumber("Robot Demanded X Velocity", getXVel());
+    SmartDashboard.putNumber("Robot Demanded Y Velocity", getYVel());
+    SmartDashboard.putNumber("Robot Demanded Angular Velocity", getAngVel());
+    SmartDashboard.putNumber("Path X Position", pathXPos);
+    SmartDashboard.putNumber("Path Y Position", pathYPos);
+    SmartDashboard.putNumber("Path Angular Position", pathAngPos);
+    SmartDashboard.putNumber("Path Position Error", getPathPosError());
+    SmartDashboard.putNumber("Path Angle Error", getPathAngleError());
+    SmartDashboard.putBoolean("Path At Endpoint", atPathEndpoint(0));
+    SmartDashboard.putBoolean("isRedAllaince", isRedAlliance());
+    SmartDashboard.putBoolean("isBlueAllaince", isBlueAlliance());   
   }
 
   // Calculates the shortest distance between two points on a 360 degree circle. CW is + and CCW is -

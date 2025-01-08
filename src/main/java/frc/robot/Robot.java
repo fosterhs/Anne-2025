@@ -36,7 +36,7 @@ public class Robot extends TimedRobot {
     autoChooser.addOption(auto2, auto2);
     SmartDashboard.putData("Autos", autoChooser);
 
-    swerve.loadPath("Example Path", 0.0, 0.0, 0.0, 180.0); // Loads a Path Planner generated path into the path follower code in the drivetrain. 
+    swerve.loadPath("Test", 0.0, 0.0, 0.0, 180.0); // Loads a Path Planner generated path into the path follower code in the drivetrain. 
     runAll(); // Helps prevent loop overruns on startup by running every command before the match starts.
   }
 
