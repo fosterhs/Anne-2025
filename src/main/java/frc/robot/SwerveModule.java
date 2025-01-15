@@ -84,8 +84,8 @@ class SwerveModule {
     motorConfigs.CurrentLimits.StatorCurrentLimit = currentLimit;
 
     // VelocityVoltage closed-loop control configuration.
-    motorConfigs.Slot0.kP = 0.2; // Units: volts per 1 motor rotation per second of error.
-    motorConfigs.Slot0.kI = 0.4; // Units: volts per 1 motor rotation per second * 1 second of error.
+    motorConfigs.Slot0.kP = 0.25; // Units: volts per 1 motor rotation per second of error.
+    motorConfigs.Slot0.kI = 0.5; // Units: volts per 1 motor rotation per second * 1 second of error.
     motorConfigs.Slot0.kD = 0.0; // Units: volts per 1 motor rotation per second / 1 second of error.
     motorConfigs.Slot0.kV = 0.12; // The amount of voltage required to create 1 motor rotation per second.
     motorConfigs.Slot0.kS = 0.16; // The amount of voltage required to barely overcome static friction in the swerve wheel.
@@ -105,9 +105,9 @@ class SwerveModule {
     motorConfigs.CurrentLimits.StatorCurrentLimit = currentLimit;
 
     // MotionMagicTorqueFOC closed-loop control configuration.
-    motorConfigs.Slot0.kP = 500.0; // Units: amperes per 1 swerve wheel rotation of error.
+    motorConfigs.Slot0.kP = 800.0; // Units: amperes per 1 swerve wheel rotation of error.
     motorConfigs.Slot0.kI = 0.0; // Units: amperes per 1 swerve wheel rotation * 1 second of error.
-    motorConfigs.Slot0.kD = 28.0; // Units: amperes per 1 swerve wheel rotation / 1 second of error.
+    motorConfigs.Slot0.kD = 18.0; // Units: amperes per 1 swerve wheel rotation / 1 second of error.
     motorConfigs.MotionMagic.MotionMagicAcceleration = 1000.0/turnGearRatio; // Units: rotations per second per second.
     motorConfigs.MotionMagic.MotionMagicCruiseVelocity = 100.0/turnGearRatio; // Units: roations per second.
 

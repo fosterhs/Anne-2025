@@ -3,7 +3,6 @@ package frc.robot;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -11,7 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends TimedRobot {
   private final XboxController driver = new XboxController(0); // Initializes the driver controller.
-  // private final XboxController operator = new XboxController(1); // Initializes the operator controller.
+  private final XboxController operator = new XboxController(1); // Initializes the operator controller.
 
   // Limits the acceleration of the drivetrain by smoothing controller inputs.
   private final SlewRateLimiter xAccLimiter = new SlewRateLimiter(Drivetrain.maxAccTeleop / Drivetrain.maxVelTeleop);
@@ -33,13 +32,13 @@ public class Robot extends TimedRobot {
   private String autoSelected;
   private int autoStage = 1;
 
-  public void robotInit() {
+  public void robotInit() { 
     // Configures the auto chooser on the dashboard.
     autoChooser.setDefaultOption(auto1, auto1);
     autoChooser.addOption(auto2, auto2);
     SmartDashboard.putData("Autos", autoChooser);
 
-    swerve.loadPath("Test", 0.0, 0.0, 0.0, 180.0); // Loads a Path Planner generated path into the path follower code in the drivetrain. 
+    swerve.loadPath("Test", 0.0, 0.0, 0.0, 0.0); // Loads a Path Planner generated path into the path follower code in the drivetrain. 
     runAll(); // Helps prevent loop overruns on startup by running every command before the match starts.
   }
 
@@ -48,7 +47,6 @@ public class Robot extends TimedRobot {
     swerve.updateDash();
     elevator.updateDash();
     updateDash();
-    //SmartDashboard.putBoolean("limitSwitch", limitSwitch.get()); // Publishes the state of the limit switch to the dashboard.
     swerve.updateVisionHeading(); // Updates the Limelights with the robot heading (for MegaTag2).
     if (driver.getRawButtonPressed(8)) swerve.resetGyro(); // Menu Button re-zeros the angle reading of the gyro to the current angle of the robot. Should be called if the gyroscope readings are no longer well correlated with the field.
   }
@@ -69,18 +67,27 @@ public class Robot extends TimedRobot {
   }
 
   public void autonomousPeriodic() {
-    elevator.isTouchingLimitSwitch(); // Checks if the elevator is touching the limit switch.
     swerve.updateOdometry(); // Keeps track of the position of the robot on the field. Must be called each period.
     switch (autoSelected) {
       case auto1:
         switch (autoStage) {
           case 1:
             // Auto 1, Stage 1 code goes here.
+            swerve.drive(0.0, 0.0, 0.0, true, 0.0, 0.0);
+            elevator.setElevatorPosition(3.0);
+            if (elevator.isAtSetpoint()) {
+              autoStage = -1; // Goes to default case.
+            }
           break;
 
           case 2:
             // Auto 1, Stage 2 code goes here.
           break;
+
+        default:
+          elevator.setElevatorPosition(0.0);
+          break;
+
         }
       break;
 
@@ -126,7 +133,7 @@ public class Robot extends TimedRobot {
     if (lock) {
       swerve.xLock(); // Locks the swerve modules (for defense).
     } else {
-      swerve.drive(xVel, yVel, angVel, true, 0.0, 0.0); // Drive at the velocity demanded by the controller.
+      swerve.drive(xVel, yVel, angVel, false, 0.0, 0.0); // Drive at the velocity demanded by the controller.
     }
 
     // The following 3 calls allow the user to calibrate the position of the robot based on April Tag information. Should be called when the robot is stationary. Button 7 is "View", the right center button.
@@ -136,10 +143,7 @@ public class Robot extends TimedRobot {
         swerve.addCalibrationEstimate(limelightIndex, false); // Collects additional data to calculate the position of the robot on the field based on visible April Tags.
       }
     }
-    if (driver.getRawButtonReleased(7)) swerve.pushCalibration(); // Updates the position of the robot on the field based on previous calculations.
-
-    elevator.isTouchingLimitSwitch(); // Checks if the elevator is touching the limit switch.
-    elevator.setElevatorPosition(3.0); 
+    if (driver.getRawButtonReleased(7)) swerve.pushCalibration(); // Updates the position of the robot on the field based on previous calculations.  
   }
 
   public void disabledInit() {    
@@ -147,7 +151,6 @@ public class Robot extends TimedRobot {
   }
 
   public void disabledPeriodic() {
-    elevator.isTouchingLimitSwitch(); // Checks if the elevator is touching the limit switch.
     swerve.updateOdometry(); // Keeps track of the position of the robot on the field. Must be called each period.
     for (int limelightIndex = 0; limelightIndex < swerve.limelights.length; limelightIndex++) { // Iterates through each limelight.
       swerve.addCalibrationEstimate(limelightIndex, false); // Collects additional data to calculate the position of the robot on the field based on visible April Tags.
