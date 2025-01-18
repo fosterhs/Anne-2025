@@ -23,10 +23,11 @@ class Elevator {
   private double elevatorRatio = 2.0; // The gear ratio of the elevator motor.
   private double highLimit = 2.0; // The high limit of the elevator motor in meters.
   private double lowLimit = 0.0; // The low limit of the elevator motor in meters.
+  private double CorrectionFactor = 0.92; // The correction factor of the elevator motor.
 
   public Elevator() {
-    configMotor(elevatorMotor1, false, 15.0); // Configures the motor with counterclockwise rotation positive and 80A current limit.
-    configMotor(elevatorMotor2, true, 15.0); // Configures the motor with counterclockwise rotation positive and 80A current limit.
+    configMotor(elevatorMotor1, false, 25.0); // Configures the motor with counterclockwise rotation positive and 80A current limit.
+    configMotor(elevatorMotor2, true, 25.0); // Configures the motor with counterclockwise rotation positive and 80A current limit.
 
     elevatorMotor1.setPosition(0.0, 0.03); // Sets the position of the motor to 0.
     elevatorMotor2.setPosition(0.0, 0.03); // Sets the position of the motor to 0.
@@ -36,19 +37,19 @@ class Elevator {
 
   // 1.0 is up, -1.0 is down 0.0 is stop
   public void manualElevator(Double speed) { 
-   /*  if (limitSwich1.get() && speed <= 1.0) {  //If both limitSwich 2 is pressed and the speed is less than -1.0, set the speed to 0.
+     if (!limitSwich1.get() && -speed <= 0.0) {  //If both limitSwich 2 is pressed and the speed is less than -1.0, set the speed to 0.
       elevatorMotor1.setControl(new DutyCycleOut(0.0));
-      } else if (limitSwich2.get() && speed >= -1.0) { // If both limitSwich 2 is pressed and the speed is less than -1.0, set the speed to 0.
+      } else if (!limitSwich2.get() && -speed >= 0.0) { // If both limitSwich 2 is pressed and the speed is less than -1.0, set the speed to 0.
       elevatorMotor1.setControl(new DutyCycleOut(0.0));
       } else {
       elevatorMotor1.setControl(new DutyCycleOut(speed));
-      } */
-      elevatorMotor1.setControl(new DutyCycleOut(speed));
+      } 
+      //elevatorMotor1.setControl(new DutyCycleOut(speed));
   } 
     
   // Sets the position of the elevator motor in meters.
   public void setElevatorPosition(double positionMeters) {
-    double positionRotations =  (gearRatio * positionMeters) / (sprocketCircumference * elevatorRatio);
+    double positionRotations =  (gearRatio * positionMeters) / (sprocketCircumference * elevatorRatio * CorrectionFactor);
     elevatorMotor1.setControl(new MotionMagicTorqueCurrentFOC(positionRotations)); 
     setPoint = positionRotations;
     elevatorMotor1.setControl(new DutyCycleOut(positionRotations)); // Sets the position of the motor.
@@ -68,21 +69,27 @@ class Elevator {
   
   // Returns the position of the elevator motor in meters.
   public double getElevatorMasterPosition() {
-    return (elevatorMotor1.getPosition().getValueAsDouble() * sprocketCircumference * elevatorRatio) / gearRatio;
+    return (elevatorMotor1.getPosition().getValueAsDouble() * sprocketCircumference * elevatorRatio * CorrectionFactor) / gearRatio;
   }
 
   public double getElevatorSlavePosition() {
-    return (elevatorMotor2.getPosition().getValueAsDouble() * sprocketCircumference * elevatorRatio) / gearRatio;
+    return (elevatorMotor2.getPosition().getValueAsDouble() * sprocketCircumference * elevatorRatio * CorrectionFactor) / gearRatio;
+  }
+
+  // Returns whether the Top limit switch is pressed.
+  public boolean isTouchingTopLimitSwitch() {
+    return limitSwich1.get();
   }
 
   // Returns whether the limit switch is pressed.
-  public boolean isTouchingLimitSwitch() {
-    return limitSwich1.get();
+  public boolean isTouchingBottomLimitSwitch() {
+    return limitSwich2.get();
   }
 
   // Updates the SmartDashboard with information about the elevator.
   public void updateDash() {
-    SmartDashboard.putBoolean("Elevator Touching LimitSwitch", isTouchingLimitSwitch());
+    SmartDashboard.putBoolean("Elevator Touching Top LimitSwitch", isTouchingTopLimitSwitch());
+    SmartDashboard.putBoolean("Elevator Touching Bottom LimitSwitch", isTouchingBottomLimitSwitch());
     SmartDashboard.putNumber("Elevator Master Position", getElevatorMasterPosition());
     SmartDashboard.putNumber("Elevator Slave Position", getElevatorSlavePosition());
     SmartDashboard.putBoolean("Elevator AtSetpoint", isAtSetpoint());
