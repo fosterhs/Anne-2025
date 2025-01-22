@@ -8,7 +8,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 class Elevator {
@@ -23,7 +22,7 @@ class Elevator {
   private double elevatorRatio = 2.0; // The gear ratio of the elevator motor.
   private double highLimit = 2.0; // The high limit of the elevator motor in meters.
   private double lowLimit = 0.0; // The low limit of the elevator motor in meters.
-  private double CorrectionFactor = 0.92; // The correction factor of the elevator motor.
+  private double correctionFactor = 0.92; // The correction factor of the elevator motor.
 
   public Elevator() {
     configMotor(elevatorMotor1, false, 25.0); // Configures the motor with counterclockwise rotation positive and 80A current limit.
@@ -34,9 +33,8 @@ class Elevator {
     elevatorMotor2.setControl(new Follower(9, true));
   }
   
-
   // 1.0 is up, -1.0 is down 0.0 is stop
-  public void manualElevator(Double speed) { 
+  public void manualElevator(double speed) { 
      if (!limitSwich1.get() && -speed <= 0.0) {  //If both limitSwich 2 is pressed and the speed is less than -1.0, set the speed to 0.
       elevatorMotor1.setControl(new DutyCycleOut(0.0));
       } else if (!limitSwich2.get() && -speed >= 0.0) { // If both limitSwich 2 is pressed and the speed is less than -1.0, set the speed to 0.
@@ -49,7 +47,7 @@ class Elevator {
     
   // Sets the position of the elevator motor in meters.
   public void setElevatorPosition(double positionMeters) {
-    double positionRotations =  (gearRatio * positionMeters) / (sprocketCircumference * elevatorRatio * CorrectionFactor);
+    double positionRotations =  (gearRatio * positionMeters) / (sprocketCircumference * elevatorRatio * correctionFactor);
     elevatorMotor1.setControl(new MotionMagicTorqueCurrentFOC(positionRotations)); 
     setPoint = positionRotations;
     elevatorMotor1.setControl(new DutyCycleOut(positionRotations)); // Sets the position of the motor.
@@ -69,11 +67,11 @@ class Elevator {
   
   // Returns the position of the elevator motor in meters.
   public double getElevatorMasterPosition() {
-    return (elevatorMotor1.getPosition().getValueAsDouble() * sprocketCircumference * elevatorRatio * CorrectionFactor) / gearRatio;
+    return (elevatorMotor1.getPosition().getValueAsDouble() * sprocketCircumference * elevatorRatio * correctionFactor) / gearRatio;
   }
 
   public double getElevatorSlavePosition() {
-    return (elevatorMotor2.getPosition().getValueAsDouble() * sprocketCircumference * elevatorRatio * CorrectionFactor) / gearRatio;
+    return (elevatorMotor2.getPosition().getValueAsDouble() * sprocketCircumference * elevatorRatio * correctionFactor) / gearRatio;
   }
 
   // Returns whether the Top limit switch is pressed.

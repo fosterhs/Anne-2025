@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.LimelightHelpers.PoseEstimate;
+import frc.robot.LimelightHelpers.RawFiducial;
 
 class Drivetrain {
   public static final double maxAcc = 0.5*9.80665; // The maximum acceleration of the robot, typically limited by the coefficient of friction between the swerve wheels and the field.
@@ -124,6 +125,70 @@ class Drivetrain {
     frontRightModule.setSMS(new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45.0)));
     backLeftModule.setSMS(new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45.0)));
     backRightModule.setSMS(new SwerveModuleState(0.0, Rotation2d.fromDegrees(45.0)));
+  }
+
+  // Should be called immediately prior to alignToTag(). Resets the PID controllers. Target angle specifies the angle that will be demanded in alignToTag().
+  public void resetAlignController(double angleTarget, int tagID, int limelightIndex) {
+    LimelightHelpers.setPriorityTagID(limelights[limelightIndex], tagID);
+    RawFiducial[] tags = LimelightHelpers.getRawFiducials(limelights[limelightIndex]);
+    double TX = 0.0;
+    double TY = 0.0;
+    for (RawFiducial tag : tags) {
+      if (tag.id == tagID) {
+        TX = tag.txnc;
+        TY = tag.tync;
+      }
+    }
+    xController.setPID(0.1, 0.0, 0.0);
+    yController.setPID(0.1, 0.0, 0.0);
+    angleController.setPID(4.0, 0.0, 0.0);
+    xController.reset(TX, 0.0);
+    yController.reset(TY, 0.0);
+    angleController.reset(getAngleDistance(getFusedAng(), angleTarget)*Math.PI/180.0, 0.0);
+    atDriveGoal = false;
+  }
+
+  // Aligns the robot to an April Tag. 
+  // xTarget represents the AprilTag's target x-coordinate on the Limelight feed. 
+  // yTarget represents the AprilTag's target y-coordinate on the Limelight feed.
+  // angleTarget represents the robot's target heading.
+  public void alignToTag(double xTarget, double yTarget, double angleTarget, int tagID, int limelightIndex) {
+    RawFiducial[] tags = LimelightHelpers.getRawFiducials(limelights[limelightIndex]);
+    boolean tagDetected = false;
+    for (RawFiducial tag : tags) {
+      if (tag.id == tagID) {
+        tagDetected = true;
+        double TX = tag.txnc;
+        double TY = tag.tync;
+        double angleDistance = getAngleDistance(getFusedAng(), angleTarget);
+        double angVelSetpoint = angleController.calculate(angleDistance*Math.PI/180.0, 0.0);
+        double xVelSetpoint = xController.calculate(TX, xTarget);
+        double yVelSetpoint = yController.calculate(TY, yTarget);
+        boolean atAngTarget = Math.abs(angleDistance) < angTol;
+        boolean atXTarget = Math.abs(TX - xTarget) < posTol;
+        boolean atYTarget = Math.abs(TY - yTarget) < posTol;
+    
+        // Checks to see if all 3 targets have been achieved. Sets velocities to 0 to prevent twitchy robot motions at near 0 velocities.
+        atDriveGoal = atXTarget && atYTarget && atAngTarget;
+        if (atAngTarget) angVelSetpoint = 0.0;
+        if (atXTarget) xVelSetpoint = 0.0;
+        if (atYTarget) yVelSetpoint = 0.0;
+    
+        // Caps the velocities if the PID controllers return values above the specified maximums.
+        if (Math.abs(xVelSetpoint) > Drivetrain.maxVelAuto) {
+          xVelSetpoint = xVelSetpoint > 0.0 ?  Drivetrain.maxVelAuto : -Drivetrain.maxVelAuto;
+        }
+        if (Math.abs(yVelSetpoint) > Drivetrain.maxVelAuto) {
+          yVelSetpoint = yVelSetpoint > 0.0 ? Drivetrain.maxVelAuto : -Drivetrain.maxVelAuto;
+        }
+        if (Math.abs(angVelSetpoint) > Drivetrain.maxAngVelAuto) {
+          angVelSetpoint = angVelSetpoint > 0.0 ? Drivetrain.maxAngVelAuto : -Drivetrain.maxAngVelAuto;
+        }
+    
+        drive(xVelSetpoint, yVelSetpoint, angVelSetpoint, false, 0.0, 0.0);
+      }
+    }
+    if (!tagDetected) drive(0.0, 0.0, 0.0, true, 0.0, 0.0);
   }
 
   // Should be called immediately prior to aimDrive() or driveTo(). Resets the PID controllers. Target angle specifies the first angle that will be demanded.

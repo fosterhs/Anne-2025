@@ -1,10 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
@@ -23,12 +20,9 @@ public class Robot extends TimedRobot {
   private double speedScaleFactor = 1.0; // Scales the speed of the robot that results from controller inputs. 1.0 corresponds to full speed. 0.0 is fully stopped.
   private boolean lock = false; // Controls whether the swerve drive is in x-lock (for defense) or is driving. \
 
-  PIDController pid = new PIDController(0.1, 0.0, 0.0); // Initializes a PID controller with a P value of 0.1, an I value of 0.0, and a D value of 0.0.
-
   // Initializes the different subsystems of the robot.
   private final Drivetrain swerve = new Drivetrain(); // Contains the Swerve Modules, Gyro, Path Follower, Target Tracking, Odometry, and Vision Calibration.
   private final Elevator elevator = new Elevator(); // Contains the elevator motor and limit switch.
-  //DigitalInput limitSwitch = new DigitalInput(0); // Initializes the sensor connected to DIO port 0 on the RoboRIO.
   
   // Auto Variables
   private final SendableChooser<String> autoChooser = new SendableChooser<>();
@@ -36,101 +30,6 @@ public class Robot extends TimedRobot {
   private static final String auto2 = "auto2";
   private String autoSelected;
   private int autoStage = 1;
-
-  private final ProfiledPIDController alignXController = new ProfiledPIDController(0.1, 0.0, 0.0, new TrapezoidProfile.Constraints(Drivetrain.maxAngVelAuto, Drivetrain.maxAngAccAuto));
-  private final ProfiledPIDController alignYController = new ProfiledPIDController(0.1, 0.0, 0.0, new TrapezoidProfile.Constraints(Drivetrain.maxAngVelAuto, Drivetrain.maxAngAccAuto));
-  private final ProfiledPIDController alignAngleController = new ProfiledPIDController(4.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Drivetrain.maxAngVelAuto, Drivetrain.maxAngAccAuto));
-  private final double posTol = 0.03;
-  private final double angTol = 0.5;
-  boolean atAlignTarget = false;
-
-  // Should be called immediately prior to alignToTag(). Resets the PID controllers. Target angle specifies the angle that will be demanded in alignToTag().
-  public void resetAlignController(double angleTarget) {
-    double TX = LimelightHelpers.getTX(swerve.limelights[0]);
-    double TY = LimelightHelpers.getTY(swerve.limelights[0]);
-    alignAngleController.reset(swerve.getAngleDistance(swerve.getFusedAng(), angleTarget)*Math.PI/180.0, 0.0);
-    alignXController.reset(TX, 0.0);
-    alignYController.reset(TY, 0.0);
-    atAlignTarget = false;
-  }
-
-  // Aligns the robot to an April Tag. 
-  // xTarget represents the AprilTag's target x-coordinate on the Limelight feed. 
-  // yTarget represents the AprilTag's target y-coordinate on the Limelight feed.
-  // angleTarget represents the robot's target heading.
-  public void alignToTag(double xTarget, double yTarget, double angleTarget) {
-    double TX = LimelightHelpers.getTX(swerve.limelights[0]);
-    double TY = LimelightHelpers.getTY(swerve.limelights[0]);
-    double angleDistance = swerve.getAngleDistance(swerve.getFusedAng(), angleTarget);
-    double angVelSetpoint = alignAngleController.calculate(angleDistance*Math.PI/180.0, 0.0);
-    double xVelSetpoint = alignXController.calculate(TX, xTarget);
-    double yVelSetpoint = alignYController.calculate(TY, yTarget);
-    boolean atAngTarget = Math.abs(angleDistance) < angTol;
-    boolean atXTarget = Math.abs(TX - xTarget) < posTol;
-    boolean atYTarget = Math.abs(TY - yTarget) < posTol;
-
-    // Checks to see if all 3 targets have been achieved. Sets velocities to 0 to prevent twitchy robot motions at near 0 velocities.
-    atAlignTarget = atXTarget && atYTarget && atAngTarget;
-    if (atAngTarget) angVelSetpoint = 0.0;
-    if (atXTarget) xVelSetpoint = 0.0;
-    if (atYTarget) yVelSetpoint = 0.0;
-
-    // Caps the velocities if the PID controllers return values above the specified maximums.
-    if (Math.abs(xVelSetpoint) > Drivetrain.maxVelAuto) {
-      xVelSetpoint = xVelSetpoint > 0.0 ?  Drivetrain.maxVelAuto : -Drivetrain.maxVelAuto;
-    }
-    if (Math.abs(yVelSetpoint) > Drivetrain.maxVelAuto) {
-      yVelSetpoint = yVelSetpoint > 0.0 ? Drivetrain.maxVelAuto : -Drivetrain.maxVelAuto;
-    }
-    if (Math.abs(angVelSetpoint) > Drivetrain.maxAngVelAuto) {
-      angVelSetpoint = angVelSetpoint > 0.0 ? Drivetrain.maxAngVelAuto : -Drivetrain.maxAngVelAuto;
-    }
-
-    swerve.drive(xVelSetpoint, yVelSetpoint, angVelSetpoint, false, 0.0, 0.0);
-  }
-
-  // Returns true if the robot is aligned to the April Tag.
-  public boolean atAlignTarget() {
-    return atAlignTarget;
-  }
-
-/*
-  public void twoStageControl(double robotX,double robotY,double robotAngle) {
-    double TX = LimelightHelpers.getTX(swerve.limelights[0]);
-    double TY = LimelightHelpers.getTY(swerve.limelights[0]);
-    double xSetpoint = pid.calculate();
-    double ySetpoint = pid.calculate();
-    double angleSetpoint = pid.calculate();
-
-
-    //Stage 1
-    swerve.driveTo(robotX, robotY, robotAngle);
-
-    if (swerve.atDriveGoal()) {
-      aimEnd = true;
-    }
-    //Stage 2
-    if (Math.abs(xSetpoint) > Drivetrain.maxAngVelAuto) {
-      xSetpoint = xSetpoint > 0.0 ?  Drivetrain.maxAngVelAuto : -Drivetrain.maxAngVelAuto;
-    }
-    if (Math.abs(ySetpoint) > Drivetrain.maxAngVelAuto) {
-      ySetpoint = ySetpoint > 0.0 ? Drivetrain.maxAngVelAuto : -Drivetrain.maxAngVelAuto;
-    }
-
-    if (aimEnd) {
-      if (TX > 1.8) {
-        swerve.drive(0.0, xSetpoint, 0.0, true, 0.0, 0.0);
-      }
-    }
-
-    if (aimEnd){
-      if (TY > 1.8) {
-        swerve.drive(ySetpoint, 0.0, 0.0, true, 0.0, 0.0);
-      } 
-    }
-    
-  }
-    */
 
   public void robotInit() { 
     // Configures the auto chooser on the dashboard.
@@ -173,21 +72,11 @@ public class Robot extends TimedRobot {
         switch (autoStage) {
           case 1:
             // Auto 1, Stage 1 code goes here.
-            swerve.drive(0.0, 0.0, 0.0, true, 0.0, 0.0);
-            elevator.setElevatorPosition(3.0);
-            if (elevator.isAtSetpoint()) {
-              autoStage = -1; // Goes to default case.
-            }
           break;
 
           case 2:
             // Auto 1, Stage 2 code goes here.
           break;
-
-        default:
-          elevator.setElevatorPosition(0.0);
-          break;
-
         }
       break;
 
