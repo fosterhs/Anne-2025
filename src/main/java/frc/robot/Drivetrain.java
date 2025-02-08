@@ -59,11 +59,7 @@ class Drivetrain {
   private final Pigeon2 pigeon = new Pigeon2(0, "canivore"); // Pigeon 2.0 CAN Gyroscope
 
   // Limelight Variables
-<<<<<<< Updated upstream
   public final String[] limelights = {"limelight-front", "limelight-back"}; // Stores the names of all limelights on the robot.
-=======
-  public final String[] limelights = {"limelight-front", "limelight-back"}; // Stores the names of all limelights on the robot. //"limelight-front", "limelight-back"
->>>>>>> Stashed changes
   private long[] lastFrames = new long[limelights.length]; // The Limelight frame number of the last frame stored in the calibrationPosition array. Used to detect whether a new frame was recieved.
   private final int maxCalibrationFrames = 20; // The number of LL frames that will be averaged to determine the position of the robot when it is disabled() or being calibrated.
   private final int minCalibrationFrames = 2; // The minimum amount of LL frames that must be processed to accept a calibration.

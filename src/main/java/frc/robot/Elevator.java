@@ -24,8 +24,6 @@ class Elevator {
   private double lowLimit = 0.0; // The low limit of the elevator motor in meters.
   private double correctionFactor = 0.92; // The correction factor of the elevator motor.
 
-<<<<<<< Updated upstream
-=======
   // A list containing important elevator heights that are pre-programmed into this class.
   enum Level {
     L1,
@@ -35,7 +33,6 @@ class Elevator {
     Source
   }
 
->>>>>>> Stashed changes
   public Elevator() {
     configMotor(elevatorMotor1, false, 25.0); // Configures the motor with counterclockwise rotation positive and 25A current limit.
     configMotor(elevatorMotor2, true, 25.0); // Configures the motor with clockwise rotation positive and 25A current limit.
@@ -43,27 +40,6 @@ class Elevator {
     elevatorMotor2.setPosition(0.0, 0.03); // Sets the position of the motor to 0.
     elevatorMotor2.setControl(new Follower(9, true));
   }
-<<<<<<< Updated upstream
-  
-  // 1.0 is up, -1.0 is down 0.0 is stop
-  public void manualElevator(double speed) { 
-     if (!limitSwich1.get() && -speed <= 0.0) {  //If both limitSwich 2 is pressed and the speed is less than -1.0, set the speed to 0.
-      elevatorMotor1.setControl(new DutyCycleOut(0.0));
-      } else if (!limitSwich2.get() && -speed >= 0.0) { // If both limitSwich 2 is pressed and the speed is less than -1.0, set the speed to 0.
-      elevatorMotor1.setControl(new DutyCycleOut(0.0));
-      } else {
-      elevatorMotor1.setControl(new DutyCycleOut(speed));
-      } 
-      //elevatorMotor1.setControl(new DutyCycleOut(speed));
-  } 
-    
-  // Sets the position of the elevator motor in meters.
-  public void setElevatorPosition(double positionMeters) {
-    double positionRotations =  (gearRatio * positionMeters) / (sprocketCircumference * elevatorRatio * correctionFactor);
-    elevatorMotor1.setControl(new MotionMagicTorqueCurrentFOC(positionRotations)); 
-    setPoint = positionRotations;
-    elevatorMotor1.setControl(new DutyCycleOut(positionRotations)); // Sets the position of the motor.
-=======
 
   // Controls the velocity of the elevator. 1.0 is full speed up, -1.0 is full speed down, 0.0 is stopped.
   public void manual(double speed) { 
@@ -75,7 +51,6 @@ class Elevator {
     elevatorMotor1.setControl(new DutyCycleOut(speed));
     } 
   } 
->>>>>>> Stashed changes
 
   // Sets the elevator to a pre-programmed position. 
   public void setLevel(Level desiredLevel) {
@@ -140,17 +115,9 @@ class Elevator {
     if (positionMeters < lowLimit) { // If the position is less than the low limit, set the position to the low limit.
       positionMeters = lowLimit;
     }
-<<<<<<< Updated upstream
-  }
-
-  // Checks if the motor is at the target position.
-  public boolean isAtSetpoint() {
-    return Math.abs(elevatorMotor1.getPosition().getValueAsDouble() - setPoint) < 0.1; // Checks if the motor is at the target position.
-=======
 
     double positionRotations = (gearRatio * positionMeters) / (sprocketCircumference * elevatorRatio * correctionFactor);
     elevatorMotor1.setControl(new MotionMagicTorqueCurrentFOC(positionRotations)); 
->>>>>>> Stashed changes
   }
   
   // Returns the position of the master elevator motor in meters.

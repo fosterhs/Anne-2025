@@ -2,7 +2,6 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -22,14 +21,10 @@ public class Robot extends TimedRobot {
 
   // Initializes the different subsystems of the robot.
   private final Drivetrain swerve = new Drivetrain(); // Contains the Swerve Modules, Gyro, Path Follower, Target Tracking, Odometry, and Vision Calibration.
-<<<<<<< Updated upstream
-  private final Elevator elevator = new Elevator(); // Contains the elevator motor and limit switch.
-=======
   private final Elevator elevator = new Elevator(); // Contains the elevator motor and limit switches.
   private final CoralSpitter coralSpitter = new CoralSpitter(); // Contains the coral ejector motor and coral sensor. 
   private final Climber climber = new Climber(); // Contains the climber motor.
   private final AlgaeYeeter algaeYeeter = new AlgaeYeeter(); // Contains the algae sensor, algae yeeter arm motor, and algae yeeter intake motors.
->>>>>>> Stashed changes
   
   // Auto Variables
   private final SendableChooser<String> autoChooser = new SendableChooser<>();
@@ -52,10 +47,6 @@ public class Robot extends TimedRobot {
     // Publishes information about the robot and robot subsystems to the Dashboard.
     swerve.updateDash();
     elevator.updateDash();
-<<<<<<< Updated upstream
-=======
-    // coralSpiter.updateDash();
->>>>>>> Stashed changes
     updateDash();
     swerve.updateVisionHeading(); // Updates the Limelights with the robot heading (for MegaTag2).
     if (driver.getRawButtonPressed(8)) swerve.resetGyro(); // Menu Button re-zeros the angle reading of the gyro to the current angle of the robot. Should be called if the gyroscope readings are no longer well correlated with the field.
@@ -82,11 +73,7 @@ public class Robot extends TimedRobot {
       case auto1:
         switch (autoStage) {
           case 1:
-<<<<<<< Updated upstream
-            // Auto 1, Stage 1 code goes here.
-=======
             // Auto 2, Stage 1 code goes here.
->>>>>>> Stashed changes
           break;
 
           case 2:
@@ -122,39 +109,25 @@ public class Robot extends TimedRobot {
     if (driver.getRawButtonPressed(4)) speedScaleFactor = 1.0; // Y Button sets the drivetrain in full speed mode.
     if (driver.getRawButtonPressed(2)) speedScaleFactor = 0.6; // B button sets the drivetrain in medium speed mode.
     if (driver.getRawButtonPressed(1)) speedScaleFactor = 0.15; // A button sets the drivetrain in low speed mode.
-<<<<<<< Updated upstream
-
-    elevator.manualElevator(MathUtil.applyDeadband(-operator.getLeftY(), 0.1)); // Controls the elevator with the left joystick on the operator controller.
-
-=======
     
->>>>>>> Stashed changes
     // Applies a deadband to controller inputs. Also limits the acceleration of controller inputs.
     double xVel = xAccLimiter.calculate(MathUtil.applyDeadband(-driver.getLeftY(), 0.05)*speedScaleFactor)*Drivetrain.maxVelTeleop;
     double yVel = yAccLimiter.calculate(MathUtil.applyDeadband(-driver.getLeftX(), 0.05)*speedScaleFactor)*Drivetrain.maxVelTeleop;
     double angVel = angAccLimiter.calculate(MathUtil.applyDeadband(-driver.getRightX(), 0.05)*speedScaleFactor)*Drivetrain.maxAngVelTeleop;
 
-<<<<<<< Updated upstream
-    if (driver.getRawButton(3)) {
-      lock = true; // Pressing the X-button causes the swerve modules to lock (for defense).
-=======
     if (driver.getRawButton(3)) { // X button
       swerveLock = true; // Pressing the X-button causes the swerve modules to lock (for defense).
->>>>>>> Stashed changes
     } else if (Math.abs(driver.getLeftY()) >= 0.05 || Math.abs(driver.getLeftX()) >= 0.05 || Math.abs(driver.getRightX()) >= 0.05) {
       swerveLock = false; // Pressing any joystick more than 5% will cause the swerve modules stop locking and begin driving.
     }
 
     if (swerveLock) {
       swerve.xLock(); // Locks the swerve modules (for defense).
-<<<<<<< Updated upstream
-=======
     } else if (driver.getRawButtonPressed(5)) { // Left bumper button
       scoreCalc(); // Calculates the closest scoring position.
       swerve.resetDriveController(scoreHeadings[nearestScoreIndex]); // Prepares the robot to drive to the closest scoring position.
     } else if (driver.getRawButton(5)) { // Left bumper button
       swerve.driveTo(scorePositionsX[nearestScoreIndex], scorePositionsY[nearestScoreIndex], scoreHeadings[nearestScoreIndex]); // Drives to the closest scoring position.
->>>>>>> Stashed changes
     } else {
       swerve.drive(xVel, yVel, angVel, false, 0.0, 0.0); // Drive at the velocity demanded by the controller.
     }
@@ -187,8 +160,6 @@ public class Robot extends TimedRobot {
     }
   }
 
-<<<<<<< Updated upstream
-=======
   double[] scorePositionsX = {2.850, 3.700, 5.290, 4.025, 5.290, 6.150}; // X-coordinates of the coral scoring locations in meters.
   double[] scorePositionsY = {4.025, 5.500, 5.430, 2.630, 2.590, 4.025}; // X-coordinates of the coral scoring locations in meters.
   double[] scoreHeadings = {0.0, -60.0, -120.0, 60.0, 120.0, 0.0}; // Heading of the robot at each coral scoring location in degrees.
@@ -215,7 +186,6 @@ public class Robot extends TimedRobot {
     }
   }
 
->>>>>>> Stashed changes
   // Publishes information to the dashboard.
   public void updateDash() {
     SmartDashboard.putNumber("Speed Scale Factor", speedScaleFactor);
@@ -231,20 +201,12 @@ public class Robot extends TimedRobot {
     swerve.resetPathController(0);
     swerve.followPath(0);
     swerve.pushCalibration();
-<<<<<<< Updated upstream
-    swerve.addCalibrationEstimate(0, false);
-=======
     if (swerve.limelights.length > 0) swerve.addCalibrationEstimate(0, false);
->>>>>>> Stashed changes
     swerve.pushCalibration();
     swerve.resetCalibration();
     swerve.resetGyro();
     swerve.updateVisionHeading();
-<<<<<<< Updated upstream
-    swerve.addVisionEstimate(0, 0.7, 0.7, Units.degreesToRadians(Math.pow(10, 10)), true);
-=======
     if (swerve.limelights.length > 0) swerve.addVisionEstimate(0, true);
->>>>>>> Stashed changes
     swerve.updateOdometry();
     swerve.drive(0.01, 0.0, 0.0, true, 0.0, 0.0);
     System.out.println("swerve atDriveGoal: " + swerve.atDriveGoal());
