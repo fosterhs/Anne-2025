@@ -20,12 +20,12 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.LimelightHelpers.PoseEstimate;
-import frc.robot.LimelightHelpers.RawFiducial;
 
 class Drivetrain {
   public static final double maxAcc = 0.5*9.80665; // The maximum acceleration of the robot, typically limited by the coefficient of friction between the swerve wheels and the field.
@@ -59,7 +59,11 @@ class Drivetrain {
   private final Pigeon2 pigeon = new Pigeon2(0, "canivore"); // Pigeon 2.0 CAN Gyroscope
 
   // Limelight Variables
+<<<<<<< Updated upstream
   public final String[] limelights = {"limelight-front", "limelight-back"}; // Stores the names of all limelights on the robot.
+=======
+  public final String[] limelights = {"limelight-front", "limelight-back"}; // Stores the names of all limelights on the robot. //"limelight-front", "limelight-back"
+>>>>>>> Stashed changes
   private long[] lastFrames = new long[limelights.length]; // The Limelight frame number of the last frame stored in the calibrationPosition array. Used to detect whether a new frame was recieved.
   private final int maxCalibrationFrames = 20; // The number of LL frames that will be averaged to determine the position of the robot when it is disabled() or being calibrated.
   private final int minCalibrationFrames = 2; // The minimum amount of LL frames that must be processed to accept a calibration.
@@ -125,70 +129,6 @@ class Drivetrain {
     frontRightModule.setSMS(new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45.0)));
     backLeftModule.setSMS(new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45.0)));
     backRightModule.setSMS(new SwerveModuleState(0.0, Rotation2d.fromDegrees(45.0)));
-  }
-
-  // Should be called immediately prior to alignToTag(). Resets the PID controllers. Target angle specifies the angle that will be demanded in alignToTag().
-  public void resetAlignController(double angleTarget, int tagID, int limelightIndex) {
-    LimelightHelpers.setPriorityTagID(limelights[limelightIndex], tagID);
-    RawFiducial[] tags = LimelightHelpers.getRawFiducials(limelights[limelightIndex]);
-    double TX = 0.0;
-    double TY = 0.0;
-    for (RawFiducial tag : tags) {
-      if (tag.id == tagID) {
-        TX = tag.txnc;
-        TY = tag.tync;
-      }
-    }
-    xController.setPID(0.1, 0.0, 0.0);
-    yController.setPID(0.1, 0.0, 0.0);
-    angleController.setPID(4.0, 0.0, 0.0);
-    xController.reset(TX, 0.0);
-    yController.reset(TY, 0.0);
-    angleController.reset(getAngleDistance(getFusedAng(), angleTarget)*Math.PI/180.0, 0.0);
-    atDriveGoal = false;
-  }
-
-  // Aligns the robot to an April Tag. 
-  // xTarget represents the AprilTag's target x-coordinate on the Limelight feed. 
-  // yTarget represents the AprilTag's target y-coordinate on the Limelight feed.
-  // angleTarget represents the robot's target heading.
-  public void alignToTag(double xTarget, double yTarget, double angleTarget, int tagID, int limelightIndex) {
-    RawFiducial[] tags = LimelightHelpers.getRawFiducials(limelights[limelightIndex]);
-    boolean tagDetected = false;
-    for (RawFiducial tag : tags) {
-      if (tag.id == tagID) {
-        tagDetected = true;
-        double TX = tag.txnc;
-        double TY = tag.tync;
-        double angleDistance = getAngleDistance(getFusedAng(), angleTarget);
-        double angVelSetpoint = angleController.calculate(angleDistance*Math.PI/180.0, 0.0);
-        double xVelSetpoint = xController.calculate(TX, xTarget);
-        double yVelSetpoint = yController.calculate(TY, yTarget);
-        boolean atAngTarget = Math.abs(angleDistance) < angTol;
-        boolean atXTarget = Math.abs(TX - xTarget) < posTol;
-        boolean atYTarget = Math.abs(TY - yTarget) < posTol;
-    
-        // Checks to see if all 3 targets have been achieved. Sets velocities to 0 to prevent twitchy robot motions at near 0 velocities.
-        atDriveGoal = atXTarget && atYTarget && atAngTarget;
-        if (atAngTarget) angVelSetpoint = 0.0;
-        if (atXTarget) xVelSetpoint = 0.0;
-        if (atYTarget) yVelSetpoint = 0.0;
-    
-        // Caps the velocities if the PID controllers return values above the specified maximums.
-        if (Math.abs(xVelSetpoint) > Drivetrain.maxVelAuto) {
-          xVelSetpoint = xVelSetpoint > 0.0 ?  Drivetrain.maxVelAuto : -Drivetrain.maxVelAuto;
-        }
-        if (Math.abs(yVelSetpoint) > Drivetrain.maxVelAuto) {
-          yVelSetpoint = yVelSetpoint > 0.0 ? Drivetrain.maxVelAuto : -Drivetrain.maxVelAuto;
-        }
-        if (Math.abs(angVelSetpoint) > Drivetrain.maxAngVelAuto) {
-          angVelSetpoint = angVelSetpoint > 0.0 ? Drivetrain.maxAngVelAuto : -Drivetrain.maxAngVelAuto;
-        }
-    
-        drive(xVelSetpoint, yVelSetpoint, angVelSetpoint, false, 0.0, 0.0);
-      }
-    }
-    if (!tagDetected) drive(0.0, 0.0, 0.0, true, 0.0, 0.0);
   }
 
   // Should be called immediately prior to aimDrive() or driveTo(). Resets the PID controllers. Target angle specifies the first angle that will be demanded.
@@ -345,22 +285,31 @@ class Drivetrain {
   }
   
   // Incorporates vision information to determine the position of the robot on the field. Should be used only when vision information is deemed to be highly reliable (>1 april tag, close to april tag...)
-  // xSD, ySD, and angSD tell the pose estimator how much to trust vision estimates. Larger values are less trustworthy. Units: xSD and ySD are in meters and angSD is in degrees. Default values can be found in pose estimate initialization.
   // limelightIndex indicates the camera to use. 0 is corresponds to the first entry in the limelights[] array. 
-  public void addVisionEstimate(int limelightIndex, double xSD, double ySD, double angSD, boolean megaTag2) {
+  public void addVisionEstimate(int limelightIndex, boolean megaTag2) {
     long currentFrame = LimelightHelpers.getLimelightNTTableEntry(limelights[limelightIndex], "hb").getInteger(0); // Gets the Limelight frame number from network tables.
     long lastFrame = lastFrames[limelightIndex]; // Gets the Limelight frame number of the last frame that was utlizied for robot localization.
     PoseEstimate botpose;
+
+    // xSD and ySD tell the pose estimator how much to trust vision estimates. Larger values are less trustworthy. Units: xSD and ySD are in meters
+    double[] stddevs = NetworkTableInstance.getDefault().getTable(limelights[limelightIndex]).getEntry("stddevs").getDoubleArray(new double[12]);
+    double xSD = Math.pow(10, 10);
+    double ySD = Math.pow(10, 10);
+
     if (megaTag2) {
       botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(limelights[limelightIndex]); // Transforms the vision position estimate to the appropriate coordinate system for the robot's alliance color
+      xSD = stddevs[6];
+      ySD = stddevs[7];
     } else {
       botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed(limelights[limelightIndex]); // Transforms the vision position estimate to the appropriate coordinate system for the robot's alliance color
+      xSD = stddevs[0];
+      ySD = stddevs[1];
     }
     int tagCount = botpose.tagCount; // The number of AprilTags detected in the current frame.
     double tagArea = botpose.avgTagArea*tagCount; // The total area in the current frame that is covered by AprilTags in percent (from 0 to 100).
     double robotVel = Math.sqrt(Math.pow(getXVel(), 2) + Math.pow(getYVel(), 2)); // The velocity of the robot in meters per second.
-    if (currentFrame != lastFrame && tagCount >= 2 && tagArea > 0.2 && robotVel < 1.0 && getAngVel() < 90.0) { // >1 April Tag is detected, the robot is relatively close to the April Tags, the robot is relatively stationary, and there is a new frame.
-      odometry.setVisionMeasurementStdDevs(VecBuilder.fill(xSD, ySD, Units.degreesToRadians(angSD)));
+    if (currentFrame != lastFrame && tagCount >= 1 && tagArea > 0.2 && robotVel < 1.0 && getAngVel() < 90.0) { // >1 April Tag is detected, the robot is relatively close to the April Tags, the robot is relatively stationary, and there is a new frame.
+      odometry.setVisionMeasurementStdDevs(VecBuilder.fill(xSD, ySD, Units.degreesToRadians(Units.degreesToRadians(Math.pow(10, 10)))));
       odometry.addVisionMeasurement(new Pose2d(botpose.pose.getX(), botpose.pose.getY(), Rotation2d.fromDegrees(getFusedAng())), botpose.timestampSeconds);
       lastFrames[limelightIndex] = currentFrame;      
       calibrationTimer.restart();
