@@ -16,7 +16,7 @@ class Elevator {
   private final DigitalInput limitSwich1 = new DigitalInput(0); // Initializes the sensor connected to DIO port 0 on the RoboRIO.
   private final DigitalInput limitSwich2 = new DigitalInput(1); // Initializes the sensor connected to DIO port 1 on the RoboRIO.
 
-  public double setPoint = 0.0; // The position that the elevator motor is trying to reach in motor rotations.
+  private double setpoint = 0.0; // The position that the elevator motor is trying to reach in motor rotations.
   private double sprocketCircumference = Math.PI * 1.889 * 0.0254; // The diameter of the sprocket in meters.
   private double gearRatio = 12.0; // The gear ratio of the elevator motor.
   private double elevatorRatio = 2.0; // The gear ratio of the elevator motor.
@@ -79,7 +79,7 @@ class Elevator {
 
   // Checks if the motor is at the target position.
   public boolean atSetpoint() {
-    return Math.abs(elevatorMotor1.getPosition().getValueAsDouble() - setPoint) < 0.1; // Checks if the motor is at the target position.
+    return Math.abs(elevatorMotor1.getPosition().getValueAsDouble() - setpoint) < 0.1; // Checks if the motor is at the target position.
   }
 
   // Returns the current position of the elevator in meters.
@@ -104,7 +104,7 @@ class Elevator {
     SmartDashboard.putNumber("Elevator Master Position", getMasterPosition());
     SmartDashboard.putNumber("Elevator Slave Position", getSlavePosition());
     SmartDashboard.putBoolean("Elevator AtSetpoint", atSetpoint());
-    SmartDashboard.putNumber("Elevator Setpoint", setPoint);
+    SmartDashboard.putNumber("Elevator Setpoint", setpoint);
   }
 
   // Sets the position of the elevator motor in meters.
@@ -116,8 +116,8 @@ class Elevator {
       positionMeters = lowLimit;
     }
 
-    double positionRotations = (gearRatio * positionMeters) / (sprocketCircumference * elevatorRatio * correctionFactor);
-    elevatorMotor1.setControl(new MotionMagicTorqueCurrentFOC(positionRotations)); 
+    setpoint = (gearRatio * positionMeters) / (sprocketCircumference * elevatorRatio * correctionFactor);
+    elevatorMotor1.setControl(new MotionMagicTorqueCurrentFOC(setpoint)); 
   }
   
   // Returns the position of the master elevator motor in meters.
