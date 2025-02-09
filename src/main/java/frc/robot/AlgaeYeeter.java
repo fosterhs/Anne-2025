@@ -1,42 +1,46 @@
 package frc.robot;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.wpilibj.DigitalInput;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 
 public class AlgaeYeeter {
-  private final TalonFX armMotor1 = new TalonFX(0, "canivore"); // Initializes the motor with CAN ID of 0 connected to the canivore. 
-  private final TalonFX mouthMotor1 = new TalonFX(0, "canivore");  // Initializes the motor with CAN ID of 0 connected to the canivore. 
+  private final TalonFX armMotor = new TalonFX(13, "canivore"); // Initializes the motor with CAN ID of 0 connected to the canivore. 
+  private final TalonFX intakeMotor1 = new TalonFX(14, "canivore");  // Initializes the motor with CAN ID of 0 connected to the canivore. 
+  private final TalonFX intakeMotor2 = new TalonFX(15, "canivore");  // Initializes the motor with CAN ID of 0 connected to the canivore. 
+  private final DigitalInput algaeSensor = new DigitalInput(3); // Initializes the sensor connected to DIO port 3 on the RoboRIO.
 
   public AlgaeYeeter() {
-    configArmMotor(armMotor1, false, 80.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
-    configMouthMotor1(mouthMotor1, false, 80.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
-
-    armMotor1.setControl(new MotionMagicTorqueCurrentFOC(0.0)); // Sets the position of the motor in shaft rotations.
-    mouthMotor1.setControl(new VelocityVoltage(0.0).withEnableFOC(true)); // Sets the velocity of the motor in rotations per second.
+    configArmMotor(armMotor, false, 80.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
+    configIntakeMotor(intakeMotor1, false, 80.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
+    configIntakeMotor(intakeMotor2, true, 80.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
+    armMotor.setPosition(0.0, 0.03); // Sets the position of the motor to 0 on startup.
+    intakeMotor2.setControl(new Follower(14, true)); // Sets the second intake motor to follow the first intake motor exactly.
   }
 
   // Sets the arm to the desired angle in degrees.
-  public void setArmAngle(double degree) {
-
+  public void setArmAngle(double angle) {
+    armMotor.setControl(new MotionMagicTorqueCurrentFOC(angle)); // Sets the position of the motor in shaft rotations.
   }
 
   // Sets the speed of the intake wheels. 1.0 corresponds to full outtake speed, -1.0 is corresponds to full intake speed, and 0.0 is stopped.
-  public void setWheelSpeed(double Speed) {
-
+  public void setWheelSpeed(double speed) {
+    intakeMotor1.setControl(new VelocityVoltage(speed).withEnableFOC(true)); // Sets the velocity of the motor in rotations per second.
   }
 
   // Returns true if an algae is detected by the sensor.
   public boolean algaeDetected() {
-    return true;
+    return !algaeSensor.get();
   }
 
   // Returns the current angle of the arm. 
   public double getArmAngle() {
-    return 0.0;
+    return armMotor.getPosition().getValueAsDouble();
   }
 
   private void configArmMotor(TalonFX motor, boolean invert, double currentLimit) {
@@ -59,7 +63,7 @@ public class AlgaeYeeter {
     motor.getConfigurator().apply(motorConfigs, 0.03);
   }
 
-  private void configMouthMotor1(TalonFX motor, boolean invert, double currentLimit) {
+  private void configIntakeMotor(TalonFX motor, boolean invert, double currentLimit) {
     TalonFXConfiguration motorConfigs = new TalonFXConfiguration();
   
     motorConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;

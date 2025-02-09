@@ -23,8 +23,8 @@ public class Robot extends TimedRobot {
   private final Drivetrain swerve = new Drivetrain(); // Contains the Swerve Modules, Gyro, Path Follower, Target Tracking, Odometry, and Vision Calibration.
   private final Elevator elevator = new Elevator(); // Contains the elevator motor and limit switches.
   private final CoralSpitter coralSpitter = new CoralSpitter(); // Contains the coral ejector motor and coral sensor. 
-  private final Climber climber = new Climber(); // Contains the climber motor.
-  private final AlgaeYeeter algaeYeeter = new AlgaeYeeter(); // Contains the algae sensor, algae yeeter arm motor, and algae yeeter intake motors.
+  // private final Climber climber = new Climber(); // Contains the climber motor.
+  // private final AlgaeYeeter algaeYeeter = new AlgaeYeeter(); // Contains the algae sensor, algae yeeter arm motor, and algae yeeter intake motors.
   
   // Auto Variables
   private final SendableChooser<String> autoChooser = new SendableChooser<>();
@@ -147,6 +147,9 @@ public class Robot extends TimedRobot {
     if (operator.getRawButtonPressed(3)) elevator.setLevel(Elevator.Level.L3); // X button
     if (operator.getRawButtonPressed(4)) elevator.setLevel(Elevator.Level.L4); // Y button 
     if (operator.getRawButtonPressed(5)) elevator.setLevel(Elevator.Level.Source); // Left bumper button
+
+    // Controls the spitter
+    if (operator.getRawButtonPressed(6)) coralSpitter.spit(); // Right bumper button
   }
 
   public void disabledInit() {    

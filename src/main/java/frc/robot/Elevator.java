@@ -13,8 +13,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 class Elevator {
   public final TalonFX elevatorMotor1 = new TalonFX(9, "canivore"); // The master elevator motor.
   private final TalonFX elevatorMotor2 = new TalonFX(10, "canivore"); // The slave elevator motor.
-  private final DigitalInput limitSwich1 = new DigitalInput(0); // Initializes the sensor connected to DIO port 0 on the RoboRIO.
-  private final DigitalInput limitSwich2 = new DigitalInput(1); // Initializes the sensor connected to DIO port 1 on the RoboRIO.
+  private final DigitalInput topLimitSwitch = new DigitalInput(0); // Initializes the sensor connected to DIO port 0 on the RoboRIO.
+  private final DigitalInput bottomLimitSwitch = new DigitalInput(1); // Initializes the sensor connected to DIO port 1 on the RoboRIO.
 
   private double setpoint = 0.0; // The position that the elevator motor is trying to reach in motor rotations.
   private double sprocketCircumference = Math.PI * 1.889 * 0.0254; // The diameter of the sprocket in meters.
@@ -38,14 +38,14 @@ class Elevator {
     configMotor(elevatorMotor2, true, 25.0); // Configures the motor with clockwise rotation positive and 25A current limit.
     elevatorMotor1.setPosition(0.0, 0.03); // Sets the position of the motor to 0.
     elevatorMotor2.setPosition(0.0, 0.03); // Sets the position of the motor to 0.
-    elevatorMotor2.setControl(new Follower(9, true));
+    elevatorMotor2.setControl(new Follower(9, true)); // Sets the slave motor to follow the master motor exactly.
   }
 
   // Controls the velocity of the elevator. 1.0 is full speed up, -1.0 is full speed down, 0.0 is stopped.
   public void manual(double speed) { 
-    if (!limitSwich1.get() && speed > 0.0) {  //If both limitSwich 2 is pressed and the speed is less than -1.0, set the speed to 0.
+    if (!topLimitSwitch.get() && speed > 0.0) {  //If both limitSwich 2 is pressed and the speed is less than -1.0, set the speed to 0.
     elevatorMotor1.setControl(new DutyCycleOut(0.0));
-    } else if (!limitSwich2.get() && speed < 0.0) { // If both limitSwich 2 is pressed and the speed is less than -1.0, set the speed to 0.
+    } else if (!bottomLimitSwitch.get() && speed < 0.0) { // If both limitSwich 2 is pressed and the speed is less than -1.0, set the speed to 0.
     elevatorMotor1.setControl(new DutyCycleOut(0.0));
     } else {
     elevatorMotor1.setControl(new DutyCycleOut(speed));
@@ -89,20 +89,21 @@ class Elevator {
 
   // Returns true if the top limit switch is pressed.
   public boolean getTopLimitSwitch() {
-    return limitSwich1.get();
+    return topLimitSwitch.get();
   }
 
   // Returns true if the bottom limit switch is pressed.
   public boolean getBottomLimitSwitch() {
-    return limitSwich2.get();
+    return bottomLimitSwitch.get();
   }
 
   // Updates the SmartDashboard with information about the elevator.
   public void updateDash() {
-    SmartDashboard.putBoolean("Elevator Touching Top LimitSwitch", getTopLimitSwitch());
-    SmartDashboard.putBoolean("Elevator Touching Bottom LimitSwitch", getBottomLimitSwitch());
+    SmartDashboard.putBoolean("Elevator Top Limit Switch", getTopLimitSwitch());
+    SmartDashboard.putBoolean("Elevator Bottom Limit Switch", getBottomLimitSwitch());
     SmartDashboard.putNumber("Elevator Master Position", getMasterPosition());
     SmartDashboard.putNumber("Elevator Slave Position", getSlavePosition());
+    SmartDashboard.putNumber("Elevator Position", getPosition());
     SmartDashboard.putBoolean("Elevator AtSetpoint", atSetpoint());
     SmartDashboard.putNumber("Elevator Setpoint", setpoint);
   }

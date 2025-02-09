@@ -7,15 +7,15 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class Climber {
-  private final TalonFX climberMotor1 = new TalonFX(11, "canivore"); // Initializes the motor with CAN ID of 0 connected to the canivore. 
+  private final TalonFX climbMotor = new TalonFX(11, "canivore"); // Initializes the motor with CAN ID of 11 connected to the canivore. 
 
   public Climber() {
-    configMotor(climberMotor1, false, 80.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
+    configMotor(climbMotor, false, 80.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
   }
 
   // Controls the velocity of the climber. 1.0 is full speed up, -1.0 is full speed down, 0.0 is stopped.
   public void manual(double speed) {
-    climberMotor1.setControl(new DutyCycleOut(speed)); // Sets the speed of the motor.
+    climbMotor.setControl(new DutyCycleOut(speed)); // Sets the speed of the motor.
   }
 
   private void configMotor(TalonFX motor, boolean invert, double currentLimit) {
