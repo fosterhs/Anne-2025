@@ -47,6 +47,7 @@ public class Robot extends TimedRobot {
     // Publishes information about the robot and robot subsystems to the Dashboard.
     swerve.updateDash();
     elevator.updateDash();
+    coralSpitter.updateDash();
     updateDash();
     swerve.updateVisionHeading(); // Updates the Limelights with the robot heading (for MegaTag2).
     if (driver.getRawButtonPressed(8)) swerve.resetGyro(); // Menu Button re-zeros the angle reading of the gyro to the current angle of the robot. Should be called if the gyroscope readings are no longer well correlated with the field.
@@ -54,6 +55,7 @@ public class Robot extends TimedRobot {
 
   public void autonomousInit() {
     swerve.pushCalibration(); // Updates the robot's position on the field.
+    coralSpitter.init();
     autoStage = 1;
     autoSelected = autoChooser.getSelected();
     switch (autoSelected) {
@@ -69,6 +71,7 @@ public class Robot extends TimedRobot {
 
   public void autonomousPeriodic() {
     swerve.updateOdometry(); // Keeps track of the position of the robot on the field. Must be called each period.
+    coralSpitter.periodic();
     switch (autoSelected) {
       case auto1:
         switch (autoStage) {
@@ -98,10 +101,12 @@ public class Robot extends TimedRobot {
   
   public void teleopInit() {
     swerve.pushCalibration(); // Updates the robot's position on the field.
+    coralSpitter.init();
   }
 
   public void teleopPeriodic() {
     swerve.updateOdometry(); // Keeps track of the position of the robot on the field. Must be called each period.
+    coralSpitter.periodic();
     for (int limelightIndex = 0; limelightIndex < swerve.limelights.length; limelightIndex++) { // Iterates through each limelight.
       swerve.addVisionEstimate(limelightIndex, true); // Checks to see ifs there are reliable April Tags in sight of the Limelight and updates the robot position on the field.
     }
