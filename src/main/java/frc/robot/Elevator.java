@@ -20,7 +20,7 @@ class Elevator {
   private double sprocketCircumference = Math.PI * 1.889 * 0.0254; // The diameter of the sprocket in meters.
   private double gearRatio = 12.0; // The gear ratio of the elevator motor.
   private double elevatorRatio = 2.0; // The gear ratio of the elevator motor.
-  private double highLimit = 2.0; // The high limit of the elevator motor in meters.
+  private double highLimit = 1.31; // The high limit of the elevator motor in meters.
   private double lowLimit = 0.0; // The low limit of the elevator motor in meters.
   private double correctionFactor = 0.92; // The correction factor of the elevator motor.
 
@@ -43,9 +43,9 @@ class Elevator {
 
   // Controls the velocity of the elevator. 1.0 is full speed up, -1.0 is full speed down, 0.0 is stopped.
   public void manual(double speed) { 
-    if (!topLimitSwitch.get() && speed > 0.0) {  //If both limitSwich 2 is pressed and the speed is less than -1.0, set the speed to 0.
+    if (topLimitSwitch.get() && speed > 0.0) {  //If both limitSwich 2 is pressed and the speed is less than -1.0, set the speed to 0.
     elevatorMotor1.setControl(new DutyCycleOut(0.0));
-    } else if (!bottomLimitSwitch.get() && speed < 0.0) { // If both limitSwich 2 is pressed and the speed is less than -1.0, set the speed to 0.
+    } else if (bottomLimitSwitch.get() && speed < 0.0) { // If both limitSwich 2 is pressed and the speed is less than -1.0, set the speed to 0.
     elevatorMotor1.setControl(new DutyCycleOut(0.0));
     } else {
     elevatorMotor1.setControl(new DutyCycleOut(speed));
@@ -89,12 +89,12 @@ class Elevator {
 
   // Returns true if the top limit switch is pressed.
   public boolean getTopLimitSwitch() {
-    return topLimitSwitch.get();
+    return !topLimitSwitch.get();
   }
 
   // Returns true if the bottom limit switch is pressed.
   public boolean getBottomLimitSwitch() {
-    return bottomLimitSwitch.get();
+    return !bottomLimitSwitch.get();
   }
 
   // Updates the SmartDashboard with information about the elevator.
