@@ -20,8 +20,8 @@ class Elevator {
   private double sprocketCircumference = Math.PI * 1.889 * 0.0254; // The diameter of the sprocket in meters.
   private double gearRatio = 12.0; // The gear ratio of the elevator motor.
   private double elevatorRatio = 2.0; // The gear ratio of the elevator motor.
-  private double highLimit = 1.31; // The high limit of the elevator motor in meters.
-  private double lowLimit = 0.0; // The low limit of the elevator motor in meters.
+  private double highLimit = 1.1; // The high limit of the elevator motor in meters.
+  private double lowLimit = 0.2; // The low limit of the elevator motor in meters.
   private double correctionFactor = 0.92; // The correction factor of the elevator motor.
 
   // A list containing important elevator heights that are pre-programmed into this class.

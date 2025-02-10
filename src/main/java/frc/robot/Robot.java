@@ -77,10 +77,16 @@ public class Robot extends TimedRobot {
         switch (autoStage) {
           case 1:
             // Auto 2, Stage 1 code goes here.
+            swerve.driveTo(5.263, 5.478, -150.422); // This moves the robot to the reef.
+            elevator.setLevel(Elevator.Level.L1); // This moves the elevator to the first level.
+            if (swerve.atDriveGoal() && elevator.atSetpoint()) {
+              autoStage = 2;
+            }
           break;
 
           case 2:
             // Auto 1, Stage 2 code goes here.
+            // coralSpitter.spit(); // Spits the coral.
           break;
         }
       break;
