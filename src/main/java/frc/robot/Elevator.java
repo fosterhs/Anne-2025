@@ -20,8 +20,8 @@ class Elevator {
   private double sprocketCircumference = Math.PI * 1.889 * 0.0254; // The diameter of the sprocket in meters.
   private double gearRatio = 12.0; // The gear ratio of the elevator motor.
   private double elevatorRatio = 2.0; // The gear ratio of the elevator motor.
-  private double highLimit = 1.1; // The high limit of the elevator motor in meters.
-  private double lowLimit = 0.2; // The low limit of the elevator motor in meters.
+  private double highLimit = 1.15; // The high limit of the elevator motor in meters.
+  private double lowLimit = 0.15; // The low limit of the elevator motor in meters.
   private double correctionFactor = 0.92; // The correction factor of the elevator motor.
 
   // A list containing important elevator heights that are pre-programmed into this class.
@@ -34,8 +34,8 @@ class Elevator {
   }
 
   public Elevator() {
-    configMotor(elevatorMotor1, false, 25.0); // Configures the motor with counterclockwise rotation positive and 25A current limit.
-    configMotor(elevatorMotor2, true, 25.0); // Configures the motor with clockwise rotation positive and 25A current limit.
+    configMotor(elevatorMotor1, false, 120.0); // Configures the motor with counterclockwise rotation positive and 25A current limit.
+    configMotor(elevatorMotor2, true, 120.0); // Configures the motor with clockwise rotation positive and 25A current limit.
     elevatorMotor1.setPosition(0.0, 0.03); // Sets the position of the motor to 0.
     elevatorMotor2.setPosition(0.0, 0.03); // Sets the position of the motor to 0.
     elevatorMotor2.setControl(new Follower(9, true)); // Sets the slave motor to follow the master motor exactly.
@@ -56,23 +56,23 @@ class Elevator {
   public void setLevel(Level desiredLevel) {
     switch(desiredLevel) {
       case L1:
-        setPosition(0.46); 
+        setPosition(0.46); //0.46
       break;
 
       case L2:
-        setPosition(0.81); 
+        setPosition(0.81); //0.81
       break;
 
       case L3:
-        setPosition(1.21); 
+        setPosition(1.21); //1.21
       break;
       
       case L4:
-        setPosition(1.83); 
+        setPosition(1.83); //1.83
       break;
 
       case Source:
-        setPosition(0.90); 
+        setPosition(0.90); //0.90
       break;
     }
   }
@@ -143,9 +143,11 @@ class Elevator {
     motorConfigs.CurrentLimits.StatorCurrentLimit = currentLimit;
   
     // MotionMagicTorqueFOC closed-loop control configuration.
-    motorConfigs.Slot0.kP = 37.0; // Units: amperes per 1 rotation of error.
+    motorConfigs.Slot0.kP = 20.0; // Units: amperes per 1 rotation of error.
     motorConfigs.Slot0.kI = 0.0; // Units: amperes per 1 rotation * 1 second of error.
-    motorConfigs.Slot0.kD = 0.84; // Units: amperes per 1 rotation / 1 second of error.
+    motorConfigs.Slot0.kD = 1.2; // Units: amperes per 1 rotar.tion / 1 second of error.
+    motorConfigs.Slot0.kG = 5.5; // output to overcome gravity
+    motorConfigs.Slot0.kS = 5.5; // Units: amperes.
     motorConfigs.MotionMagic.MotionMagicAcceleration = 1000.0; // Units: rotations per second per second.
     motorConfigs.MotionMagic.MotionMagicCruiseVelocity = 100.0; // Units: rotations per second.
   
