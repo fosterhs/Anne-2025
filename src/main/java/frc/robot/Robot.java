@@ -192,7 +192,6 @@ public class Robot extends TimedRobot {
 
     // Calculates the distance to each scoring location using the distance formula.
     for (int i = 0 ; i < rotatedPositionsX.length; i++) {
-    
       scoreDistances[i] = Math.sqrt(Math.pow(rotatedPositionsY[i] - swerve.getYPos(), 2) + Math.pow(rotatedPositionsX[i] - swerve.getXPos(), 2));
     }
 
@@ -206,6 +205,7 @@ public class Robot extends TimedRobot {
         nearestScoreIndex = i;
       }
     }
+    System.out.println(nearestScoreIndex);
   }
 
   double[] rotatedPositionsX = new double[12];
@@ -219,8 +219,8 @@ public class Robot extends TimedRobot {
     rotatedHeadings[0] = scoreHeading;
 
     for (int index = 1; index < 6; index++) {
-      rotatedPositionsX[index] = (rotatedPositionsX[0] - reefX)*Math.cos(Math.toRadians(index*60.0)) + (rotatedPositionsY[0] - reefY)*Math.sin(Math.toRadians(index*60.0)) + reefX;
-      rotatedPositionsY[index] = (rotatedPositionsX[0] - reefX)*Math.sin(Math.toRadians(index*60.0)) - (rotatedPositionsY[0] - reefY)*Math.cos(Math.toRadians(index*60.0)) + reefY;
+      rotatedPositionsX[index] = (rotatedPositionsX[0] - reefX)*Math.cos(Math.toRadians(index*60.0)) - (rotatedPositionsY[0] - reefY)*Math.sin(Math.toRadians(index*60.0)) + reefX;
+      rotatedPositionsY[index] = (rotatedPositionsX[0] - reefX)*Math.sin(Math.toRadians(index*60.0)) + (rotatedPositionsY[0] - reefY)*Math.cos(Math.toRadians(index*60.0)) + reefY;
       rotatedHeadings[index] = scoreHeading + index*60.0;
       if (rotatedHeadings[index] > 180.0) rotatedHeadings[index] -= 360.0;
       if (rotatedHeadings[index] < -180.0) rotatedHeadings[index] += 360.0;
@@ -231,8 +231,8 @@ public class Robot extends TimedRobot {
     rotatedHeadings[6] = scoreHeading;
 
     for (int index = 7; index < 12; index++) {
-      rotatedPositionsX[index] = (rotatedPositionsX[6] - reefX)*Math.cos(Math.toRadians(index*60.0)) + (rotatedPositionsY[6] - reefY)*Math.sin(Math.toRadians(index*60.0)) + reefX;
-      rotatedPositionsY[index] = (rotatedPositionsX[6] - reefX)*Math.sin(Math.toRadians(index*60.0)) - (rotatedPositionsY[6] - reefY)*Math.cos(Math.toRadians(index*60.0)) + reefY;
+      rotatedPositionsX[index] = (rotatedPositionsX[6] - reefX)*Math.cos(Math.toRadians(index*60.0)) - (rotatedPositionsY[6] - reefY)*Math.sin(Math.toRadians(index*60.0)) + reefX;
+      rotatedPositionsY[index] = (rotatedPositionsX[6] - reefX)*Math.sin(Math.toRadians(index*60.0)) + (rotatedPositionsY[6] - reefY)*Math.cos(Math.toRadians(index*60.0)) + reefY;
       rotatedHeadings[index] = scoreHeading + index*60.0;
       if (rotatedHeadings[index] > 180.0) rotatedHeadings[index] -= 360.0;
       if (rotatedHeadings[index] < -180.0) rotatedHeadings[index] += 360.0;
