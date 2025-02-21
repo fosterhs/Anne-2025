@@ -20,12 +20,13 @@ class Elevator {
   private double sprocketCircumference = Math.PI * 1.889 * 0.0254; // The diameter of the sprocket in meters.
   private double gearRatio = 12.0; // The gear ratio of the elevator motor.
   private double elevatorRatio = 2.0; // The gear ratio of the elevator motor.
-  private double highLimit = 1.15; // The high limit of the elevator motor in meters.
-  private double lowLimit = 0.15; // The low limit of the elevator motor in meters.
+  private double highLimit = 1.31; // The high limit of the elevator motor in meters.
+  private double lowLimit = 0.0; // The low limit of the elevator motor in meters.
   private double correctionFactor = 0.92; // The correction factor of the elevator motor.
 
   // A list containing important elevator heights that are pre-programmed into this class.
   enum Level {
+    Bottom,
     L1,
     L2,
     L3,
@@ -55,24 +56,28 @@ class Elevator {
   // Sets the elevator to a pre-programmed position. 
   public void setLevel(Level desiredLevel) {
     switch(desiredLevel) {
+      case Bottom:
+        setPosition(0.02);
+      break;
+
       case L1:
-        setPosition(0.46); //0.46
+        setPosition(0.23);
       break;
 
       case L2:
-        setPosition(0.81); //0.81
+        setPosition(0.45); //0.45
       break;
 
       case L3:
-        setPosition(1.21); //1.21
+        setPosition(0.87); //0.85
       break;
       
       case L4:
-        setPosition(1.83); //1.83
+        setPosition(1.81); //1.79
       break;
 
       case Source:
-        setPosition(0.90); //0.90
+        setPosition(0.11); //0.90
       break;
     }
   }
@@ -143,11 +148,11 @@ class Elevator {
     motorConfigs.CurrentLimits.StatorCurrentLimit = currentLimit;
   
     // MotionMagicTorqueFOC closed-loop control configuration.
-    motorConfigs.Slot0.kP = 20.0; // Units: amperes per 1 rotation of error.
+    motorConfigs.Slot0.kP = 18.0; // Units: amperes per 1 rotation of error.
     motorConfigs.Slot0.kI = 0.0; // Units: amperes per 1 rotation * 1 second of error.
-    motorConfigs.Slot0.kD = 1.2; // Units: amperes per 1 rotar.tion / 1 second of error.
-    motorConfigs.Slot0.kG = 5.5; // output to overcome gravity
-    motorConfigs.Slot0.kS = 5.5; // Units: amperes.
+    motorConfigs.Slot0.kD = 1.3; // Units: amperes per 1 rotartion / 1 second of error.
+    motorConfigs.Slot0.kG = 7.5; // output to overcome gravity
+    motorConfigs.Slot0.kS = 3.5; // Units: amperes.
     motorConfigs.MotionMagic.MotionMagicAcceleration = 1000.0; // Units: rotations per second per second.
     motorConfigs.MotionMagic.MotionMagicCruiseVelocity = 100.0; // Units: rotations per second.
   

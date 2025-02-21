@@ -1,7 +1,7 @@
 package frc.robot;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -27,16 +27,18 @@ public class CoralSpitter {
   }
 
   // Should be called in autoPeroidic() and teleopPeriodic(). Required for the coralSpitter to function correctly.
-  public void periodic() { 
-    if (coralDetected()) coralTimer.restart();
+  public void periodic() {
+    if (coralDetected()) coralTimer.restart(); // Restarts the timer as soon as a coral is detected.
 
     if (isSpitting) {
-      spitMotor.setControl(new VelocityVoltage(10.0).withEnableFOC(true)); // Sets the velocity of the motor in rotations per second.
+      spitMotor.setControl(new DutyCycleOut(0.15).withEnableFOC(true)); // Sets the velocity of the motor in rotations per second.
+    } else if (coralDetected()) {
+      spitMotor.setControl(new DutyCycleOut(0.0).withEnableFOC(true));
     } else {
-      spitMotor.setControl(new VelocityVoltage(0.0).withEnableFOC(true)); // Sets the velocity of the motor in rotations per second.
+      spitMotor.setControl(new DutyCycleOut(0.10).withEnableFOC(true));
     }
 
-    if (coralTimer.get() > spitDelay) isSpitting = false;
+    if (coralTimer.get() > spitDelay) isSpitting = false; // If the timer exceeds the delay, stop spitting.
   }
   
   // Tells the coralSpitter to begin the process of ejecting a coral. 
@@ -46,7 +48,7 @@ public class CoralSpitter {
 
   // Returns true if there is a coral detected in the coralSpitter.
   public boolean coralDetected() {
-    return !coralSensor.get();
+    return !coralSensor.get(); 
   }
 
   // Returns true if the coralSpitter is in the process of ejecting a coral.

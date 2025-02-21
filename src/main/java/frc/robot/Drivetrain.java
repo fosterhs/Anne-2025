@@ -76,8 +76,8 @@ class Drivetrain {
   private final ProfiledPIDController yController = new ProfiledPIDController(3.0, 0.0, 0.0, new TrapezoidProfile.Constraints(maxVelAuto, maxAccAuto)); // Controls the y-position of the robot.
   private final ProfiledPIDController angleController = new ProfiledPIDController(4.0, 0.0, 0.0, new TrapezoidProfile.Constraints(maxAngVelAuto, maxAngAccAuto)); // Controls the angle of the robot.
   private boolean atDriveGoal = false; // Whether the robot is at the target within the tolerance specified by posTol and angTol when controlled by aimDrive() or moveToTarget()
-  private double posTol = 0.03; // The allowable error in the x and y position of the robot in meters.
-  private double angTol = 1.0; // The allowable error in the angle of the robot in degrees.
+  private double posTol = 0.015; // The allowable error in the x and y position of the robot in meters.
+  private double angTol = 0.3; // The allowable error in the angle of the robot in degrees.
   
   // These variables are updated each period so they can be passed along to the user or the dashboard.
   private double xVel = 0.0; // Unit: meters per second
@@ -309,7 +309,7 @@ class Drivetrain {
       odometry.addVisionMeasurement(new Pose2d(botpose.pose.getX(), botpose.pose.getY(), Rotation2d.fromDegrees(getFusedAng())), botpose.timestampSeconds);
       lastFrames[limelightIndex] = currentFrame;      
       calibrationTimer.restart();
-    }
+    } 
   }
 
   // Should be called during disabledInit(). Wipes previous calibration data from the calibrator.
@@ -443,9 +443,9 @@ class Drivetrain {
     //SmartDashboard.putNumber("Front Right Swerve Module Wheel Encoder Angle", frontRightModule.getWheelAngle());
     //SmartDashboard.putNumber("Back Right Swerve Module Wheel Encoder Angle", backRightModule.getWheelAngle());
     //SmartDashboard.putNumber("Back Left Swerve Module Wheel Encoder Angle", backLeftModule.getWheelAngle());
-    //SmartDashboard.putNumber("Robot X Position", getXPos());
-    //SmartDashboard.putNumber("Robot Y Position", getYPos());
-    //SmartDashboard.putNumber("Robot Angular Position (Fused)", getFusedAng());
+    SmartDashboard.putNumber("Robot X Position", getXPos());
+    SmartDashboard.putNumber("Robot Y Position", getYPos());
+    SmartDashboard.putNumber("Robot Angular Position (Fused)", getFusedAng());
     //SmartDashboard.putNumber("Robot Angular Position (Gyro)", getGyroAng());
     //SmartDashboard.putNumber("Robot Pitch", getGyroPitch());
     //SmartDashboard.putNumber("Robot Demanded X Velocity", getXVel());

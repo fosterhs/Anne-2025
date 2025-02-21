@@ -16,7 +16,7 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter yAccLimiter = new SlewRateLimiter(Drivetrain.maxAccTeleop / Drivetrain.maxVelTeleop);
   private final SlewRateLimiter angAccLimiter = new SlewRateLimiter(Drivetrain.maxAngAccTeleop / Drivetrain.maxAngVelTeleop);
 
-  private double speedScaleFactor = 1.0; // Scales the speed of the robot that results from controller inputs. 1.0 corresponds to full speed. 0.0 is fully stopped.
+  private double speedScaleFactor = 0.15; // Scales the speed of the robot that results from controller inputs. 1.0 corresponds to full speed. 0.0 is fully stopped.
   private boolean swerveLock = false; // Controls whether the swerve drive is in x-lock (for defense) or is driving. \
 
   // Initializes the different subsystems of the robot.
@@ -41,6 +41,7 @@ public class Robot extends TimedRobot {
 
     swerve.loadPath("Test", 0.0, 0.0, 0.0, 0.0); // Loads a Path Planner generated path into the path follower code in the drivetrain. 
     runAll(); // Helps prevent loop overruns on startup by running every command before the match starts.
+    rotatePositions();
   }
 
   public void robotPeriodic() {
@@ -136,11 +137,11 @@ public class Robot extends TimedRobot {
       swerve.xLock(); // Locks the swerve modules (for defense).
     } else if (driver.getRawButtonPressed(5)) { // Left bumper button
       scoreCalc(); // Calculates the closest scoring position.
-      swerve.resetDriveController(scoreHeadings[nearestScoreIndex]); // Prepares the robot to drive to the closest scoring position.
+      swerve.resetDriveController(rotatedHeadings[nearestScoreIndex]); // Prepares the robot to drive to the closest scoring position.
     } else if (driver.getRawButton(5)) { // Left bumper button
-      swerve.driveTo(scorePositionsX[nearestScoreIndex], scorePositionsY[nearestScoreIndex], scoreHeadings[nearestScoreIndex]); // Drives to the closest scoring position.
+      swerve.driveTo(rotatedPositionsX[nearestScoreIndex], rotatedPositionsY[nearestScoreIndex], rotatedHeadings[nearestScoreIndex]); // Drives to the closest scoring position.
     } else {
-      swerve.drive(xVel, yVel, angVel, false, 0.0, 0.0); // Drive at the velocity demanded by the controller.
+      swerve.drive(xVel, yVel, angVel, true, 0.0, 0.0); // Drive at the velocity demanded by the controller.
     }
 
     // The following 3 calls allow the user to calibrate the position of the robot based on April Tag information. Should be called when the robot is stationary. Button 7 is "View", the right center button.
@@ -158,6 +159,7 @@ public class Robot extends TimedRobot {
     if (operator.getRawButtonPressed(3)) elevator.setLevel(Elevator.Level.L3); // X button
     if (operator.getRawButtonPressed(4)) elevator.setLevel(Elevator.Level.L4); // Y button 
     if (operator.getRawButtonPressed(5)) elevator.setLevel(Elevator.Level.Source); // Left bumper button
+    if (operator.getRawButtonPressed(7)) elevator.setLevel(Elevator.Level.Bottom); // Menu Button
 
     // Controls the spitter
     if (operator.getRawButtonPressed(6)) coralSpitter.spit(); // Right bumper button
@@ -174,18 +176,24 @@ public class Robot extends TimedRobot {
     }
   }
 
-  double[] scorePositionsX = {2.850, 3.700, 5.290, 4.025, 5.290, 6.150}; // X-coordinates of the coral scoring locations in meters.
-  double[] scorePositionsY = {4.025, 5.500, 5.430, 2.630, 2.590, 4.025}; // X-coordinates of the coral scoring locations in meters.
-  double[] scoreHeadings = {0.0, -60.0, -120.0, 60.0, 120.0, 0.0}; // Heading of the robot at each coral scoring location in degrees.
+  /* 
+  double[] scorePositionsX = {3.847, 4.137, 3.220, 3.230, 3.607, 3.888, 4.972, 5.153, 5.618}; // X-coordinates of the coral scoring locations in meters. //2.850, 3.700, 5.290, 4.025, 5.290, 6.150 : 3.847, 4.137,
+  double[] scorePositionsY = {2.853, 2.711, 3.700, 4.000, 4.879, 5.075, 5.327, 5.001, 4.234}; // Y-coordinates of the coral scoring locations in meters. //4.025, 5.500, 5.430, 2.630, 2.590, 4.025 : 2.853, 2.711,
+  double[] scoreHeadings = {60, 60, 0, 0, -60, -60, -120, -120, 180}; // Heading of the robot at each coral scoring location in degrees. //0.0, -60.0, -120.0, 60.0, 120.0, 0.0 : 60, 60
+  */
+  double scorePositionX = 3.847; // X-coordinates of the coral scoring locations in meters. //2.850, 3.700, 5.290, 4.025, 5.290, 6.150 : 3.847, 4.137,
+  double scorePositionY = 2.853; // Y-coordinates of the coral scoring locations in meters. //4.025, 5.500, 5.430, 2.630, 2.590, 4.025 : 2.853, 2.711,
+  double scoreHeading = 60.0; // Heading of the robot at each coral scoring location in degrees. //0.0, -60.0, -120.0, 60.0, 120.0, 0.0 : 60, 60
   int nearestScoreIndex = 0; // Array index corresponding to the closest scoring location to the current position of the robot. Updated when scoreCalc() is called.
 
   // Updates nearestScoreIndex to reflect the closest scoring location to the robot.
   public void scoreCalc() {
-    double[] scoreDistances = new double[scorePositionsX.length]; // Stores the distance to each scoring location.
+    double[] scoreDistances = new double[rotatedPositionsX.length]; // Stores the distance to each scoring location.
 
     // Calculates the distance to each scoring location using the distance formula.
-    for (int i = 0 ; i < scorePositionsX.length; i++) {
-      scoreDistances[i] = Math.sqrt(Math.pow(scorePositionsY[i] - swerve.getYPos(), 2) + Math.pow(scorePositionsX[i] - swerve.getXPos(), 2));
+    for (int i = 0 ; i < rotatedPositionsX.length; i++) {
+    
+      scoreDistances[i] = Math.sqrt(Math.pow(rotatedPositionsY[i] - swerve.getYPos(), 2) + Math.pow(rotatedPositionsX[i] - swerve.getXPos(), 2));
     }
 
     double shortestDistance = scoreDistances[0]; // Stores the value of the shortest distance in the scoreDistances[] array.
@@ -197,6 +205,37 @@ public class Robot extends TimedRobot {
         shortestDistance = scoreDistances[i];
         nearestScoreIndex = i;
       }
+    }
+  }
+
+  double[] rotatedPositionsX = new double[12];
+  double[] rotatedPositionsY = new double[12];
+  double[] rotatedHeadings = new double[12];
+  double reefX = 176.75*0.0254;
+  double reefY = Drivetrain.fieldWidth/2.0;
+  public void rotatePositions() {
+    rotatedPositionsX[0] = scorePositionX;
+    rotatedPositionsY[0] = scorePositionY;
+    rotatedHeadings[0] = scoreHeading;
+
+    for (int index = 1; index < 6; index++) {
+      rotatedPositionsX[index] = (rotatedPositionsX[0] - reefX)*Math.cos(Math.toRadians(index*60.0)) + (rotatedPositionsY[0] - reefY)*Math.sin(Math.toRadians(index*60.0)) + reefX;
+      rotatedPositionsY[index] = (rotatedPositionsX[0] - reefX)*Math.sin(Math.toRadians(index*60.0)) - (rotatedPositionsY[0] - reefY)*Math.cos(Math.toRadians(index*60.0)) + reefY;
+      rotatedHeadings[index] = scoreHeading + index*60.0;
+      if (rotatedHeadings[index] > 180.0) rotatedHeadings[index] -= 360.0;
+      if (rotatedHeadings[index] < -180.0) rotatedHeadings[index] += 360.0;
+    }
+    
+    rotatedPositionsX[6] = scorePositionX + 12.94*0.0254*Math.sin(Math.toRadians(60.0));
+    rotatedPositionsY[6] = scorePositionY - 12.94*0.0254*Math.cos(Math.toRadians(60.0));
+    rotatedHeadings[6] = scoreHeading;
+
+    for (int index = 7; index < 12; index++) {
+      rotatedPositionsX[index] = (rotatedPositionsX[6] - reefX)*Math.cos(Math.toRadians(index*60.0)) + (rotatedPositionsY[6] - reefY)*Math.sin(Math.toRadians(index*60.0)) + reefX;
+      rotatedPositionsY[index] = (rotatedPositionsX[6] - reefX)*Math.sin(Math.toRadians(index*60.0)) - (rotatedPositionsY[6] - reefY)*Math.cos(Math.toRadians(index*60.0)) + reefY;
+      rotatedHeadings[index] = scoreHeading + index*60.0;
+      if (rotatedHeadings[index] > 180.0) rotatedHeadings[index] -= 360.0;
+      if (rotatedHeadings[index] < -180.0) rotatedHeadings[index] += 360.0;
     }
   }
 
