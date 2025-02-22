@@ -20,8 +20,8 @@ class Elevator {
   private double sprocketCircumference = Math.PI * 1.889 * 0.0254; // The diameter of the sprocket in meters.
   private double gearRatio = 12.0; // The gear ratio of the elevator motor.
   private double elevatorRatio = 2.0; // The gear ratio of the elevator motor.
-  private double highLimit = 1.31; // The high limit of the elevator motor in meters.
-  private double lowLimit = 0.0; // The low limit of the elevator motor in meters.
+  private double highLimit = 1.30; // The high limit of the elevator motor in meters.
+  private double lowLimit = 0.02; // The low limit of the elevator motor in meters.
   private double correctionFactor = 0.92; // The correction factor of the elevator motor.
 
   // A list containing important elevator heights that are pre-programmed into this class.
@@ -65,19 +65,19 @@ class Elevator {
       break;
 
       case L2:
-        setPosition(0.45); //0.45
+        setPosition(0.45); 
       break;
 
       case L3:
-        setPosition(0.87); //0.85
+        setPosition(0.87);
       break;
       
       case L4:
-        setPosition(1.81); //1.79
+        setPosition(1.81);
       break;
 
       case Source:
-        setPosition(0.11); //0.90
+        setPosition(0.11);
       break;
     }
   }
@@ -104,13 +104,13 @@ class Elevator {
 
   // Updates the SmartDashboard with information about the elevator.
   public void updateDash() {
-    SmartDashboard.putBoolean("Elevator Top Limit Switch", getTopLimitSwitch());
-    SmartDashboard.putBoolean("Elevator Bottom Limit Switch", getBottomLimitSwitch());
-    SmartDashboard.putNumber("Elevator Master Position", getMasterPosition());
-    SmartDashboard.putNumber("Elevator Slave Position", getSlavePosition());
-    SmartDashboard.putNumber("Elevator Position", getPosition());
-    SmartDashboard.putBoolean("Elevator AtSetpoint", atSetpoint());
-    SmartDashboard.putNumber("Elevator Setpoint", setpoint);
+    //SmartDashboard.putBoolean("Elevator Top Limit Switch", getTopLimitSwitch());
+    //SmartDashboard.putBoolean("Elevator Bottom Limit Switch", getBottomLimitSwitch());
+    //SmartDashboard.putNumber("Elevator Master Position", getMasterPosition());
+    //SmartDashboard.putNumber("Elevator Slave Position", getSlavePosition());
+    //SmartDashboard.putNumber("Elevator Position", getPosition());
+    //SmartDashboard.putBoolean("Elevator AtSetpoint", atSetpoint());
+    //SmartDashboard.putNumber("Elevator Setpoint", setpoint);
   }
 
   // Sets the position of the elevator motor in meters.

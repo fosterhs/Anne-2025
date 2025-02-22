@@ -11,12 +11,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CoralSpitter {
   private final TalonFX spitMotor = new TalonFX(12, "rio");  // Initializes the motor with CAN ID of 12 connected to the canivore. 
-  private final DigitalInput coralSensor1 = new DigitalInput(3); // Initializes the sensor connected to DIO port 3 on the RoboRIO. Sensor 1 is the sensor closest to the intake.
-  private final DigitalInput coralSensor2 = new DigitalInput(2); // Initializes the sensor connected to DIO port 2 on the RoboRIO. Sensor 2 is the sensor closest to the exhaust.
-  private final Timer sensor1Timer = new Timer(); // Keeps track of how long coral has not been detected for. Resets to 0 seconds as soon as coral is detected.
-  private final Timer sensor2Timer = new Timer(); // Keeps track of how long coral has not been detected for. Resets to 0 seconds as soon as coral is detected.
+  private final DigitalInput coralIntakeSensor = new DigitalInput(3); // Initializes the sensor connected to DIO port 3 on the RoboRIO. Sensor 1 is the sensor closest to the intake.
+  private final DigitalInput coralExhaustSensor = new DigitalInput(2); // Initializes the sensor connected to DIO port 2 on the RoboRIO. Sensor 2 is the sensor closest to the exhaust.
+  private final Timer intakeSensorTimer = new Timer(); // Keeps track of how long coral has not been detected for. Resets to 0 seconds as soon as coral is detected.
+  private final Timer exhaustSensorTimer = new Timer(); // Keeps track of how long coral has not been detected for. Resets to 0 seconds as soon as coral is detected.
   private boolean isSpitting = false; // Returns true if the spitter is in the process of ejecting a coral. 
-  private double spitDelay = 0.5; // How long the spitMotor will continue running for after a coral is no longer detected in seconds.
+  private double exhaustDelay = 0.5; // How long the spitMotor will continue running for after a coral is no longer detected in seconds.
   private double intakeDelay = 0.5; // How long the spitMotor will wait before starting to intake a coral in seconds.
 
   public CoralSpitter() {
@@ -26,18 +26,18 @@ public class CoralSpitter {
   // Should be called in autoInit() and teleopInit(). Required for the coralSpitter to function correctly.
   public void init() { 
     isSpitting = false;
-    sensor2Timer.restart();
-    sensor1Timer.restart();
+    exhaustSensorTimer.restart();
+    intakeSensorTimer.restart();
   }
 
   // Should be called in autoPeroidic() and teleopPeriodic(). Required for the coralSpitter to function correctly.
   public void periodic() {
-    if (getSensor2()) sensor2Timer.restart(); // Restarts the timer as soon as a coral is detected. The timer measures how much time has elapsed since a coral was last detected.
-    if (!getSensor1()) sensor1Timer.restart(); // Restarts the timer as soon as a coral is not detected. The timer measures how much time has elapsed after a coral is detected.
+    if (getExhaustSensor()) exhaustSensorTimer.restart(); // Restarts the timer as soon as a coral is detected. The timer measures how much time has elapsed since a coral was last detected.
+    if (!getIntakeSensor()) intakeSensorTimer.restart(); // Restarts the timer as soon as a coral is not detected. The timer measures how much time has elapsed after a coral is detected.
 
     if (isSpitting) {
       spitMotor.setControl(new DutyCycleOut(0.15).withEnableFOC(true)); // Sets the velocity of the motor in rotations per second.
-    } else if (!getSensor2() && sensor1Timer.get() > intakeDelay) {
+    } else if (!getExhaustSensor() && intakeSensorTimer.get() > intakeDelay) {
       spitMotor.setControl(new DutyCycleOut(0.10).withEnableFOC(true));
     } else if (!coralDetected()) {
       spitMotor.setControl(new DutyCycleOut(-0.05).withEnableFOC(true));
@@ -45,27 +45,27 @@ public class CoralSpitter {
       spitMotor.setControl(new DutyCycleOut(0.0).withEnableFOC(true));
     }
 
-    if (sensor2Timer.get() > spitDelay) isSpitting = false; // If the timer exceeds the delay, stop spitting.
+    if (exhaustSensorTimer.get() > exhaustDelay) isSpitting = false; // If the timer exceeds the delay, stop spitting.
   }
   
   // Tells the coralSpitter to begin the process of ejecting a coral. 
   public void spit() { 
-    isSpitting = coralDetected();
+    isSpitting = getExhaustSensor();
   }
 
   // Returns true if there is a coral detected in the coralSpitter.
   public boolean coralDetected() {
-    return !coralSensor2.get() || !coralSensor1.get(); 
+    return !coralExhaustSensor.get() || !coralIntakeSensor.get(); 
   }
 
   // Returns true if the intake sensor detects a coral.
-  private boolean getSensor1() {
-    return !coralSensor1.get();
+  public boolean getIntakeSensor() {
+    return !coralIntakeSensor.get();
   }
 
   // Returns true if the exhaust sensor detects a coral.
-  private boolean getSensor2() {
-    return !coralSensor2.get();
+  public boolean getExhaustSensor() {
+    return !coralExhaustSensor.get();
   }
 
   // Returns true if the coralSpitter is in the process of ejecting a coral.
@@ -75,9 +75,12 @@ public class CoralSpitter {
 
   // Updates the SmartDashboard with information about the coralSpitter.
   public void updateDash() { 
-    SmartDashboard.putBoolean("coralDetected", coralDetected());
-    SmartDashboard.putBoolean("isSpitting", isSpitting);
-    SmartDashboard.putNumber("coralTimer", sensor2Timer.get());
+    //SmartDashboard.putBoolean("Spitter getIntakeSensor", getIntakeSensor());
+    //SmartDashboard.putBoolean("Spitter getExhaustSensor", getExhaustSensor());
+    //SmartDashboard.putBoolean("Spitter coralDetected", coralDetected());
+    //SmartDashboard.putBoolean("Spitter isSpitting", isSpitting);
+    //SmartDashboard.putNumber("Spitter Intake Timer", intakeSensorTimer.get());
+    //SmartDashboard.putNumber("Spitter Exhaust Timer", exhaustSensorTimer.get());
   }
 
   private void configMotor(TalonFX motor, boolean invert, double currentLimit) {

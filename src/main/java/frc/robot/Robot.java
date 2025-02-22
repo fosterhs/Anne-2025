@@ -16,7 +16,7 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter yAccLimiter = new SlewRateLimiter(Drivetrain.maxAccTeleop / Drivetrain.maxVelTeleop);
   private final SlewRateLimiter angAccLimiter = new SlewRateLimiter(Drivetrain.maxAngAccTeleop / Drivetrain.maxAngVelTeleop);
 
-  private double speedScaleFactor = 0.15; // Scales the speed of the robot that results from controller inputs. 1.0 corresponds to full speed. 0.0 is fully stopped.
+  private double speedScaleFactor = 1.0; // Scales the speed of the robot that results from controller inputs. 1.0 corresponds to full speed. 0.0 is fully stopped.
   private boolean swerveLock = false; // Controls whether the swerve drive is in x-lock (for defense) or is driving. \
 
   // Initializes the different subsystems of the robot.
@@ -136,7 +136,7 @@ public class Robot extends TimedRobot {
     if (swerveLock) {
       swerve.xLock(); // Locks the swerve modules (for defense).
     } else if (driver.getRawButtonPressed(5)) { // Left bumper button
-      scoreCalc(); // Calculates the closest scoring position.
+      calcNearestScoringPose(); // Calculates the closest scoring position.
       swerve.resetDriveController(scoringHeadings[nearestScoreIndex]); // Prepares the robot to drive to the closest scoring position.
     } else if (driver.getRawButton(5)) { // Left bumper button
       swerve.driveTo(scoringPositionsX[nearestScoreIndex], scoringPositionsY[nearestScoreIndex], scoringHeadings[nearestScoreIndex]); // Drives to the closest scoring position.
@@ -178,13 +178,13 @@ public class Robot extends TimedRobot {
 
   // Publishes information to the dashboard.
   public void updateDash() {
-    SmartDashboard.putNumber("Speed Scale Factor", speedScaleFactor);
-    SmartDashboard.putNumber("Auto Stage", autoStage);
+    //SmartDashboard.putNumber("Speed Scale Factor", speedScaleFactor);
+    //SmartDashboard.putNumber("Auto Stage", autoStage);
   }
 
   int nearestScoreIndex = 0; // Array index corresponding to the closest scoring location to the current position of the robot. Updated when scoreCalc() is called.
   // Updates nearestScoreIndex to reflect the closest scoring location to the robot.
-  public void scoreCalc() {
+  public void calcNearestScoringPose() {
     double[] scoreDistances = new double[scoringPositionsX.length]; // Stores the distance to each scoring location.
 
     // Calculates the distance to each scoring location using the distance formula.

@@ -13,7 +13,7 @@ public class AlgaeYeeter {
   private final TalonFX armMotor = new TalonFX(13, "canivore"); // Initializes the motor with CAN ID of 0 connected to the canivore. 
   private final TalonFX intakeMotor1 = new TalonFX(14, "canivore");  // Initializes the motor with CAN ID of 0 connected to the canivore. 
   private final TalonFX intakeMotor2 = new TalonFX(15, "canivore");  // Initializes the motor with CAN ID of 0 connected to the canivore. 
-  private final DigitalInput algaeSensor = new DigitalInput(3); // Initializes the sensor connected to DIO port 3 on the RoboRIO.
+  private final DigitalInput algaeSensor = new DigitalInput(4); // Initializes the sensor connected to DIO port 4 on the RoboRIO.
 
   public AlgaeYeeter() {
     configArmMotor(armMotor, false, 80.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
