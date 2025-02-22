@@ -62,6 +62,8 @@ public class Robot extends TimedRobot {
     switch (autoSelected) {
       case auto1:
         // AutoInit 1 code goes here.
+        calcNearestScoringPose(); // Calculates the closest scoring position.S
+        swerve.resetDriveController(scoringHeadings[nearestScoreIndex]); // Prepares the robot to drive to the closest scoring position.
       break;
 
       case auto2:
@@ -77,8 +79,8 @@ public class Robot extends TimedRobot {
       case auto1:
         switch (autoStage) {
           case 1:
-            // Auto 2, Stage 1 code goes here.
-            swerve.driveTo(5.263, 5.478, -150.422); // This moves the robot to the reef.
+            // Auto 1, Stage 1 code goes here.
+            swerve.driveTo(scoringPositionsX[nearestScoreIndex], scoringPositionsY[nearestScoreIndex], scoringHeadings[nearestScoreIndex]); // Drives to the closest scoring position.
             elevator.setLevel(Elevator.Level.L1); // This moves the elevator to the first level.
             if (swerve.atDriveGoal() && elevator.atSetpoint()) {
               autoStage = 2;
