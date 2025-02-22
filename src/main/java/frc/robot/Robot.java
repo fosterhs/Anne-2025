@@ -204,9 +204,9 @@ public class Robot extends TimedRobot {
     }
   }
 
-  double[] scoringPositionsX = new double[12]; // Contains the reef scoring positions of the robot in the x-direction.
-  double[] scoringPositionsY = new double[12]; // Contains the reef scoring positions of the robot in the y-direction.
-  double[] scoringHeadings = new double[12]; // Contains the reef scoring headings of the robot.
+  double[] scoringPositionsX = new double[17]; // Contains the reef scoring positions of the robot in the x-direction.
+  double[] scoringPositionsY = new double[17]; // Contains the reef scoring positions of the robot in the y-direction.
+  double[] scoringHeadings = new double[17]; // Contains the reef scoring headings of the robot.
   final double reefX = 176.75*0.0254; // The x-coordinate of the center of the reef in meters.
   final double reefY = Drivetrain.fieldWidth/2.0; // The y-coordinate of the center of the reef in meters.
   public void calcScoringPoses() {
@@ -236,6 +236,28 @@ public class Robot extends TimedRobot {
       if (scoringHeadings[index] > 180.0) scoringHeadings[index] -= 360.0;
       if (scoringHeadings[index] < -180.0) scoringHeadings[index] += 360.0;
     }
+    
+    // These 4 scoring locations correspond to the source. There are 2 scoring locations at each of the 2 sources, for a total of 4. 
+    scoringPositionsX[12] = 0.652; // X-position of the first scoring location at the source nearest the origin in meters.
+    scoringPositionsY[12] = 1.358; // Y-position of the first scoring location at the source nearest the origin in meters.
+    scoringHeadings[12] = -126.0; // Heading of the first scoring location at the source nearest the origin in meters. The source makes 54 and 36 degree angles with the coordinate axes.
+
+    scoringPositionsX[13] = 1.710; // X-position of the second scoring location at the source nearest the origin in meters.
+    scoringPositionsY[13] = 0.605; // Y-position of the second scoring location at the source nearest the origin in meters.
+    scoringHeadings[13] = scoringHeadings[12]; // This is automatically calculated. Does not need to be edited.
+
+    scoringPositionsX[14] = scoringPositionsX[12]; // This is automatically calculated. Does not need to be edited.
+    scoringPositionsY[14] = Drivetrain.fieldWidth - scoringPositionsY[12]; // This is automatically calculated. Does not need to be edited.
+    scoringHeadings[14] = -scoringHeadings[12]; // This is automatically calculated. Does not need to be edited.
+
+    scoringPositionsX[15] = scoringPositionsX[13]; // This is automatically calculated. Does not need to be edited.
+    scoringPositionsY[15] = Drivetrain.fieldWidth - scoringPositionsY[13]; // This is automatically calculated. Does not need to be edited.
+    scoringHeadings[15] = -scoringHeadings[13]; // This is automatically calculated. Does not need to be edited.
+
+    // The scoring location of the processor.
+    scoringPositionsX[16] = 455.15*0.0254; // This is automatically calculated. Does not need to be edited.
+    scoringPositionsY[16] = 7.547; // Y-position of the processor scoring location in meters.
+    scoringHeadings[16] = 90.0; // Heading of the processor scoring location.
   }
 
   // Helps prevent loop overruns on startup by running every user created command in every class before the match starts. Not sure why this helps, but it does.
