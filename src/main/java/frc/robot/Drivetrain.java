@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.fasterxml.jackson.databind.deser.std.StdNodeBasedDeserializer;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
@@ -286,26 +287,18 @@ class Drivetrain {
     long currentFrame = LimelightHelpers.getLimelightNTTableEntry(limelights[limelightIndex], "hb").getInteger(0); // Gets the Limelight frame number from network tables.
     long lastFrame = lastFrames[limelightIndex]; // Gets the Limelight frame number of the last frame that was utlizied for robot localization.
     PoseEstimate botpose;
-
-    // xSD and ySD tell the pose estimator how much to trust vision estimates. Larger values are less trustworthy. Units: xSD and ySD are in meters
-    double[] stddevs = NetworkTableInstance.getDefault().getTable(limelights[limelightIndex]).getEntry("stddevs").getDoubleArray(new double[12]);
-    double xSD = Math.pow(10, 10);
-    double ySD = Math.pow(10, 10);
-
     if (megaTag2) {
       botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(limelights[limelightIndex]); // Transforms the vision position estimate to the appropriate coordinate system for the robot's alliance color
-      xSD = stddevs[6];
-      ySD = stddevs[7];
     } else {
       botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed(limelights[limelightIndex]); // Transforms the vision position estimate to the appropriate coordinate system for the robot's alliance color
-      xSD = stddevs[0];
-      ySD = stddevs[1];
     }
     int tagCount = botpose.tagCount; // The number of AprilTags detected in the current frame.
     double tagArea = botpose.avgTagArea*tagCount; // The total area in the current frame that is covered by AprilTags in percent (from 0 to 100).
     double robotVel = Math.sqrt(Math.pow(getXVel(), 2) + Math.pow(getYVel(), 2)); // The velocity of the robot in meters per second.
+    double standardDeviation = 0.5; // How much variance there is in the LL vision information.
+    if (tagCount >= 2 || tagArea > 0.08) standardDeviation = 0.1; // Reduces the standard deviation when there are multiple tags in sight, or the tags are close to the camera.
     if (currentFrame != lastFrame && tagCount >= 1 && tagArea > 0.2 && robotVel < 1.0 && getAngVel() < 90.0) { // >1 April Tag is detected, the robot is relatively close to the April Tags, the robot is relatively stationary, and there is a new frame.
-      odometry.setVisionMeasurementStdDevs(VecBuilder.fill(xSD, ySD, Units.degreesToRadians(Units.degreesToRadians(Math.pow(10, 10)))));
+      odometry.setVisionMeasurementStdDevs(VecBuilder.fill(standardDeviation, standardDeviation, Units.degreesToRadians(Units.degreesToRadians(Math.pow(10, 10)))));
       odometry.addVisionMeasurement(new Pose2d(botpose.pose.getX(), botpose.pose.getY(), Rotation2d.fromDegrees(getFusedAng())), botpose.timestampSeconds);
       lastFrames[limelightIndex] = currentFrame;      
       calibrationTimer.restart();
