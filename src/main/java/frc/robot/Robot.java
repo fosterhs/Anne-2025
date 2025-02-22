@@ -41,7 +41,7 @@ public class Robot extends TimedRobot {
 
     swerve.loadPath("Test", 0.0, 0.0, 0.0, 0.0); // Loads a Path Planner generated path into the path follower code in the drivetrain. 
     runAll(); // Helps prevent loop overruns on startup by running every command before the match starts.
-    rotatePositions();
+    calcScoringPoses();
   }
 
   public void robotPeriodic() {
@@ -137,9 +137,9 @@ public class Robot extends TimedRobot {
       swerve.xLock(); // Locks the swerve modules (for defense).
     } else if (driver.getRawButtonPressed(5)) { // Left bumper button
       scoreCalc(); // Calculates the closest scoring position.
-      swerve.resetDriveController(rotatedHeadings[nearestScoreIndex]); // Prepares the robot to drive to the closest scoring position.
+      swerve.resetDriveController(scoringHeadings[nearestScoreIndex]); // Prepares the robot to drive to the closest scoring position.
     } else if (driver.getRawButton(5)) { // Left bumper button
-      swerve.driveTo(rotatedPositionsX[nearestScoreIndex], rotatedPositionsY[nearestScoreIndex], rotatedHeadings[nearestScoreIndex]); // Drives to the closest scoring position.
+      swerve.driveTo(scoringPositionsX[nearestScoreIndex], scoringPositionsY[nearestScoreIndex], scoringHeadings[nearestScoreIndex]); // Drives to the closest scoring position.
     } else {
       swerve.drive(xVel, yVel, angVel, true, 0.0, 0.0); // Drive at the velocity demanded by the controller.
     }
@@ -176,23 +176,20 @@ public class Robot extends TimedRobot {
     }
   }
 
-  /* 
-  double[] scorePositionsX = {3.847, 4.137, 3.220, 3.230, 3.607, 3.888, 4.972, 5.153, 5.618}; // X-coordinates of the coral scoring locations in meters. //2.850, 3.700, 5.290, 4.025, 5.290, 6.150 : 3.847, 4.137,
-  double[] scorePositionsY = {2.853, 2.711, 3.700, 4.000, 4.879, 5.075, 5.327, 5.001, 4.234}; // Y-coordinates of the coral scoring locations in meters. //4.025, 5.500, 5.430, 2.630, 2.590, 4.025 : 2.853, 2.711,
-  double[] scoreHeadings = {60, 60, 0, 0, -60, -60, -120, -120, 180}; // Heading of the robot at each coral scoring location in degrees. //0.0, -60.0, -120.0, 60.0, 120.0, 0.0 : 60, 60
-  */
-  double scorePositionX = 3.847; // X-coordinates of the coral scoring locations in meters. //2.850, 3.700, 5.290, 4.025, 5.290, 6.150 : 3.847, 4.137,
-  double scorePositionY = 2.853; // Y-coordinates of the coral scoring locations in meters. //4.025, 5.500, 5.430, 2.630, 2.590, 4.025 : 2.853, 2.711,
-  double scoreHeading = 60.0; // Heading of the robot at each coral scoring location in degrees. //0.0, -60.0, -120.0, 60.0, 120.0, 0.0 : 60, 60
-  int nearestScoreIndex = 0; // Array index corresponding to the closest scoring location to the current position of the robot. Updated when scoreCalc() is called.
+  // Publishes information to the dashboard.
+  public void updateDash() {
+    SmartDashboard.putNumber("Speed Scale Factor", speedScaleFactor);
+    SmartDashboard.putNumber("Auto Stage", autoStage);
+  }
 
+  int nearestScoreIndex = 0; // Array index corresponding to the closest scoring location to the current position of the robot. Updated when scoreCalc() is called.
   // Updates nearestScoreIndex to reflect the closest scoring location to the robot.
   public void scoreCalc() {
-    double[] scoreDistances = new double[rotatedPositionsX.length]; // Stores the distance to each scoring location.
+    double[] scoreDistances = new double[scoringPositionsX.length]; // Stores the distance to each scoring location.
 
     // Calculates the distance to each scoring location using the distance formula.
-    for (int i = 0 ; i < rotatedPositionsX.length; i++) {
-      scoreDistances[i] = Math.sqrt(Math.pow(rotatedPositionsY[i] - swerve.getYPos(), 2) + Math.pow(rotatedPositionsX[i] - swerve.getXPos(), 2));
+    for (int i = 0 ; i < scoringPositionsX.length; i++) {
+      scoreDistances[i] = Math.sqrt(Math.pow(scoringPositionsY[i] - swerve.getYPos(), 2) + Math.pow(scoringPositionsX[i] - swerve.getXPos(), 2));
     }
 
     double shortestDistance = scoreDistances[0]; // Stores the value of the shortest distance in the scoreDistances[] array.
@@ -205,44 +202,40 @@ public class Robot extends TimedRobot {
         nearestScoreIndex = i;
       }
     }
-    System.out.println(nearestScoreIndex);
   }
 
-  double[] rotatedPositionsX = new double[12];
-  double[] rotatedPositionsY = new double[12];
-  double[] rotatedHeadings = new double[12];
-  double reefX = 176.75*0.0254;
-  double reefY = Drivetrain.fieldWidth/2.0;
-  public void rotatePositions() {
-    rotatedPositionsX[0] = scorePositionX;
-    rotatedPositionsY[0] = scorePositionY;
-    rotatedHeadings[0] = scoreHeading;
+  double[] scoringPositionsX = new double[12]; // Contains the reef scoring positions of the robot in the x-direction.
+  double[] scoringPositionsY = new double[12]; // Contains the reef scoring positions of the robot in the y-direction.
+  double[] scoringHeadings = new double[12]; // Contains the reef scoring headings of the robot.
+  final double reefX = 176.75*0.0254; // The x-coordinate of the center of the reef in meters.
+  final double reefY = Drivetrain.fieldWidth/2.0; // The y-coordinate of the center of the reef in meters.
+  public void calcScoringPoses() {
+    scoringPositionsX[0] = 3.822; // X-coordinates of the coral scoring locations in meters. Based on AprilTag 8, using the scoring position nearest to AprilTag 7 on the Red alliance.
+    scoringPositionsY[0] = 2.924; // Y-coordinates of the coral scoring locations in meters. Based on AprilTag 8, using the scoring position nearest to AprilTag 7 on the Red alliance.
+    scoringHeadings[0] = 60.0; // Heading of the robot at each coral scoring location in degrees. Based on AprilTag 8, using the scoring position nearest to AprilTag 7 on the Red alliance.
 
+    // Calculates the scoring positions of the remaining 5 faces of the reef by rotating the coordinates of the 0th index by 60 degrees.
     for (int index = 1; index < 6; index++) {
-      rotatedPositionsX[index] = (rotatedPositionsX[0] - reefX)*Math.cos(Math.toRadians(index*60.0)) - (rotatedPositionsY[0] - reefY)*Math.sin(Math.toRadians(index*60.0)) + reefX;
-      rotatedPositionsY[index] = (rotatedPositionsX[0] - reefX)*Math.sin(Math.toRadians(index*60.0)) + (rotatedPositionsY[0] - reefY)*Math.cos(Math.toRadians(index*60.0)) + reefY;
-      rotatedHeadings[index] = scoreHeading + index*60.0;
-      if (rotatedHeadings[index] > 180.0) rotatedHeadings[index] -= 360.0;
-      if (rotatedHeadings[index] < -180.0) rotatedHeadings[index] += 360.0;
+      scoringPositionsX[index] = (scoringPositionsX[0] - reefX)*Math.cos(Math.toRadians(index*60.0)) - (scoringPositionsY[0] - reefY)*Math.sin(Math.toRadians(index*60.0)) + reefX;
+      scoringPositionsY[index] = (scoringPositionsX[0] - reefX)*Math.sin(Math.toRadians(index*60.0)) + (scoringPositionsY[0] - reefY)*Math.cos(Math.toRadians(index*60.0)) + reefY;
+      scoringHeadings[index] = scoringHeadings[0] + index*60.0;
+      if (scoringHeadings[index] > 180.0) scoringHeadings[index] -= 360.0;
+      if (scoringHeadings[index] < -180.0) scoringHeadings[index] += 360.0;
     }
     
-    rotatedPositionsX[6] = scorePositionX + 12.94*0.0254*Math.sin(Math.toRadians(60.0));
-    rotatedPositionsY[6] = scorePositionY - 12.94*0.0254*Math.cos(Math.toRadians(60.0));
-    rotatedHeadings[6] = scoreHeading;
+    // Calculates the scoring position of the other scoring position on the same face of the reef by using an x-offset and a y-offset.
+    scoringPositionsX[6] = scoringPositionsX[0] + 12.94*0.0254*Math.sin(Math.toRadians(60.0));
+    scoringPositionsY[6] = scoringPositionsY[0] - 12.94*0.0254*Math.cos(Math.toRadians(60.0));
+    scoringHeadings[6] = scoringHeadings[0];
 
+    // Calculates the scoring positions of the remaining 5 faces of the reef by rotating the coordinates of the 6th index by 60 degrees.
     for (int index = 7; index < 12; index++) {
-      rotatedPositionsX[index] = (rotatedPositionsX[6] - reefX)*Math.cos(Math.toRadians(index*60.0)) - (rotatedPositionsY[6] - reefY)*Math.sin(Math.toRadians(index*60.0)) + reefX;
-      rotatedPositionsY[index] = (rotatedPositionsX[6] - reefX)*Math.sin(Math.toRadians(index*60.0)) + (rotatedPositionsY[6] - reefY)*Math.cos(Math.toRadians(index*60.0)) + reefY;
-      rotatedHeadings[index] = scoreHeading + index*60.0;
-      if (rotatedHeadings[index] > 180.0) rotatedHeadings[index] -= 360.0;
-      if (rotatedHeadings[index] < -180.0) rotatedHeadings[index] += 360.0;
+      scoringPositionsX[index] = (scoringPositionsX[6] - reefX)*Math.cos(Math.toRadians(index*60.0)) - (scoringPositionsY[6] - reefY)*Math.sin(Math.toRadians(index*60.0)) + reefX;
+      scoringPositionsY[index] = (scoringPositionsX[6] - reefX)*Math.sin(Math.toRadians(index*60.0)) + (scoringPositionsY[6] - reefY)*Math.cos(Math.toRadians(index*60.0)) + reefY;
+      scoringHeadings[index] = scoringHeadings[0] + index*60.0;
+      if (scoringHeadings[index] > 180.0) scoringHeadings[index] -= 360.0;
+      if (scoringHeadings[index] < -180.0) scoringHeadings[index] += 360.0;
     }
-  }
-
-  // Publishes information to the dashboard.
-  public void updateDash() {
-    SmartDashboard.putNumber("Speed Scale Factor", speedScaleFactor);
-    SmartDashboard.putNumber("Auto Stage", autoStage);
   }
 
   // Helps prevent loop overruns on startup by running every user created command in every class before the match starts. Not sure why this helps, but it does.

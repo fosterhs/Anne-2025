@@ -27,6 +27,7 @@ public class CoralSpitter {
   public void init() { 
     isSpitting = false;
     sensor2Timer.restart();
+    sensor1Timer.restart();
   }
 
   // Should be called in autoPeroidic() and teleopPeriodic(). Required for the coralSpitter to function correctly.
