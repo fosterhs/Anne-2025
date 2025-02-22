@@ -295,10 +295,10 @@ class Drivetrain {
     int tagCount = botpose.tagCount; // The number of AprilTags detected in the current frame.
     double tagArea = botpose.avgTagArea*tagCount; // The total area in the current frame that is covered by AprilTags in percent (from 0 to 100).
     double robotVel = Math.sqrt(Math.pow(getXVel(), 2) + Math.pow(getYVel(), 2)); // The velocity of the robot in meters per second.
-    double standardDeviation = 0.5; // How much variance there is in the LL vision information.
-    if (tagCount >= 2 || tagArea > 0.08) standardDeviation = 0.1; // Reduces the standard deviation when there are multiple tags in sight, or the tags are close to the camera.
+    double SD = 0.5; // How much variance there is in the LL vision information.
+    if (tagCount >= 2 || tagArea > 0.08) SD = 0.1; // Reduces the standard deviation when there are multiple tags in sight, or the tags are close to the camera.
     if (currentFrame != lastFrame && tagCount >= 1 && tagArea > 0.2 && robotVel < 1.0 && getAngVel() < 90.0) { // >1 April Tag is detected, the robot is relatively close to the April Tags, the robot is relatively stationary, and there is a new frame.
-      odometry.setVisionMeasurementStdDevs(VecBuilder.fill(standardDeviation, standardDeviation, Units.degreesToRadians(Units.degreesToRadians(Math.pow(10, 10)))));
+      odometry.setVisionMeasurementStdDevs(VecBuilder.fill(SD, SD, Units.degreesToRadians(Units.degreesToRadians(Math.pow(10, 10)))));
       odometry.addVisionMeasurement(new Pose2d(botpose.pose.getX(), botpose.pose.getY(), Rotation2d.fromDegrees(getFusedAng())), botpose.timestampSeconds);
       lastFrames[limelightIndex] = currentFrame;      
       calibrationTimer.restart();
