@@ -51,7 +51,7 @@ public class Robot extends TimedRobot {
     coralSpitter.updateDash();
     updateDash();
     swerve.updateVisionHeading(); // Updates the Limelights with the robot heading (for MegaTag2).
-    if (driver.getRawButtonPressed(8)) swerve.resetGyro(); // Menu Button re-zeros the angle reading of the gyro to the current angle of the robot. Should be called if the gyroscope readings are no longer well correlated with the field.
+    if (driver.getRawButtonPressed(8)) swerve.resetGyro(); // Right center button re-zeros the angle reading of the gyro to the current angle of the robot. Should be called if the gyroscope readings are no longer well correlated with the field.
   }
 
   public void autonomousInit() {
@@ -135,10 +135,10 @@ public class Robot extends TimedRobot {
 
     if (swerveLock) {
       swerve.xLock(); // Locks the swerve modules (for defense).
-    } else if (driver.getRawButtonPressed(5)) { // Left bumper button
+    } else if (driver.getRawButtonPressed(6)) { // Right bumper button
       calcNearestScoringPose(); // Calculates the closest scoring position.
       swerve.resetDriveController(scoringHeadings[nearestScoreIndex]); // Prepares the robot to drive to the closest scoring position.
-    } else if (driver.getRawButton(5)) { // Left bumper button
+    } else if (driver.getRawButton(6)) { // Right bumper button
       swerve.driveTo(scoringPositionsX[nearestScoreIndex], scoringPositionsY[nearestScoreIndex], scoringHeadings[nearestScoreIndex]); // Drives to the closest scoring position.
     } else {
       swerve.drive(xVel, yVel, angVel, true, 0.0, 0.0); // Drive at the velocity demanded by the controller.
@@ -146,7 +146,7 @@ public class Robot extends TimedRobot {
 
     // The following 3 calls allow the user to calibrate the position of the robot based on April Tag information. Should be called when the robot is stationary. Button 7 is "View", the right center button.
     if (driver.getRawButtonPressed(7)) swerve.resetCalibration(); // Begins calculating the position of the robot on the field based on visible April Tags.
-    if (driver.getRawButton(7)) {
+    if (driver.getRawButton(7)) { // Left center button
       for (int limelightIndex = 0; limelightIndex < swerve.limelights.length; limelightIndex++) { // Iterates through each limelight.
         swerve.addCalibrationEstimate(limelightIndex, false); // Collects additional data to calculate the position of the robot on the field based on visible April Tags.
       }
@@ -159,7 +159,7 @@ public class Robot extends TimedRobot {
     if (operator.getRawButtonPressed(3)) elevator.setLevel(Elevator.Level.L3); // X button
     if (operator.getRawButtonPressed(4)) elevator.setLevel(Elevator.Level.L4); // Y button 
     if (operator.getRawButtonPressed(5)) elevator.setLevel(Elevator.Level.Source); // Left bumper button
-    if (operator.getRawButtonPressed(7)) elevator.setLevel(Elevator.Level.Bottom); // Menu Button
+    if (operator.getRawButtonPressed(7)) elevator.setLevel(Elevator.Level.Bottom); // Left center button
 
     // Controls the spitter
     if (operator.getRawButtonPressed(6)) coralSpitter.spit(); // Right bumper button

@@ -36,13 +36,13 @@ public class CoralSpitter {
     if (!getIntakeSensor()) intakeSensorTimer.restart(); // Restarts the timer as soon as a coral is not detected. The timer measures how much time has elapsed after a coral is detected.
 
     if (isSpitting) {
-      spitMotor.setControl(new DutyCycleOut(0.15).withEnableFOC(true)); // Sets the velocity of the motor in rotations per second.
+      spitMotor.setControl(new DutyCycleOut(0.15).withEnableFOC(true)); // Scores the coral
     } else if (!getExhaustSensor() && intakeSensorTimer.get() > intakeDelay) {
-      spitMotor.setControl(new DutyCycleOut(0.10).withEnableFOC(true));
-    } else if (!coralDetected()) {
-      spitMotor.setControl(new DutyCycleOut(-0.05).withEnableFOC(true));
+      spitMotor.setControl(new DutyCycleOut(0.10).withEnableFOC(true)); // Loads the coral about halfway into the mechanism.
+    } else if (!getExhaustSensor()) {
+      spitMotor.setControl(new DutyCycleOut(-0.05).withEnableFOC(true)); // Runs the mechanism in reverse to prevent jams.
     } else {
-      spitMotor.setControl(new DutyCycleOut(0.0).withEnableFOC(true));
+      spitMotor.setControl(new DutyCycleOut(0.0).withEnableFOC(true)); // Holds the coral until it is ready to be scored.
     }
 
     if (exhaustSensorTimer.get() > exhaustDelay) isSpitting = false; // If the timer exceeds the delay, stop spitting.

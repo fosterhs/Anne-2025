@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.fasterxml.jackson.databind.deser.std.StdNodeBasedDeserializer;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
@@ -21,7 +20,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -77,7 +75,7 @@ class Drivetrain {
   private final ProfiledPIDController yController = new ProfiledPIDController(3.0, 0.0, 0.0, new TrapezoidProfile.Constraints(maxVelAuto, maxAccAuto)); // Controls the y-position of the robot.
   private final ProfiledPIDController angleController = new ProfiledPIDController(4.0, 0.0, 0.0, new TrapezoidProfile.Constraints(maxAngVelAuto, maxAngAccAuto)); // Controls the angle of the robot.
   private boolean atDriveGoal = false; // Whether the robot is at the target within the tolerance specified by posTol and angTol when controlled by aimDrive() or moveToTarget()
-  private double posTol = 0.015; // The allowable error in the x and y position of the robot in meters.
+  private double posTol = 0.01; // The allowable error in the x and y position of the robot in meters.
   private double angTol = 0.3; // The allowable error in the angle of the robot in degrees.
   
   // These variables are updated each period so they can be passed along to the user or the dashboard.
@@ -130,9 +128,9 @@ class Drivetrain {
 
   // Should be called immediately prior to aimDrive() or driveTo(). Resets the PID controllers. Target angle specifies the first angle that will be demanded.
   public void resetDriveController(double targetAngle) {
-    xController.reset(getXPos(), 0.0);
-    yController.reset(getYPos(), 0.0);
-    angleController.reset(getAngleDistance(getFusedAng(), targetAngle)*Math.PI/180.0, 0.0);
+    xController.reset(getXPos(), xVel);
+    yController.reset(getYPos(), yVel);
+    angleController.reset(getAngleDistance(getFusedAng(), targetAngle)*Math.PI/180.0, angVel*Math.PI/180.0);
     xController.setPID(3.0, 0.0, 0.0);
     yController.setPID(3.0, 0.0, 0.0);
     angleController.setPID(4.0, 0.0, 0.0);
@@ -205,12 +203,12 @@ class Drivetrain {
   // Should be called once exactly 1 period prior to the start of calls to followPath() each time a new path is followed. pathIndex starts at 0 and incements by 1 for each path loaded into loadPath().
   public void resetPathController(int pathIndex) {
     double initialGoalAngle = paths.get(pathIndex).getInitialState().heading.getDegrees();
-    xController.reset(getXPos(), 0.0);
-    yController.reset(getYPos(), 0.0);
-    angleController.reset(getAngleDistance(getFusedAng(), initialGoalAngle)*Math.PI/180.0, 0.0);
-    xController.setPID(1.5, 0.0, 0.001);
-    yController.setPID(1.5, 0.0, 0.001);
-    angleController.setPID(2.0, 0.0, 0.001);
+    xController.reset(getXPos(), xVel);
+    yController.reset(getYPos(), yVel);
+    angleController.reset(getAngleDistance(getFusedAng(), initialGoalAngle)*Math.PI/180.0, angVel*Math.PI/180.0);
+    xController.setPID(1.5, 0.0, 0.0);
+    yController.setPID(1.5, 0.0, 0.0);
+    angleController.setPID(2.0, 0.0, 0.0);
     pathTimer.restart();
   }
   
@@ -295,7 +293,7 @@ class Drivetrain {
     int tagCount = botpose.tagCount; // The number of AprilTags detected in the current frame.
     double tagArea = botpose.avgTagArea*tagCount; // The total area in the current frame that is covered by AprilTags in percent (from 0 to 100).
     double robotVel = Math.sqrt(Math.pow(getXVel(), 2) + Math.pow(getYVel(), 2)); // The velocity of the robot in meters per second.
-    double SD = 0.5; // How much variance there is in the LL vision information.
+    double SD = 0.5; // How much variance there is in the LL vision information. Lower numbers indicate more trustworthy data.
     if (tagCount >= 2 || tagArea > 0.08) SD = 0.1; // Reduces the standard deviation when there are multiple tags in sight, or the tags are close to the camera.
     if (currentFrame != lastFrame && tagCount >= 1 && tagArea > 0.2 && robotVel < 1.0 && getAngVel() < 90.0) { // >1 April Tag is detected, the robot is relatively close to the April Tags, the robot is relatively stationary, and there is a new frame.
       odometry.setVisionMeasurementStdDevs(VecBuilder.fill(SD, SD, Units.degreesToRadians(Units.degreesToRadians(Math.pow(10, 10)))));
@@ -427,7 +425,7 @@ class Drivetrain {
   
   // Publishes information to the dashboard. Should be called each period.
   public void updateDash() {
-    //SmartDashboard.putNumber("Vision Calibration Timer", getCalibrationTimer());
+    SmartDashboard.putNumber("Vision Calibration Timer", getCalibrationTimer());
     //SmartDashboard.putNumber("Front Left Swerve Module Position", frontLeftModule.getDriveMotorPos());
     //SmartDashboard.putNumber("Front Right Swerve Module Position", frontRightModule.getDriveMotorPos());
     //SmartDashboard.putNumber("Back Right Swerve Module Position", backRightModule.getDriveMotorPos());
