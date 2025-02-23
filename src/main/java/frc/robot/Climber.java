@@ -1,7 +1,9 @@
 package frc.robot;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -16,6 +18,7 @@ public class Climber {
   public Climber() {
     configMotor(climbMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
     openLatch();
+    ParentDevice.optimizeBusUtilizationForAll(climbMotor);
   }
 
   // Controls the velocity of the climber. 1.0 is full speed up, -1.0 is full speed down, 0.0 is stopped.

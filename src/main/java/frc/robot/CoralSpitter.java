@@ -2,6 +2,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -23,6 +24,7 @@ public class CoralSpitter {
     configMotor(spitMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 80A current limit.
     exhaustSensorTimer.restart();
     intakeSensorTimer.restart();
+    ParentDevice.optimizeBusUtilizationForAll(spitMotor);
   }
 
   // Should be called in autoInit() and teleopInit(). Required for the coralSpitter to function correctly.
