@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 class Elevator {
   private final TalonFX elevatorMasterMotor = new TalonFX(9, "canivore"); // The master elevator motor.
   private final TalonFX elevatorSlaveMotor = new TalonFX(10, "canivore"); // The slave elevator motor.
-  public enum Level {L1, L2, L3, L4, Source, Bottom}   // A list containing important elevator heights that are pre-programmed.
+  public enum Level {L1, L2, L3, L4, source, lowAlgae, highAlgae, bottom}   // A list containing important elevator heights that are pre-programmed.
   private final double highLimit = 56.0; // The high limit of the elevator motor in meters.
   private final double lowLimit = 1.0; // The low limit of the elevator motor in meters.
   private final double posTol = 0.1; // How much error is acceptable between the setpoint and the current position of the elevator in motor rotations.
@@ -44,11 +44,19 @@ class Elevator {
         setPosition(78.31);
       break;
 
-      case Source:
+      case source:
         setPosition(4.75);
       break;
 
-      case Bottom:
+      case lowAlgae:
+      setPosition(0.0);
+      break;
+
+      case highAlgae:
+      setPosition(0.0);
+      break;
+
+      case bottom:
         setPosition(0.0);
       break;
     }

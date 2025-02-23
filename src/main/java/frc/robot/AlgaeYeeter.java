@@ -7,6 +7,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.ctre.phoenix6.controls.VelocityVoltage;
 
 public class AlgaeYeeter {
@@ -41,6 +43,12 @@ public class AlgaeYeeter {
   // Returns the current angle of the arm. 
   public double getArmAngle() {
     return armMotor.getPosition().getValueAsDouble();
+  }
+
+  // Updates the SmartDashboard with information about the algae yeeter.
+  public void updateDash() {
+    //SmartDashboard.putBoolean("Algae Yeeter algaeDetected", algaeDetected());
+    //SmartDashboard.putNumber("Algae Yeeter getArmAngle", getArmAngle());
   }
 
   private void configArmMotor(TalonFX motor, boolean invert, double currentLimit) {

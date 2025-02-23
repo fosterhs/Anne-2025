@@ -57,6 +57,8 @@ public class Robot extends TimedRobot {
     swerve.updateDash();
     elevator.updateDash();
     coralSpitter.updateDash();
+    //algaeYeeter.updateDash();
+    //climber.updateDash();
     updateDash();
   }
 
@@ -170,8 +172,8 @@ public class Robot extends TimedRobot {
     if (operator.getRawButtonPressed(2)) elevator.setLevel(Elevator.Level.L2); // B button
     if (operator.getRawButtonPressed(3)) elevator.setLevel(Elevator.Level.L3); // X button
     if (operator.getRawButtonPressed(4)) elevator.setLevel(Elevator.Level.L4); // Y button 
-    if (operator.getRawButtonPressed(5)) elevator.setLevel(Elevator.Level.Source); // Left bumper button
-    if (operator.getRawButtonPressed(7)) elevator.setLevel(Elevator.Level.Bottom); // Left center button
+    if (operator.getRawButtonPressed(5)) elevator.setLevel(Elevator.Level.source); // Left bumper button
+    if (operator.getRawButtonPressed(7)) elevator.setLevel(Elevator.Level.bottom); // Left center button
 
     // Controls the spitter
     if (operator.getRawButtonPressed(6)) coralSpitter.spit(); // Right bumper button
