@@ -246,12 +246,12 @@ public class Robot extends TimedRobot {
     }
     
     // These 4 scoring locations correspond to the source. There are 2 scoring locations at each of the 2 sources, for a total of 4. 
-    scoringPositionsX[12] = 0.652; // X-position of the first scoring location at the source nearest the origin in meters.
-    scoringPositionsY[12] = 1.358; // Y-position of the first scoring location at the source nearest the origin in meters.
+    scoringPositionsX[12] = 0.601; // X-position of the first scoring location at the source nearest the origin in meters.
+    scoringPositionsY[12] = 1.343; // Y-position of the first scoring location at the source nearest the origin in meters.
     scoringHeadings[12] = -126.0; // Heading of the first scoring location at the source nearest the origin in meters. The source makes 54 and 36 degree angles with the coordinate axes.
 
-    scoringPositionsX[13] = 1.710; // X-position of the second scoring location at the source nearest the origin in meters.
-    scoringPositionsY[13] = 0.605; // Y-position of the second scoring location at the source nearest the origin in meters.
+    scoringPositionsX[13] = 1.608; // X-position of the second scoring location at the source nearest the origin in meters.
+    scoringPositionsY[13] = 0.592; // Y-position of the second scoring location at the source nearest the origin in meters.
     scoringHeadings[13] = scoringHeadings[12]; // This is automatically calculated. Does not need to be edited.
 
     scoringPositionsX[14] = scoringPositionsX[12]; // This is automatically calculated. Does not need to be edited.
@@ -263,8 +263,8 @@ public class Robot extends TimedRobot {
     scoringHeadings[15] = -scoringHeadings[13]; // This is automatically calculated. Does not need to be edited.
 
     // The scoring location of the processor.
-    scoringPositionsX[16] = 455.15*0.0254; // This is automatically calculated. Does not need to be edited.
-    scoringPositionsY[16] = 7.547; // Y-position of the processor scoring location in meters.
+    scoringPositionsX[16] = 11.561; // X-position of the processor scoring location in meters.
+    scoringPositionsY[16] = 7.609; // Y-position of the processor scoring location in meters.
     scoringHeadings[16] = 90.0; // Heading of the processor scoring location.
   }
 
