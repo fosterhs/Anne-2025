@@ -57,7 +57,7 @@ public class CoralSpitter {
 
   // Returns true if there is a coral detected in the coralSpitter.
   public boolean coralDetected() {
-    return !coralExhaustSensor.get() || !coralIntakeSensor.get(); 
+    return getExhaustSensor() || getIntakeSensor(); 
   }
 
   // Returns true if the intake sensor detects a coral.

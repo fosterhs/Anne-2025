@@ -47,7 +47,6 @@ public class Robot extends TimedRobot {
     autoChooser.addOption(auto2, auto2);
     SmartDashboard.putData("Autos", autoChooser);
 
-    calcScoringPoses(); // Calculates all of the scoring locations on the field.
     swerve.loadPath("Test", 0.0, 0.0, 0.0, 0.0); // Loads a Path Planner generated path into the path follower code in the drivetrain. 
     runAll(); // Helps prevent loop overruns on startup by running every command before the match starts.
   }
@@ -278,7 +277,6 @@ public class Robot extends TimedRobot {
     swerve.driveTo(1.0, -2.0, -75.0);
     swerve.resetPathController(0);
     swerve.followPath(0);
-    swerve.pushCalibration();
     if (swerve.limelights.length > 0) swerve.addCalibrationEstimate(0, false);
     swerve.pushCalibration();
     swerve.resetCalibration();
@@ -302,7 +300,26 @@ public class Robot extends TimedRobot {
     System.out.println("swerve getYVel: " + swerve.getYVel());
     System.out.println("swerve isBlueAlliance: " + swerve.isBlueAlliance());
     System.out.println("swerve isRedAlliance: " + swerve.isRedAlliance());
+    System.out.println("swerve getGyroPitch: " + swerve.getGyroPitch());
+    System.out.println("swerve getAngleDist: " + swerve.getAngleDistance(30.0, -120.0));
     swerve.updateDash();
+
+    coralSpitter.init();
+    coralSpitter.periodic();
+    coralSpitter.spit();
+    System.out.println("spitter coralDetected: " + coralSpitter.coralDetected());
+    System.out.println("spitter getIntakeSensor: " + coralSpitter.getIntakeSensor());
+    System.out.println("spitter getExhaustSensor: " + coralSpitter.getExhaustSensor());
+    System.out.println("spitter isSpitting: " + coralSpitter.isSpitting());
+    coralSpitter.updateDash();
+
+    elevator.setLevel(Elevator.Level.bottom);
+    System.out.println("elevator atSetpoint: " + elevator.atSetpoint());
+    System.out.println("elevator getPosition: " + elevator.getPosition());
+    elevator.updateDash();
+
     updateDash();
+    calcScoringPoses();
+    calcNearestScoringPose();
   }
 }
