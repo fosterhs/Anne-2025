@@ -30,9 +30,9 @@ class SwerveModule {
     wheelEncoder = new CANcoder(encoderID, canbus);
     configEncoder(wheelEncoder, wheelEncoderZero);
     turnMotor = new TalonFX(turnID, canbus);
-    configTurnMotor(turnMotor, true, 40.0);
+    configTurnMotor(turnMotor, true, 120.0);
     driveMotor = new TalonFX(driveID, canbus);
-    configDriveMotor(driveMotor, invertDrive, 80.0);
+    configDriveMotor(driveMotor, invertDrive, 120.0);
     driveMotor.setPosition(0.0, 0.03);
     BaseStatusSignal.setUpdateFrequencyForAll(250.0, driveMotor.getPosition(), driveMotor.getVelocity(), wheelEncoder.getAbsolutePosition(), wheelEncoder.getVelocity(), turnMotor.getDutyCycle());
     ParentDevice.optimizeBusUtilizationForAll(driveMotor, turnMotor, wheelEncoder);

@@ -17,7 +17,7 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter angAccLimiter = new SlewRateLimiter(Drivetrain.maxAngAccTeleop / Drivetrain.maxAngVelTeleop);
 
   private double speedScaleFactor = 1.0; // Scales the speed of the robot that results from controller inputs. 1.0 corresponds to full speed. 0.0 is fully stopped.
-  private boolean swerveLock = false; // Controls whether the swerve drive is in x-lock (for defense) or is driving. \
+  private boolean swerveLock = false; // Controls whether the swerve drive is in x-lock (for defense) or is driving. 
 
   // Initializes the different subsystems of the robot.
   private final Drivetrain swerve = new Drivetrain(); // Contains the Swerve Modules, Gyro, Path Follower, Target Tracking, Odometry, and Vision Calibration.
@@ -33,15 +33,23 @@ public class Robot extends TimedRobot {
   private String autoSelected;
   private int autoStage = 1;
 
+  // Auto Aim Variables
+  final double reefX = 176.75*0.0254; // The x-coordinate of the center of the reef in meters.
+  final double reefY = Drivetrain.fieldWidth/2.0; // The y-coordinate of the center of the reef in meters.
+  double[] scoringPositionsX = new double[17]; // Contains all scoring positions of the robot in the x-direction.
+  double[] scoringPositionsY = new double[17]; // Contains all scoring positions of the robot in the y-direction.
+  double[] scoringHeadings = new double[17]; // Contains all scoring headings of the robot.
+  int nearestScoreIndex = 0; // Array index corresponding to the closest scoring location to the current position of the robot. Updated when scoreCalc() is called.
+
   public void robotInit() { 
     // Configures the auto chooser on the dashboard.
     autoChooser.setDefaultOption(auto1, auto1);
     autoChooser.addOption(auto2, auto2);
     SmartDashboard.putData("Autos", autoChooser);
 
+    calcScoringPoses(); // Calculates all of the scoring locations on the field.
     swerve.loadPath("Test", 0.0, 0.0, 0.0, 0.0); // Loads a Path Planner generated path into the path follower code in the drivetrain. 
     runAll(); // Helps prevent loop overruns on startup by running every command before the match starts.
-    calcScoringPoses();
   }
 
   public void robotPeriodic() {
@@ -50,20 +58,17 @@ public class Robot extends TimedRobot {
     elevator.updateDash();
     coralSpitter.updateDash();
     updateDash();
-    swerve.updateVisionHeading(); // Updates the Limelights with the robot heading (for MegaTag2).
-    if (driver.getRawButtonPressed(8)) swerve.resetGyro(); // Right center button re-zeros the angle reading of the gyro to the current angle of the robot. Should be called if the gyroscope readings are no longer well correlated with the field.
   }
 
   public void autonomousInit() {
     swerve.pushCalibration(); // Updates the robot's position on the field.
-    coralSpitter.init();
+    coralSpitter.init(); // Should be called in autoInit() and teleopInit(). Required for the coralSpitter to function correctly.
     autoStage = 1;
     autoSelected = autoChooser.getSelected();
     switch (autoSelected) {
       case auto1:
         // AutoInit 1 code goes here.
-        calcNearestScoringPose(); // Calculates the closest scoring position.S
-        swerve.resetDriveController(scoringHeadings[nearestScoreIndex]); // Prepares the robot to drive to the closest scoring position.
+        swerve.resetDriveController(scoringHeadings[8]); // Prepares the robot to drive to the closest scoring position.
       break;
 
       case auto2:
@@ -74,13 +79,14 @@ public class Robot extends TimedRobot {
 
   public void autonomousPeriodic() {
     swerve.updateOdometry(); // Keeps track of the position of the robot on the field. Must be called each period.
-    coralSpitter.periodic();
+    swerve.updateVisionHeading(); // Updates the Limelights with the robot heading (for MegaTag2).
+    coralSpitter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the coralSpitter to function correctly.
     switch (autoSelected) {
       case auto1:
         switch (autoStage) {
           case 1:
             // Auto 1, Stage 1 code goes here.
-            swerve.driveTo(scoringPositionsX[nearestScoreIndex], scoringPositionsY[nearestScoreIndex], scoringHeadings[nearestScoreIndex]); // Drives to the closest scoring position.
+            swerve.driveTo(scoringPositionsX[8], scoringPositionsY[8], scoringHeadings[8]); // Drives to the closest scoring position.
             elevator.setLevel(Elevator.Level.L1); // This moves the elevator to the first level.
             if (swerve.atDriveGoal() && elevator.atSetpoint()) {
               autoStage = 2;
@@ -110,15 +116,17 @@ public class Robot extends TimedRobot {
   
   public void teleopInit() {
     swerve.pushCalibration(); // Updates the robot's position on the field.
-    coralSpitter.init();
+    coralSpitter.init(); // Should be called in autoInit() and teleopInit(). Required for the coralSpitter to function correctly.
   }
 
   public void teleopPeriodic() {
     swerve.updateOdometry(); // Keeps track of the position of the robot on the field. Must be called each period.
-    coralSpitter.periodic();
+    swerve.updateVisionHeading(); // Updates the Limelights with the robot heading (for MegaTag2).
     for (int limelightIndex = 0; limelightIndex < swerve.limelights.length; limelightIndex++) { // Iterates through each limelight.
       swerve.addVisionEstimate(limelightIndex, true); // Checks to see ifs there are reliable April Tags in sight of the Limelight and updates the robot position on the field.
     }
+
+    coralSpitter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the coralSpitter to function correctly.
 
     if (driver.getRawButtonPressed(4)) speedScaleFactor = 1.0; // Y Button sets the drivetrain in full speed mode.
     if (driver.getRawButtonPressed(2)) speedScaleFactor = 0.6; // B button sets the drivetrain in medium speed mode.
@@ -154,6 +162,8 @@ public class Robot extends TimedRobot {
       }
     }
     if (driver.getRawButtonReleased(7)) swerve.pushCalibration(); // Updates the position of the robot on the field based on previous calculations.  
+
+    if (driver.getRawButtonPressed(8)) swerve.resetGyro(); // Right center button re-zeros the angle reading of the gyro to the current angle of the robot. Should be called if the gyroscope readings are no longer well correlated with the field.
     
     // Controls the level of the elevator.
     if (operator.getRawButtonPressed(1)) elevator.setLevel(Elevator.Level.L1); // A button
@@ -173,6 +183,7 @@ public class Robot extends TimedRobot {
 
   public void disabledPeriodic() {
     swerve.updateOdometry(); // Keeps track of the position of the robot on the field. Must be called each period.
+    swerve.updateVisionHeading(); // Updates the Limelights with the robot heading (for MegaTag2).
     for (int limelightIndex = 0; limelightIndex < swerve.limelights.length; limelightIndex++) { // Iterates through each limelight.
       swerve.addCalibrationEstimate(limelightIndex, false); // Collects additional data to calculate the position of the robot on the field based on visible April Tags.
     }
@@ -184,7 +195,6 @@ public class Robot extends TimedRobot {
     //SmartDashboard.putNumber("Auto Stage", autoStage);
   }
 
-  int nearestScoreIndex = 0; // Array index corresponding to the closest scoring location to the current position of the robot. Updated when scoreCalc() is called.
   // Updates nearestScoreIndex to reflect the closest scoring location to the robot.
   public void calcNearestScoringPose() {
     double[] scoreDistances = new double[scoringPositionsX.length]; // Stores the distance to each scoring location.
@@ -206,11 +216,7 @@ public class Robot extends TimedRobot {
     }
   }
 
-  double[] scoringPositionsX = new double[17]; // Contains the reef scoring positions of the robot in the x-direction.
-  double[] scoringPositionsY = new double[17]; // Contains the reef scoring positions of the robot in the y-direction.
-  double[] scoringHeadings = new double[17]; // Contains the reef scoring headings of the robot.
-  final double reefX = 176.75*0.0254; // The x-coordinate of the center of the reef in meters.
-  final double reefY = Drivetrain.fieldWidth/2.0; // The y-coordinate of the center of the reef in meters.
+  // Calculates all of the scoring locations on the field.
   public void calcScoringPoses() {
     scoringPositionsX[0] = 3.822; // X-coordinates of the coral scoring locations in meters. Based on AprilTag 8, using the scoring position nearest to AprilTag 7 on the Red alliance.
     scoringPositionsY[0] = 2.924; // Y-coordinates of the coral scoring locations in meters. Based on AprilTag 8, using the scoring position nearest to AprilTag 7 on the Red alliance.
@@ -234,7 +240,7 @@ public class Robot extends TimedRobot {
     for (int index = 7; index < 12; index++) {
       scoringPositionsX[index] = (scoringPositionsX[6] - reefX)*Math.cos(Math.toRadians(index*60.0)) - (scoringPositionsY[6] - reefY)*Math.sin(Math.toRadians(index*60.0)) + reefX;
       scoringPositionsY[index] = (scoringPositionsX[6] - reefX)*Math.sin(Math.toRadians(index*60.0)) + (scoringPositionsY[6] - reefY)*Math.cos(Math.toRadians(index*60.0)) + reefY;
-      scoringHeadings[index] = scoringHeadings[0] + index*60.0;
+      scoringHeadings[index] = scoringHeadings[0] + (index-6)*60.0;
       if (scoringHeadings[index] > 180.0) scoringHeadings[index] -= 360.0;
       if (scoringHeadings[index] < -180.0) scoringHeadings[index] += 360.0;
     }

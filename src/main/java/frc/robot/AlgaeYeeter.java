@@ -11,16 +11,16 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 
 public class AlgaeYeeter {
   private final TalonFX armMotor = new TalonFX(13, "canivore"); // Initializes the motor with CAN ID of 0 connected to the canivore. 
-  private final TalonFX intakeMotor1 = new TalonFX(14, "canivore");  // Initializes the motor with CAN ID of 0 connected to the canivore. 
-  private final TalonFX intakeMotor2 = new TalonFX(15, "canivore");  // Initializes the motor with CAN ID of 0 connected to the canivore. 
+  private final TalonFX intakeMasterMotor = new TalonFX(14, "canivore");  // Initializes the motor with CAN ID of 0 connected to the canivore. 
+  private final TalonFX intakeSlaveMotor = new TalonFX(15, "canivore");  // Initializes the motor with CAN ID of 0 connected to the canivore. 
   private final DigitalInput algaeSensor = new DigitalInput(4); // Initializes the sensor connected to DIO port 4 on the RoboRIO.
 
   public AlgaeYeeter() {
-    configArmMotor(armMotor, false, 80.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
-    configIntakeMotor(intakeMotor1, false, 80.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
-    configIntakeMotor(intakeMotor2, true, 80.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
+    configArmMotor(armMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
+    configIntakeMotor(intakeMasterMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
+    configIntakeMotor(intakeSlaveMotor, true, 120.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
     armMotor.setPosition(0.0, 0.03); // Sets the position of the motor to 0 on startup.
-    intakeMotor2.setControl(new Follower(14, true)); // Sets the second intake motor to follow the first intake motor exactly.
+    intakeSlaveMotor.setControl(new Follower(14, true)); // Sets the second intake motor to follow the first intake motor exactly.
   }
 
   // Sets the arm to the desired angle in degrees.
@@ -30,7 +30,7 @@ public class AlgaeYeeter {
 
   // Sets the speed of the intake wheels. 1.0 corresponds to full outtake speed, -1.0 is corresponds to full intake speed, and 0.0 is stopped.
   public void setWheelSpeed(double speed) {
-    intakeMotor1.setControl(new VelocityVoltage(speed).withEnableFOC(true)); // Sets the velocity of the motor in rotations per second.
+    intakeMasterMotor.setControl(new VelocityVoltage(speed).withEnableFOC(true)); // Sets the velocity of the motor in rotations per second.
   }
 
   // Returns true if an algae is detected by the sensor.

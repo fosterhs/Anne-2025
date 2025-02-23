@@ -1,7 +1,7 @@
 package frc.robot;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -20,14 +20,14 @@ public class CoralSpitter {
   private double intakeDelay = 0.5; // How long the spitMotor will wait before starting to intake a coral in seconds.
 
   public CoralSpitter() {
-    configMotor(spitMotor, false, 80.0); // Configures the motor with counterclockwise rotation positive and 80A current limit.
+    configMotor(spitMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 80A current limit.
+    exhaustSensorTimer.restart();
+    intakeSensorTimer.restart();
   }
 
   // Should be called in autoInit() and teleopInit(). Required for the coralSpitter to function correctly.
   public void init() { 
     isSpitting = false;
-    exhaustSensorTimer.restart();
-    intakeSensorTimer.restart();
   }
 
   // Should be called in autoPeroidic() and teleopPeriodic(). Required for the coralSpitter to function correctly.
@@ -36,13 +36,13 @@ public class CoralSpitter {
     if (!getIntakeSensor()) intakeSensorTimer.restart(); // Restarts the timer as soon as a coral is not detected. The timer measures how much time has elapsed after a coral is detected.
 
     if (isSpitting) {
-      spitMotor.setControl(new DutyCycleOut(0.15).withEnableFOC(true)); // Scores the coral
+      spitMotor.setControl(new VoltageOut(1.8).withEnableFOC(true)); // Scores the coral
     } else if (!getExhaustSensor() && intakeSensorTimer.get() > intakeDelay) {
-      spitMotor.setControl(new DutyCycleOut(0.10).withEnableFOC(true)); // Loads the coral about halfway into the mechanism.
+      spitMotor.setControl(new VoltageOut(1.2).withEnableFOC(true)); // Loads the coral about halfway into the mechanism.
     } else if (!getExhaustSensor()) {
-      spitMotor.setControl(new DutyCycleOut(-0.05).withEnableFOC(true)); // Runs the mechanism in reverse to prevent jams.
+      spitMotor.setControl(new VoltageOut(-0.6).withEnableFOC(true)); // Runs the mechanism in reverse to prevent jams.
     } else {
-      spitMotor.setControl(new DutyCycleOut(0.0).withEnableFOC(true)); // Holds the coral until it is ready to be scored.
+      spitMotor.setControl(new VoltageOut(0.0).withEnableFOC(true)); // Holds the coral until it is ready to be scored.
     }
 
     if (exhaustSensorTimer.get() > exhaustDelay) isSpitting = false; // If the timer exceeds the delay, stop spitting.

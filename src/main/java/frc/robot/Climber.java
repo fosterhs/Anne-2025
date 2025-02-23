@@ -10,7 +10,7 @@ public class Climber {
   private final TalonFX climbMotor = new TalonFX(11, "canivore"); // Initializes the motor with CAN ID of 11 connected to the canivore. 
 
   public Climber() {
-    configMotor(climbMotor, false, 80.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
+    configMotor(climbMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
   }
 
   // Controls the velocity of the climber. 1.0 is full speed up, -1.0 is full speed down, 0.0 is stopped.
