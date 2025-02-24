@@ -59,9 +59,8 @@ class Drivetrain {
 
   // Limelight Variables
   public final String[] limelights = {"limelight-front", "limelight-back"}; // Stores the names of all limelights on the robot.
-  private long[] lastFrames = new long[limelights.length]; // The Limelight frame number of the last frame stored in the calibrationPosition array. Used to detect whether a new frame was recieved.
   private final int maxCalibrationFrames = 20; // The number of LL frames that will be averaged to determine the position of the robot when it is disabled() or being calibrated.
-  private final int minCalibrationFrames = 2; // The minimum amount of LL frames that must be processed to accept a calibration.
+  private final int minCalibrationFrames = 5; // The minimum amount of LL frames that must be processed to accept a calibration.
   private double[][] calibrationArray = new double[3][maxCalibrationFrames]; // An array that stores the LL botpose for the most recent frames, up to the number of frames specified by maxCalibrationFrames
   private int calibrationIndex = 0; // The index of the most recent entry into the calibrationPosition array. The index begins at 0 and goes up to calibrationFrames-1, after which it returns to 0 and repeats.
   private int calibrationFrames = 0; // The current number of frames stored in the calibrationPosition array. 
@@ -92,9 +91,6 @@ class Drivetrain {
     angleController.setIntegratorRange(-maxAngVelAuto*0.8, maxAngVelAuto*0.8);
     resetGyro(); // Sets the gyro angle to 0 based on the current heading of the robot.
     calibrationTimer.restart();
-    for (int limelightIndex = 0; limelightIndex < lastFrames.length; limelightIndex++) {
-      lastFrames[limelightIndex] = 0;
-    }
     BaseStatusSignal.setUpdateFrequencyForAll(250.0, pigeon.getYaw(), pigeon.getAngularVelocityZWorld(), pigeon.getPitch());
     ParentDevice.optimizeBusUtilizationForAll(pigeon);
   }
@@ -281,24 +277,16 @@ class Drivetrain {
   
   // Incorporates vision information to determine the position of the robot on the field. Should be used only when vision information is deemed to be highly reliable (>1 april tag, close to april tag...)
   // limelightIndex indicates the camera to use. 0 is corresponds to the first entry in the limelights[] array. 
-  public void addVisionEstimate(int limelightIndex, boolean megaTag2) {
-    long currentFrame = LimelightHelpers.getLimelightNTTableEntry(limelights[limelightIndex], "hb").getInteger(0); // Gets the Limelight frame number from network tables.
-    long lastFrame = lastFrames[limelightIndex]; // Gets the Limelight frame number of the last frame that was utlizied for robot localization.
-    PoseEstimate botpose;
-    if (megaTag2) {
-      botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(limelights[limelightIndex]); // Transforms the vision position estimate to the appropriate coordinate system for the robot's alliance color
-    } else {
-      botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed(limelights[limelightIndex]); // Transforms the vision position estimate to the appropriate coordinate system for the robot's alliance color
-    }
+  public void addVisionEstimate(int limelightIndex) {
+    PoseEstimate botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(limelights[limelightIndex]); // Transforms the vision position estimate to the appropriate coordinate system for the robot's alliance color
     int tagCount = botpose.tagCount; // The number of AprilTags detected in the current frame.
     double tagArea = botpose.avgTagArea*tagCount; // The total area in the current frame that is covered by AprilTags in percent (from 0 to 100).
     double robotVel = Math.sqrt(Math.pow(getXVel(), 2) + Math.pow(getYVel(), 2)); // The velocity of the robot in meters per second.
     double SD = 0.5; // How much variance there is in the LL vision information. Lower numbers indicate more trustworthy data.
     if (tagCount >= 2 || tagArea > 0.08) SD = 0.1; // Reduces the standard deviation when there are multiple tags in sight, or the tags are close to the camera.
-    if (currentFrame != lastFrame && tagCount >= 1 && tagArea > 0.2 && robotVel < 1.0 && getAngVel() < 90.0) { // >1 April Tag is detected, the robot is relatively close to the April Tags, the robot is relatively stationary, and there is a new frame.
+    if (tagCount >= 1 && tagArea > 0.2 && robotVel < 1.0 && getAngVel() < 90.0) { // >1 April Tag is detected, the robot is relatively close to the April Tags, the robot is relatively stationary, and there is a new frame.
       odometry.setVisionMeasurementStdDevs(VecBuilder.fill(SD, SD, Units.degreesToRadians(Units.degreesToRadians(Math.pow(10, 10)))));
-      odometry.addVisionMeasurement(new Pose2d(botpose.pose.getX(), botpose.pose.getY(), Rotation2d.fromDegrees(getFusedAng())), botpose.timestampSeconds);
-      lastFrames[limelightIndex] = currentFrame;      
+      odometry.addVisionMeasurement(new Pose2d(botpose.pose.getX(), botpose.pose.getY(), Rotation2d.fromDegrees(getFusedAng())), botpose.timestampSeconds);  
       calibrationTimer.restart();
     } 
   }
@@ -308,29 +296,18 @@ class Drivetrain {
     calibrationArray = new double[3][maxCalibrationFrames];
     calibrationIndex = 0;
     calibrationFrames = 0;
-    for (int limelightIndex = 0; limelightIndex < lastFrames.length; limelightIndex++) {
-      lastFrames[limelightIndex] = 0;
-    }
   }
 
   // Should be called during disabled(). Calibrates the robot's starting position based on any April Tags in sight of the Limelight.
   // limelightIndex indicates the camera to use. 0 is corresponds to the first entry in the limelights[] array. 
-  public void addCalibrationEstimate(int limelightIndex, boolean megaTag2) {
-    long currentFrame = LimelightHelpers.getLimelightNTTableEntry(limelights[limelightIndex], "hb").getInteger(0); // Gets the Limelight frame number from network tables.
-    long lastFrame = lastFrames[limelightIndex];
-    PoseEstimate botpose;
-    if (megaTag2) {
-      botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(limelights[limelightIndex]); // Transforms the vision position estimate to the appropriate coordinate system for the robot's alliance color
-    } else {
-      botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed(limelights[limelightIndex]); // Transforms the vision position estimate to the appropriate coordinate system for the robot's alliance color
-    }
-    if (botpose.tagCount > 0 && currentFrame != lastFrame) { // Checks to see whether there is at least 1 vision target and the LL has provided a new frame.
+  public void addCalibrationEstimate(int limelightIndex) {
+    PoseEstimate botpose =isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed(limelights[limelightIndex]); // Transforms the vision position estimate to the appropriate coordinate system for the robot's alliance color
+    if (botpose.tagCount > 0) { // Checks to see whether there is at least 1 vision target and the LL has provided a new frame.
       calibrationArray[0][calibrationIndex] = botpose.pose.getX(); // Adds an x-position entry to the calibrationPosition array. 
       calibrationArray[1][calibrationIndex] = botpose.pose.getY(); // Adds a y-position entry to the calibrationPosition array. 
       calibrationArray[2][calibrationIndex] = botpose.pose.getRotation().getDegrees(); // Adds a angle-position entry to the calibrationPosition array. 
       calibrationIndex = (calibrationIndex + 1) % maxCalibrationFrames; // Handles the looping of the calibrationIndex variable. 
       if (calibrationFrames < maxCalibrationFrames) calibrationFrames++;  // Increments calibrationPoints until the calibrationPosition array is full.
-      lastFrames[limelightIndex] = currentFrame;
       calibrationTimer.restart();
     } 
   }

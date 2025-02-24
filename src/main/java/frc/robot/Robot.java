@@ -124,7 +124,7 @@ public class Robot extends TimedRobot {
     swerve.updateOdometry(); // Keeps track of the position of the robot on the field. Must be called each period.
     swerve.updateVisionHeading(); // Updates the Limelights with the robot heading (for MegaTag2).
     for (int limelightIndex = 0; limelightIndex < swerve.limelights.length; limelightIndex++) { // Iterates through each limelight.
-      swerve.addVisionEstimate(limelightIndex, true); // Checks to see ifs there are reliable April Tags in sight of the Limelight and updates the robot position on the field.
+      swerve.addVisionEstimate(limelightIndex); // Checks to see ifs there are reliable April Tags in sight of the Limelight and updates the robot position on the field.
     }
 
     coralSpitter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the coralSpitter to function correctly.
@@ -159,7 +159,7 @@ public class Robot extends TimedRobot {
     if (driver.getRawButtonPressed(7)) swerve.resetCalibration(); // Begins calculating the position of the robot on the field based on visible April Tags.
     if (driver.getRawButton(7)) { // Left center button
       for (int limelightIndex = 0; limelightIndex < swerve.limelights.length; limelightIndex++) { // Iterates through each limelight.
-        swerve.addCalibrationEstimate(limelightIndex, false); // Collects additional data to calculate the position of the robot on the field based on visible April Tags.
+        swerve.addCalibrationEstimate(limelightIndex); // Collects additional data to calculate the position of the robot on the field based on visible April Tags.
       }
     }
     if (driver.getRawButtonReleased(7)) swerve.pushCalibration(); // Updates the position of the robot on the field based on previous calculations.  
@@ -186,7 +186,7 @@ public class Robot extends TimedRobot {
     swerve.updateOdometry(); // Keeps track of the position of the robot on the field. Must be called each period.
     swerve.updateVisionHeading(); // Updates the Limelights with the robot heading (for MegaTag2).
     for (int limelightIndex = 0; limelightIndex < swerve.limelights.length; limelightIndex++) { // Iterates through each limelight.
-      swerve.addCalibrationEstimate(limelightIndex, false); // Collects additional data to calculate the position of the robot on the field based on visible April Tags.
+      swerve.addCalibrationEstimate(limelightIndex); // Collects additional data to calculate the position of the robot on the field based on visible April Tags.
     }
   }
 
@@ -277,12 +277,12 @@ public class Robot extends TimedRobot {
     swerve.driveTo(1.0, -2.0, -75.0);
     swerve.resetPathController(0);
     swerve.followPath(0);
-    if (swerve.limelights.length > 0) swerve.addCalibrationEstimate(0, false);
+    if (swerve.limelights.length > 0) swerve.addCalibrationEstimate(0);
     swerve.pushCalibration();
     swerve.resetCalibration();
     swerve.resetGyro();
     swerve.updateVisionHeading();
-    if (swerve.limelights.length > 0) swerve.addVisionEstimate(0, true);
+    if (swerve.limelights.length > 0) swerve.addVisionEstimate(0);
     swerve.updateOdometry();
     swerve.drive(0.01, 0.0, 0.0, true, 0.0, 0.0);
     System.out.println("swerve atDriveGoal: " + swerve.atDriveGoal());
