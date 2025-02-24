@@ -59,8 +59,8 @@ class Drivetrain {
 
   // Limelight Variables
   public final String[] limelights = {"limelight-front", "limelight-back"}; // Stores the names of all limelights on the robot.
-  private final int maxCalibrationFrames = 20; // The number of LL frames that will be averaged to determine the position of the robot when it is disabled() or being calibrated.
-  private final int minCalibrationFrames = 5; // The minimum amount of LL frames that must be processed to accept a calibration.
+  private final int maxCalibrationFrames = 50; // The number of LL frames that will be averaged to determine the position of the robot when it is disabled() or being calibrated.
+  private final int minCalibrationFrames = 3; // The minimum amount of LL frames that must be processed to accept a calibration.
   private double[][] calibrationArray = new double[3][maxCalibrationFrames]; // An array that stores the LL botpose for the most recent frames, up to the number of frames specified by maxCalibrationFrames
   private int calibrationIndex = 0; // The index of the most recent entry into the calibrationPosition array. The index begins at 0 and goes up to calibrationFrames-1, after which it returns to 0 and repeats.
   private int calibrationFrames = 0; // The current number of frames stored in the calibrationPosition array. 
@@ -301,7 +301,7 @@ class Drivetrain {
   // Should be called during disabled(). Calibrates the robot's starting position based on any April Tags in sight of the Limelight.
   // limelightIndex indicates the camera to use. 0 is corresponds to the first entry in the limelights[] array. 
   public void addCalibrationEstimate(int limelightIndex) {
-    PoseEstimate botpose =isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed(limelights[limelightIndex]); // Transforms the vision position estimate to the appropriate coordinate system for the robot's alliance color
+    PoseEstimate botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed(limelights[limelightIndex]); // Transforms the vision position estimate to the appropriate coordinate system for the robot's alliance color
     if (botpose.tagCount > 0) { // Checks to see whether there is at least 1 vision target and the LL has provided a new frame.
       calibrationArray[0][calibrationIndex] = botpose.pose.getX(); // Adds an x-position entry to the calibrationPosition array. 
       calibrationArray[1][calibrationIndex] = botpose.pose.getY(); // Adds a y-position entry to the calibrationPosition array. 
