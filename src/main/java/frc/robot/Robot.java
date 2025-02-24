@@ -28,7 +28,7 @@ public class Robot extends TimedRobot {
   
   // Auto Variables
   private final SendableChooser<String> autoChooser = new SendableChooser<>();
-  private static final String auto1 = "1-Piece Coral (Station 8)";
+  private static final String auto1 = "1-Piece Coral (Branch 8)";
   private static final String auto2 = "auto2";
   private String autoSelected;
   private int autoStage = 1;
