@@ -365,7 +365,7 @@ class Drivetrain {
   
   // Returns the angular position of the robot in degrees. The angular position is referenced to the starting angle of the robot. CCW is positive. Will return 0 in the case of a gyro failure.
   public double getGyroAng() {
-    return BaseStatusSignal.getLatencyCompensatedValueAsDouble(pigeon.getYaw(), pigeon.getAngularVelocityZWorld(), 0.02);
+    return BaseStatusSignal.getLatencyCompensatedValueAsDouble(pigeon.getYaw(), pigeon.getAngularVelocityZWorld(), 0.02)*1.008403361344538;
   }
 
   // Returns the pitch of the robot in degrees. An elevated front is positive. An elevated rear is negative.

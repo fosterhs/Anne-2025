@@ -11,9 +11,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CoralSpitter {
-  private final TalonFX spitMotor = new TalonFX(12, "rio");  // Initializes the motor with CAN ID of 12 connected to the canivore. 
-  private final DigitalInput coralIntakeSensor = new DigitalInput(3); // Initializes the sensor connected to DIO port 3 on the RoboRIO. Sensor 1 is the sensor closest to the intake.
-  private final DigitalInput coralExhaustSensor = new DigitalInput(2); // Initializes the sensor connected to DIO port 2 on the RoboRIO. Sensor 2 is the sensor closest to the exhaust.
+  private final TalonFX spitMotor = new TalonFX(12, "rio");  // Initializes the motor with CAN ID of 12 connected to the roboRIO.
+  private final DigitalInput coralIntakeSensor = new DigitalInput(0); // Initializes the sensor connected to DIO port 0 on the RoboRIO. Sensor 1 is the sensor closest to the intake.
+  private final DigitalInput coralExhaustSensor = new DigitalInput(1); // Initializes the sensor connected to DIO port 1 on the RoboRIO. Sensor 2 is the sensor closest to the exhaust.
   private final Timer intakeSensorTimer = new Timer(); // Keeps track of how long coral has not been detected for. Resets to 0 seconds as soon as coral is detected.
   private final Timer exhaustSensorTimer = new Timer(); // Keeps track of how long coral has not been detected for. Resets to 0 seconds as soon as coral is detected.
   private boolean isSpitting = false; // Returns true if the spitter is in the process of ejecting a coral. 
