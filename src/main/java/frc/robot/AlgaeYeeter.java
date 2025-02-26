@@ -4,19 +4,32 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 
 public class AlgaeYeeter {
   private final TalonFX armMotor = new TalonFX(13, "canivore"); // Initializes the motor with CAN ID of 0 connected to the canivore. 
   private final TalonFX intakeMasterMotor = new TalonFX(14, "canivore");  // Initializes the motor with CAN ID of 0 connected to the canivore. 
   private final TalonFX intakeSlaveMotor = new TalonFX(15, "canivore");  // Initializes the motor with CAN ID of 0 connected to the canivore. 
   private final DigitalInput algaeSensor = new DigitalInput(2); // Initializes the sensor connected to DIO port 2 on the RoboRIO.
+  private final Timer algaeIntakeTimer = new Timer(); // Keeps track of how long has passed since an algae was first detected.
+  private final Timer algaeExhaustTimer = new Timer(); // Keeps track of how long has passed since an algae has stopped being detected.
+  private final double exhaustDelay = 0.3; // How long the wheels will continue running for after an algae is no longer detected in seconds.
+  private final double intakeDelay = 0.3; // How long the wheels will wait before stopping to spin after an algae is detected.
+  public enum ArmPosition {lowAlgae, highAlgae, barge, stow} // A list containing important arm positions that are pre-programmed.
+  private final double highLimit = 10.0; // The high limit of the arm motor in motor rotations.
+  private final double lowLimit = 0.0; // The low limit of the arm motor in motor rotations.
+  private final double posTol = 0.1; // How much error is acceptable between the setpoint and the current position of the elevator in motor rotations.
+  private double setpoint = 0.0; // The position that the arm motor is trying to reach in motor rotations.
+  private ArmPosition currPosition = ArmPosition.stow; // Stores the last commanded position of the arm.
+  private boolean isYeeting = false; // Returns true if the yeeter is in the process of launching an algae. 
 
   public AlgaeYeeter() {
     configArmMotor(armMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
@@ -24,18 +37,67 @@ public class AlgaeYeeter {
     configIntakeMotor(intakeSlaveMotor, true, 120.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
     armMotor.setPosition(0.0, 0.03); // Sets the position of the motor to 0 on startup.
     intakeSlaveMotor.setControl(new Follower(14, true)); // Sets the second intake motor to follow the first intake motor exactly.
+    algaeExhaustTimer.restart();
+    algaeIntakeTimer.restart();
     BaseStatusSignal.setUpdateFrequencyForAll(250.0, armMotor.getPosition());
     ParentDevice.optimizeBusUtilizationForAll(armMotor, intakeMasterMotor, intakeSlaveMotor);
   }
 
-  // Sets the arm to the desired angle in degrees.
-  public void setArmAngle(double angle) {
-    armMotor.setControl(new MotionMagicTorqueCurrentFOC(angle)); // Sets the position of the motor in shaft rotations.
+  // Should be called in autoInit() and teleopInit(). Required for the algaeYeeter to function correctly.
+  public void init() { 
+    isYeeting = false;
   }
 
-  // Sets the speed of the intake wheels. 1.0 corresponds to full outtake speed, -1.0 is corresponds to full intake speed, and 0.0 is stopped.
-  public void setWheelSpeed(double speed) {
-    intakeMasterMotor.setControl(new VelocityVoltage(speed).withEnableFOC(true)); // Sets the velocity of the motor in rotations per second.
+  // Should be called in autoPeroidic() and teleopPeriodic(). Required for the algaeYeeter to function correctly.
+  public void periodic() {
+    if (algaeDetected()) algaeExhaustTimer.restart();
+    if (!algaeDetected()) algaeIntakeTimer.restart();
+    if (algaeExhaustTimer.get() > exhaustDelay || currPosition == ArmPosition.stow) isYeeting = false;
+
+    if (isYeeting) {
+      intakeMasterMotor.setControl(new VoltageOut(-12.0).withEnableFOC(true)); // Sets the intake motors to exhaust at 12 volts.
+    } else if (currPosition == ArmPosition.stow) {
+      intakeMasterMotor.setControl(new VoltageOut(0.0).withEnableFOC(true)); // Sets the intake motors off.
+    } else if (algaeIntakeTimer.get() < intakeDelay) {
+      intakeMasterMotor.setControl(new VoltageOut(2.0).withEnableFOC(true)); // Sets the intake motors to intake at 2 volts.
+    } else {
+      intakeMasterMotor.setControl(new TorqueCurrentFOC(5.0)); // Sets the intake motors to hold the algae with 5A of current. 
+    }
+  }
+
+  // Sets the arm to a pre-programmed position. 
+  public void setArmPosition(ArmPosition desiredPosition) {
+    switch(desiredPosition) {
+      case lowAlgae:
+        setArmMotorRotations(4.0);
+        currPosition = ArmPosition.lowAlgae;
+      break;
+
+      case highAlgae:
+        setArmMotorRotations(4.0); 
+        currPosition = ArmPosition.highAlgae;
+      break;
+
+      case barge:
+        setArmMotorRotations(2.0);
+        currPosition = ArmPosition.barge;
+      break;
+      
+      case stow:
+        setArmMotorRotations(0.0);
+        currPosition = ArmPosition.stow;
+      break;
+    }
+  }
+
+  // Tells the algaeYeeter to begin the process of ejecting an algae. 
+  public void yeet() { 
+    isYeeting = algaeDetected();
+  }
+
+  // Returns true if the algaeYeeter is in the process of ejecting an algae.
+  public boolean isYeeting() {
+    return isYeeting;
   }
 
   // Returns true if an algae is detected by the sensor.
@@ -43,7 +105,12 @@ public class AlgaeYeeter {
     return !algaeSensor.get();
   }
 
-  // Returns the current angle of the arm. 
+  // Checks if the arm motor is at the target position.
+  public boolean armAtSetpoint() {
+    return Math.abs(armMotor.getPosition().getValueAsDouble() - setpoint) < posTol; // Checks if the motor is at the target position.
+  }
+
+  // Returns the current position of the arm in motor rotations. 
   public double getArmAngle() {
     return armMotor.getPosition().getValueAsDouble();
   }
@@ -52,6 +119,20 @@ public class AlgaeYeeter {
   public void updateDash() {
     //SmartDashboard.putBoolean("Algae Yeeter algaeDetected", algaeDetected());
     //SmartDashboard.putNumber("Algae Yeeter getArmAngle", getArmAngle());
+    //SmartDashboard.putBoolean("Algae Yeeter armAtSetpoint", armAtSetpoint());
+    //SmartDashboard.putBoolean("Algae Yeeter isYeeting", isYeeting());
+    //SmartDashboard.putNumber("Algae Yeeter Intake Timer", algaeIntakeTimer.get());
+    //SmartDashboard.putNumber("Algae Yeeter Exhaust Timer", algaeExhaustTimer.get());
+    //SmartDashboard.putNumber("Algae Yeeter Setpoint", setpoint);
+
+  }
+
+  // Sets the arm to the desired position in motor rotations.
+  private void setArmMotorRotations(double desiredRotations) {
+    if (desiredRotations > highLimit) desiredRotations = highLimit; // If the position is greater than the high limit, set the position to the high limit.
+    if (desiredRotations < lowLimit) desiredRotations = lowLimit; // If the position is less than the low limit, set the position to the low limit.
+    armMotor.setControl(new MotionMagicTorqueCurrentFOC(desiredRotations)); // Sets the position of the motor in shaft rotations.
+    setpoint = desiredRotations;
   }
 
   private void configArmMotor(TalonFX motor, boolean invert, double currentLimit) {

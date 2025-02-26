@@ -16,9 +16,9 @@ public class CoralSpitter {
   private final DigitalInput coralExhaustSensor = new DigitalInput(1); // Initializes the sensor connected to DIO port 1 on the RoboRIO. Sensor 2 is the sensor closest to the exhaust.
   private final Timer intakeSensorTimer = new Timer(); // Keeps track of how long coral has not been detected for. Resets to 0 seconds as soon as coral is detected.
   private final Timer exhaustSensorTimer = new Timer(); // Keeps track of how long coral has not been detected for. Resets to 0 seconds as soon as coral is detected.
+  private final double exhaustDelay = 0.3; // How long the spitMotor will continue running for after a coral is no longer detected in seconds.
+  private final double intakeDelay = 0.3; // How long the spitMotor will wait before starting to intake a coral in seconds.
   private boolean isSpitting = false; // Returns true if the spitter is in the process of ejecting a coral. 
-  private double exhaustDelay = 0.5; // How long the spitMotor will continue running for after a coral is no longer detected in seconds.
-  private double intakeDelay = 0.5; // How long the spitMotor will wait before starting to intake a coral in seconds.
 
   public CoralSpitter() {
     configMotor(spitMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 80A current limit.
@@ -36,6 +36,7 @@ public class CoralSpitter {
   public void periodic() {
     if (getExhaustSensor()) exhaustSensorTimer.restart(); // Restarts the timer as soon as a coral is detected. The timer measures how much time has elapsed since a coral was last detected.
     if (!getIntakeSensor()) intakeSensorTimer.restart(); // Restarts the timer as soon as a coral is not detected. The timer measures how much time has elapsed after a coral is detected.
+    if (exhaustSensorTimer.get() > exhaustDelay) isSpitting = false; // If the timer exceeds the delay, stop spitting.
 
     if (isSpitting) {
       spitMotor.setControl(new VoltageOut(1.8).withEnableFOC(true)); // Scores the coral
@@ -46,8 +47,6 @@ public class CoralSpitter {
     } else {
       spitMotor.setControl(new VoltageOut(0.0).withEnableFOC(true)); // Holds the coral until it is ready to be scored.
     }
-
-    if (exhaustSensorTimer.get() > exhaustDelay) isSpitting = false; // If the timer exceeds the delay, stop spitting.
   }
   
   // Tells the coralSpitter to begin the process of ejecting a coral. 

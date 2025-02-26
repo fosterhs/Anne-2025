@@ -64,6 +64,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     swerve.pushCalibration(); // Updates the robot's position on the field.
     coralSpitter.init(); // Should be called in autoInit() and teleopInit(). Required for the coralSpitter to function correctly.
+    //algaeYeeter.init(); // Should be called in autoInit() and teleopInit(). Required for the algaeYeeter to function correctly.
     autoStage = 1;
     autoSelected = autoChooser.getSelected();
     switch (autoSelected) {
@@ -82,6 +83,7 @@ public class Robot extends TimedRobot {
     swerve.updateOdometry(); // Keeps track of the position of the robot on the field. Must be called each period.
     swerve.updateVisionHeading(); // Updates the Limelights with the robot heading (for MegaTag2).
     coralSpitter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the coralSpitter to function correctly.
+    //algaeYeeter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the algaeYeeter to function correctly.
     switch (autoSelected) {
       case auto1:
         switch (autoStage) {
@@ -118,6 +120,7 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     swerve.pushCalibration(); // Updates the robot's position on the field.
     coralSpitter.init(); // Should be called in autoInit() and teleopInit(). Required for the coralSpitter to function correctly.
+    //algaeYeeter.init(); // Should be called in autoInit() and teleopInit(). Required for the algaeYeeter to function correctly.
   }
 
   public void teleopPeriodic() {
@@ -128,6 +131,7 @@ public class Robot extends TimedRobot {
     }
 
     coralSpitter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the coralSpitter to function correctly.
+    //algaeYeeter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the algaeYeeter to function correctly.
 
     if (driver.getRawButtonPressed(4)) speedScaleFactor = 1.0; // Y Button sets the drivetrain in full speed mode.
     if (driver.getRawButtonPressed(2)) speedScaleFactor = 0.6; // B button sets the drivetrain in medium speed mode.
@@ -249,7 +253,7 @@ public class Robot extends TimedRobot {
     // These 4 scoring locations correspond to the source. There are 2 scoring locations at each of the 2 sources, for a total of 4. 
     scoringPositionsX[12] = 0.601; // X-position of the first scoring location at the source nearest the origin in meters.
     scoringPositionsY[12] = 1.343; // Y-position of the first scoring location at the source nearest the origin in meters.
-    scoringHeadings[12] = -126.0; // Heading of the first scoring location at the source nearest the origin in meters. The source makes 54 and 36 degree angles with the coordinate axes.
+    scoringHeadings[12] = 144.0; // Heading of the first scoring location at the source nearest the origin. The source makes 54 and 36 degree angles with the coordinate axes.
 
     scoringPositionsX[13] = 1.608; // X-position of the second scoring location at the source nearest the origin in meters.
     scoringPositionsY[13] = 0.592; // Y-position of the second scoring location at the source nearest the origin in meters.
@@ -257,11 +261,11 @@ public class Robot extends TimedRobot {
 
     scoringPositionsX[14] = scoringPositionsX[12]; // This is automatically calculated. Does not need to be edited.
     scoringPositionsY[14] = Drivetrain.fieldWidth - scoringPositionsY[12]; // This is automatically calculated. Does not need to be edited.
-    scoringHeadings[14] = -scoringHeadings[12]; // This is automatically calculated. Does not need to be edited.
+    scoringHeadings[14] = 36.0; // Heading of the first scoring location at the source furthest from the origin.
 
     scoringPositionsX[15] = scoringPositionsX[13]; // This is automatically calculated. Does not need to be edited.
     scoringPositionsY[15] = Drivetrain.fieldWidth - scoringPositionsY[13]; // This is automatically calculated. Does not need to be edited.
-    scoringHeadings[15] = -scoringHeadings[13]; // This is automatically calculated. Does not need to be edited.
+    scoringHeadings[15] = scoringHeadings[14]; // This is automatically calculated. Does not need to be edited.
 
     // The scoring location of the processor.
     scoringPositionsX[16] = 11.561; // X-position of the processor scoring location in meters.

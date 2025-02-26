@@ -13,9 +13,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 class Elevator {
   private final TalonFX elevatorMasterMotor = new TalonFX(9, "canivore"); // The master elevator motor.
   private final TalonFX elevatorSlaveMotor = new TalonFX(10, "canivore"); // The slave elevator motor.
-  public enum Level {L1, L2, L3, L4, source, lowAlgae, highAlgae, bottom}   // A list containing important elevator heights that are pre-programmed.
-  private final double highLimit = 56.0; // The high limit of the elevator motor in meters.
-  private final double lowLimit = 0.5; // The low limit of the elevator motor in meters.
+  public enum Level {L1, L2, L3, L4, source, lowAlgae, highAlgae, bottom} // A list containing important elevator heights that are pre-programmed.
+  private final double highLimit = 56.0; // The high limit of the elevator motor in motor rotations.
+  private final double lowLimit = 0.5; // The low limit of the elevator motor in motor rotations.
   private final double posTol = 0.1; // How much error is acceptable between the setpoint and the current position of the elevator in motor rotations.
   private double setpoint = 0.0; // The position that the elevator motor is trying to reach in motor rotations.
 
@@ -33,35 +33,35 @@ class Elevator {
   public void setLevel(Level desiredLevel) {
     switch(desiredLevel) {
       case L1:
-        setPosition(9.95);
+        setMotorRotations(9.95);
       break;
 
       case L2:
-        setPosition(19.46); 
+        setMotorRotations(19.46); 
       break;
 
       case L3:
-        setPosition(37.64);
+        setMotorRotations(37.64);
       break;
       
       case L4:
-        setPosition(78.31);
+        setMotorRotations(78.31);
       break;
 
       case source:
-        setPosition(4.75);
+        setMotorRotations(4.75);
       break;
 
       case lowAlgae:
-      setPosition(0.0);
+      setMotorRotations(0.0);
       break;
 
       case highAlgae:
-      setPosition(0.0);
+      setMotorRotations(0.0);
       break;
 
       case bottom:
-        setPosition(0.0);
+        setMotorRotations(0.0);
       break;
     }
   }
@@ -71,7 +71,7 @@ class Elevator {
     return Math.abs(elevatorMasterMotor.getPosition().getValueAsDouble() - setpoint) < posTol; // Checks if the motor is at the target position.
   }
 
-  // Returns the current position of the elevator in meters.
+  // Returns the current position of the elevator in motor rotations.
   public double getPosition() {
     return (getMasterPosition() + getSlavePosition()) / 2.0;
   }
@@ -86,18 +86,19 @@ class Elevator {
   }
 
   // Sets the position of the elevator motor in meters.
-  private void setPosition(double position) {
-    if (position > highLimit) position = highLimit; // If the position is greater than the high limit, set the position to the high limit.
-    if (position < lowLimit) position = lowLimit; // If the position is less than the low limit, set the position to the low limit.
-    elevatorMasterMotor.setControl(new MotionMagicTorqueCurrentFOC(position)); 
+  private void setMotorRotations(double desiredRotations) {
+    if (desiredRotations > highLimit) desiredRotations = highLimit; // If the position is greater than the high limit, set the position to the high limit.
+    if (desiredRotations < lowLimit) desiredRotations = lowLimit; // If the position is less than the low limit, set the position to the low limit.
+    elevatorMasterMotor.setControl(new MotionMagicTorqueCurrentFOC(desiredRotations)); 
+    setpoint = desiredRotations;
   }
   
-  // Returns the position of the master elevator motor in meters.
+  // Returns the position of the master elevator motor in motor rotations.
   private double getMasterPosition() {
     return elevatorMasterMotor.getPosition().getValueAsDouble();
   }
 
-  // Returns the position of the slave elevator motor in meters.
+  // Returns the position of the slave elevator motor in motor rotations.
   private double getSlavePosition() {
     return elevatorSlaveMotor.getPosition().getValueAsDouble();
   }
