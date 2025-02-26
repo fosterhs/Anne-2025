@@ -53,11 +53,11 @@ class Elevator {
       break;
 
       case lowAlgae:
-      setMotorRotations(0.0);
+        setMotorRotations(0.0);
       break;
 
       case highAlgae:
-      setMotorRotations(0.0);
+        setMotorRotations(0.0);
       break;
 
       case bottom:

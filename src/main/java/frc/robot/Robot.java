@@ -180,6 +180,25 @@ public class Robot extends TimedRobot {
 
     // Controls the spitter
     if (operator.getRawButtonPressed(6)) coralSpitter.spit(); // Right bumper button
+
+    /*
+    // Controls the climber
+    climber.setSpeed(MathUtil.applyDeadband(-operator.getLeftY(), 0.05)); // Left stick Y
+    if (operator.getRawButtonPressed(8)) { // Right center button
+      if (climber.isLatched()) {
+        climber.openLatch();
+      } else {
+        climber.closeLatch();
+      }
+    }
+
+    // Controls the algae yeeter.
+    if (operator.getRawButton(9)) algaeYeeter.yeet();
+    if (operator.getPOV() == 0) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.barge); // D pad up
+    if (operator.getPOV() == 90) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.lowAlgae); // D pad left
+    if (operator.getPOV() == 180) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.stow); // D pad down
+    if (operator.getPOV() == 270) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.highAlgae); // D pad right
+     */
   }
 
   public void disabledInit() {    
