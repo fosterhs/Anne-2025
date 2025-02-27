@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CoralSpitter {
   private final TalonFX spitMotor = new TalonFX(12, "rio");  // Initializes the motor with CAN ID of 12 connected to the roboRIO.
+  private final VoltageOut spitMotorVoltageRequest = new VoltageOut(0.0).withEnableFOC(true); // Communicates voltage requests to the spit motor.
   private final DigitalInput coralIntakeSensor = new DigitalInput(0); // Initializes the sensor connected to DIO port 0 on the RoboRIO. Sensor 1 is the sensor closest to the intake.
   private final DigitalInput coralExhaustSensor = new DigitalInput(1); // Initializes the sensor connected to DIO port 1 on the RoboRIO. Sensor 2 is the sensor closest to the exhaust.
   private final Timer intakeSensorTimer = new Timer(); // Keeps track of how long coral has not been detected for. Resets to 0 seconds as soon as coral is detected.
@@ -39,13 +40,13 @@ public class CoralSpitter {
     if (exhaustSensorTimer.get() > exhaustDelay) isSpitting = false; // If the timer exceeds the delay, stop spitting.
 
     if (isSpitting) {
-      spitMotor.setControl(new VoltageOut(1.8).withEnableFOC(true)); // Scores the coral
+      spitMotor.setControl(spitMotorVoltageRequest.withOutput(1.8)); // Scores the coral
     } else if (!getExhaustSensor() && intakeSensorTimer.get() > intakeDelay) {
-      spitMotor.setControl(new VoltageOut(1.2).withEnableFOC(true)); // Loads the coral about halfway into the mechanism.
+      spitMotor.setControl(spitMotorVoltageRequest.withOutput(1.2)); // Loads the coral about halfway into the mechanism.
     } else if (!getExhaustSensor()) {
-      spitMotor.setControl(new VoltageOut(-0.6).withEnableFOC(true)); // Runs the mechanism in reverse to prevent jams.
+      spitMotor.setControl(spitMotorVoltageRequest.withOutput(-0.6)); // Runs the mechanism in reverse to prevent jams.
     } else {
-      spitMotor.setControl(new VoltageOut(0.0).withEnableFOC(true)); // Holds the coral until it is ready to be scored.
+      spitMotor.setControl(spitMotorVoltageRequest.withOutput(0.0)); // Holds the coral until it is ready to be scored.
     }
   }
   

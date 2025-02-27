@@ -1,6 +1,7 @@
 package frc.robot;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
@@ -8,16 +9,21 @@ import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 class Elevator {
   private final TalonFX elevatorMasterMotor = new TalonFX(9, "canivore"); // The master elevator motor.
   private final TalonFX elevatorSlaveMotor = new TalonFX(10, "canivore"); // The slave elevator motor.
+  private final MotionMagicTorqueCurrentFOC elevatorMotorPositionRequest = new MotionMagicTorqueCurrentFOC(0.0); // Communicates motion magic torque current FOC position requests to the elevator motor.
+  private final StatusSignal<Angle> elevatorMasterMotorPosition; // Stores the position of the master elevator motor.
+  private final StatusSignal<Angle> elevatorSlaveMotorPosition; // Stores the position of the slave elevator motor.
   public enum Level {L1, L2, L3, L4, source, lowAlgae, highAlgae, bottom} // A list containing important elevator heights that are pre-programmed.
   private final double highLimit = 56.0; // The high limit of the elevator motor in motor rotations.
   private final double lowLimit = 0.5; // The low limit of the elevator motor in motor rotations.
   private final double posTol = 0.1; // How much error is acceptable between the setpoint and the current position of the elevator in motor rotations.
   private double setpoint = 0.0; // The position that the elevator motor is trying to reach in motor rotations.
+  private Level currLevel = Level.bottom; // Stores the last commanded position of the arm.
 
   public Elevator() {
     configMotor(elevatorMasterMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 25A current limit.
@@ -25,7 +31,9 @@ class Elevator {
     elevatorMasterMotor.setPosition(0.0, 0.03); // Sets the position of the motor to 0.
     elevatorSlaveMotor.setPosition(0.0, 0.03); // Sets the position of the motor to 0.
     elevatorSlaveMotor.setControl(new Follower(9, true)); // Sets the slave motor to follow the master motor exactly.
-    BaseStatusSignal.setUpdateFrequencyForAll(250.0, elevatorMasterMotor.getPosition(), elevatorSlaveMotor.getPosition());
+    elevatorMasterMotorPosition = elevatorMasterMotor.getPosition();
+    elevatorSlaveMotorPosition = elevatorSlaveMotor.getPosition();
+    BaseStatusSignal.setUpdateFrequencyForAll(250.0, elevatorMasterMotorPosition, elevatorSlaveMotorPosition);
     ParentDevice.optimizeBusUtilizationForAll(elevatorMasterMotor, elevatorSlaveMotor);
   }
 
@@ -34,41 +42,54 @@ class Elevator {
     switch(desiredLevel) {
       case L1:
         setMotorRotations(9.95);
+        currLevel = Level.L1;
       break;
 
       case L2:
         setMotorRotations(19.46); 
+        currLevel = Level.L2;
       break;
 
       case L3:
         setMotorRotations(37.64);
+        currLevel = Level.L3;
       break;
       
       case L4:
         setMotorRotations(78.31);
+        currLevel = Level.L4;
       break;
 
       case source:
         setMotorRotations(4.75);
+        currLevel = Level.source;
       break;
 
       case lowAlgae:
         setMotorRotations(0.0);
+        currLevel = Level.lowAlgae;
       break;
 
       case highAlgae:
         setMotorRotations(0.0);
+        currLevel = Level.highAlgae;
       break;
 
       case bottom:
         setMotorRotations(0.0);
+        currLevel = Level.bottom;
       break;
     }
   }
 
   // Checks if the motor is at the target position.
   public boolean atSetpoint() {
-    return Math.abs(elevatorMasterMotor.getPosition().getValueAsDouble() - setpoint) < posTol; // Checks if the motor is at the target position.
+    return Math.abs(getMasterPosition() - setpoint) < posTol; // Checks if the motor is at the target position.
+  }
+
+  // Returns the last requested position of the elevator
+  public Level getLevel() {
+    return currLevel;
   }
 
   // Returns the current position of the elevator in motor rotations.
@@ -89,18 +110,18 @@ class Elevator {
   private void setMotorRotations(double desiredRotations) {
     if (desiredRotations > highLimit) desiredRotations = highLimit; // If the position is greater than the high limit, set the position to the high limit.
     if (desiredRotations < lowLimit) desiredRotations = lowLimit; // If the position is less than the low limit, set the position to the low limit.
-    elevatorMasterMotor.setControl(new MotionMagicTorqueCurrentFOC(desiredRotations)); 
+    elevatorMasterMotor.setControl(elevatorMotorPositionRequest.withPosition(desiredRotations)); 
     setpoint = desiredRotations;
   }
   
   // Returns the position of the master elevator motor in motor rotations.
   private double getMasterPosition() {
-    return elevatorMasterMotor.getPosition().getValueAsDouble();
+    return elevatorMasterMotorPosition.refresh().getValueAsDouble();
   }
 
   // Returns the position of the slave elevator motor in motor rotations.
   private double getSlavePosition() {
-    return elevatorSlaveMotor.getPosition().getValueAsDouble();
+    return elevatorSlaveMotorPosition.refresh().getValueAsDouble();
   }
 
   // Configures the motor with the given parameters.

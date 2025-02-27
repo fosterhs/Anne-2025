@@ -1,17 +1,21 @@
 package frc.robot;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber {
   private final TalonFX climbMotor = new TalonFX(11, "canivore"); // Initializes the motor with CAN ID of 11 connected to the canivore. 
+  private final DutyCycleOut climbMotorDutyCycleRequest = new DutyCycleOut(0.0).withEnableFOC(true); // Communicates duty cycle control requests to the climb motor.
+  private final StatusSignal<Angle> climbMotorPosition; // Stores the position of the climb motor.
   private final Servo latch = new Servo(0); // Initializes the servo motor connected to PWM port 0 on the RoboRIO.
   private final double lowLimit = 0.0; // The lowest point in the climbers range of motion in motor rotations.
   private final double highLimit = 100.0; // The highest point in the climbers range of motion in motor rotations.
@@ -20,20 +24,21 @@ public class Climber {
   public Climber() {
     configMotor(climbMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
     climbMotor.setPosition(0.0, 0.03); // Sets the position of the motor to 0 on startup.
+    climbMotorPosition = climbMotor.getPosition();
     openLatch();
-    BaseStatusSignal.setUpdateFrequencyForAll(250.0, climbMotor.getPosition());
+    BaseStatusSignal.setUpdateFrequencyForAll(250.0, climbMotorPosition);
     ParentDevice.optimizeBusUtilizationForAll(climbMotor);
   }
 
   // Controls the velocity of the climber. 1.0 is full speed up, -1.0 is full speed down, 0.0 is stopped.
   public void setSpeed(double speed) {
-    double position = climbMotor.getPosition().getValueAsDouble();
-    if (position < lowLimit && speed < 0.0) { 
-      climbMotor.setControl(new DutyCycleOut(0.0)); // Turns the motor off if the climber is at its bottom limit and a down command is given.
-    } else if (position > highLimit && speed > 0.0) {
-      climbMotor.setControl(new DutyCycleOut(0.0)); // Turns the motor off if the climber is at its top limit and an up command is given.
+    climbMotorPosition.refresh();
+    if (climbMotorPosition.getValueAsDouble() < lowLimit && speed < 0.0) { 
+      climbMotor.setControl(climbMotorDutyCycleRequest.withOutput(0.0)); // Turns the motor off if the climber is at its bottom limit and a down command is given.
+    } else if (climbMotorPosition.getValueAsDouble() > highLimit && speed > 0.0) {
+      climbMotor.setControl(climbMotorDutyCycleRequest.withOutput(0.0)); // Turns the motor off if the climber is at its top limit and an up command is given.
     } else {
-      climbMotor.setControl(new DutyCycleOut(speed)); // Sets the speed of the motor according to the command given.
+      climbMotor.setControl(climbMotorDutyCycleRequest.withOutput(speed)); // Sets the speed of the motor according to the command given.
     }
   }
 
@@ -56,7 +61,7 @@ public class Climber {
 
   // Returns the current position of the climber in motor rotations. 
   public double getPosition() {
-    return climbMotor.getPosition().getValueAsDouble();
+    return climbMotorPosition.refresh().getValueAsDouble();
   }
 
   // Updates the SmartDashboard with information about the climber.

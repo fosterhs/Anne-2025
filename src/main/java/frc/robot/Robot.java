@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.AlgaeYeeter.ArmPosition;
+import frc.robot.Elevator.Level;
 
 public class Robot extends TimedRobot {
   private final XboxController driver = new XboxController(0); // Initializes the driver controller.
@@ -39,6 +41,7 @@ public class Robot extends TimedRobot {
   double[] scoringPositionsX = new double[17]; // Contains all scoring positions of the robot in the x-direction.
   double[] scoringPositionsY = new double[17]; // Contains all scoring positions of the robot in the y-direction.
   double[] scoringHeadings = new double[17]; // Contains all scoring headings of the robot.
+  double[] scoreDistances = new double[17]; // Stores the distance to each scoring location from the currenly position of the robot. Updated when scoreCalc() is called.
   int nearestScoreIndex = 0; // Array index corresponding to the closest scoring location to the current position of the robot. Updated when scoreCalc() is called.
 
   public void robotInit() { 
@@ -90,7 +93,7 @@ public class Robot extends TimedRobot {
           case 1:
             // Auto 1, Stage 1 code goes here.
             swerve.driveTo(scoringPositionsX[8], scoringPositionsY[8], scoringHeadings[8]); // Drives to the closest scoring position.
-            elevator.setLevel(Elevator.Level.L1); // This moves the elevator to the first level.
+            elevator.setLevel(Level.L1); // This moves the elevator to the first level.
             if (swerve.atDriveGoal() && elevator.atSetpoint()) {
               autoStage = 2;
             }
@@ -171,17 +174,17 @@ public class Robot extends TimedRobot {
     if (driver.getRawButtonPressed(8)) swerve.resetGyro(); // Right center button re-zeros the angle reading of the gyro to the current angle of the robot. Should be called if the gyroscope readings are no longer well correlated with the field.
     
     // Controls the level of the elevator.
-    if (operator.getRawButtonPressed(1)) elevator.setLevel(Elevator.Level.L1); // A button
-    if (operator.getRawButtonPressed(2)) elevator.setLevel(Elevator.Level.L2); // B button
-    if (operator.getRawButtonPressed(3)) elevator.setLevel(Elevator.Level.L3); // X button
-    if (operator.getRawButtonPressed(4)) elevator.setLevel(Elevator.Level.L4); // Y button 
-    if (operator.getRawButtonPressed(5)) elevator.setLevel(Elevator.Level.source); // Left bumper button
-    if (operator.getRawButtonPressed(7)) elevator.setLevel(Elevator.Level.bottom); // Left center button
+    if (operator.getRawButtonPressed(1)) elevator.setLevel(Level.L1); // A button
+    if (operator.getRawButtonPressed(2)) elevator.setLevel(Level.L2); // B button
+    if (operator.getRawButtonPressed(3)) elevator.setLevel(Level.L3); // X button
+    if (operator.getRawButtonPressed(4)) elevator.setLevel(Level.L4); // Y button 
+    if (operator.getRawButtonPressed(5)) elevator.setLevel(Level.source); // Left bumper button
+    if (operator.getRawButtonPressed(7)) elevator.setLevel(Level.bottom); // Left center button
 
     // Controls the spitter
     if (operator.getRawButtonPressed(6)) coralSpitter.spit(); // Right bumper button
 
-    /*
+    /* 
     // Controls the climber
     climber.setSpeed(MathUtil.applyDeadband(-operator.getLeftY(), 0.05)); // Left stick Y
     if (operator.getRawButtonPressed(8)) { // Right center button
@@ -198,7 +201,7 @@ public class Robot extends TimedRobot {
     if (operator.getPOV() == 90) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.lowAlgae); // D pad left
     if (operator.getPOV() == 180) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.stow); // D pad down
     if (operator.getPOV() == 270) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.highAlgae); // D pad right
-     */
+    */
   }
 
   public void disabledInit() {    
@@ -221,8 +224,6 @@ public class Robot extends TimedRobot {
 
   // Updates nearestScoreIndex to reflect the closest scoring location to the robot.
   public void calcNearestScoringPose() {
-    double[] scoreDistances = new double[scoringPositionsX.length]; // Stores the distance to each scoring location.
-
     // Calculates the distance to each scoring location using the distance formula.
     for (int i = 0 ; i < scoringPositionsX.length; i++) {
       scoreDistances[i] = Math.sqrt(Math.pow(scoringPositionsY[i] - swerve.getYPos(), 2) + Math.pow(scoringPositionsX[i] - swerve.getXPos(), 2));
@@ -336,10 +337,29 @@ public class Robot extends TimedRobot {
     System.out.println("spitter isSpitting: " + coralSpitter.isSpitting());
     coralSpitter.updateDash();
 
-    elevator.setLevel(Elevator.Level.bottom);
+    elevator.setLevel(Level.bottom);
+    if (elevator.getLevel() == Level.bottom) System.out.println("elevator at bottom");
     System.out.println("elevator atSetpoint: " + elevator.atSetpoint());
     System.out.println("elevator getPosition: " + elevator.getPosition());
     elevator.updateDash();
+
+    /* 
+    climber.setSpeed(0.0);
+    climber.closeLatch();
+    climber.openLatch();
+    System.out.println("climber position: " + climber.getPosition());
+    System.out.println("climber isLatched: " + climber.isLatched());
+
+    algaeYeeter.init();
+    algaeYeeter.periodic();
+    algaeYeeter.setArmPosition(ArmPosition.stow);
+    algaeYeeter.yeet();
+    if (algaeYeeter.getArmPosition() == ArmPosition.stow) System.out.println("algae yeeter stowed");
+    System.out.println("algae yeeter getArmAngle: " + algaeYeeter.getArmAngle());
+    System.out.println("algae yeeter isYeeting: " + algaeYeeter.isYeeting());
+    System.out.println("algae yeeter algaeDetected: " + algaeYeeter.algaeDetected());
+    System.out.println("algae yeeter armAtSetpoint: " + algaeYeeter.armAtSetpoint());
+    */
 
     updateDash();
     calcScoringPoses();

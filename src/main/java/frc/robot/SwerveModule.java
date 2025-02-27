@@ -1,6 +1,7 @@
 package frc.robot;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
@@ -15,6 +16,8 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 
 class SwerveModule {
   public static final double correctionFactor = 1.00; // Factor that corrects for real-world deviations from the odometry calculated position of the robot. These can be caused by things like tread wear. Set this value to 1, then make the robot follow a 1 meter path in auto. Set this value to the distance the robot actually traveled.
@@ -25,6 +28,14 @@ class SwerveModule {
   public final CANcoder wheelEncoder; // The CANcoder that measures the angle of the swerve wheel.
   public final TalonFX driveMotor; // The Kraken X60 motor that controls the driving of the swerve module.
   public final TalonFX turnMotor; // The Kraken X60 motor that controls the turning of the swerve module.
+  public final StatusSignal<Angle> driveMotorPosition; // Stores the position of the drive motor.
+  public final StatusSignal<AngularVelocity> driveMotorVelocity; // Stores the velocity of the drive motor.
+  public final StatusSignal<Angle> turnMotorPosition; // Stores the position of the turn motor.
+  public final StatusSignal<Angle> wheelEncoderPosition; // Stores the position of the wheel encoder.
+  public final StatusSignal<AngularVelocity> wheelEncoderVelocity; // Stores the velocity of the wheel encoder.
+  private final VelocityVoltage driveMotorVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(true); // Communicates velocity voltage velocity requests to the drive motor.
+  private final MotionMagicTorqueCurrentFOC turnMotorPositionRequest = new MotionMagicTorqueCurrentFOC(0.0); // Communicates motion magic torque current FOC position requests to the turn motor.
+  private SwerveModulePosition SMP = new SwerveModulePosition(); // Stores the current wheel position and drive motor position of the swerve module.
 
   public SwerveModule(int turnID, int driveID, int encoderID, boolean invertDrive, double wheelEncoderZero, String canbus) {
     wheelEncoder = new CANcoder(encoderID, canbus);
@@ -34,42 +45,49 @@ class SwerveModule {
     driveMotor = new TalonFX(driveID, canbus);
     configDriveMotor(driveMotor, invertDrive, 120.0);
     driveMotor.setPosition(0.0, 0.03);
-    BaseStatusSignal.setUpdateFrequencyForAll(250.0, driveMotor.getPosition(), driveMotor.getVelocity(), wheelEncoder.getAbsolutePosition(), wheelEncoder.getVelocity(), turnMotor.getDutyCycle());
+    driveMotorPosition = driveMotor.getPosition();
+    driveMotorVelocity = driveMotor.getVelocity();
+    wheelEncoderPosition = wheelEncoder.getAbsolutePosition();
+    wheelEncoderVelocity = wheelEncoder.getVelocity();
+    turnMotorPosition = turnMotor.getPosition();
+    BaseStatusSignal.setUpdateFrequencyForAll(250.0, driveMotorPosition, driveMotorVelocity, wheelEncoderPosition, wheelEncoderVelocity, turnMotorPosition);
     ParentDevice.optimizeBusUtilizationForAll(driveMotor, turnMotor, wheelEncoder);
   }
 
   // Sets the swerve module to the given state (velocity and angle).
   public void setSMS(SwerveModuleState desiredState) {
-    Rotation2d currentWheelAngle = Rotation2d.fromDegrees(getWheelAngle());
-    desiredState.optimize(currentWheelAngle); // Minimizes the amount a wheel needs to rotate by inverting the direction of the drive motor in some situations. 
-    desiredState.cosineScale(currentWheelAngle); // Cosine compensation. If a wheel is not at its angular setpoint, its velocity setpoint is reduced.
+    SMP.angle = Rotation2d.fromDegrees(getWheelAngle());
+    desiredState.optimize(SMP.angle); // Minimizes the amount a wheel needs to rotate by inverting the direction of the drive motor in some situations. 
+    desiredState.cosineScale(SMP.angle); // Cosine compensation. If a wheel is not at its angular setpoint, its velocity setpoint is reduced.
     setAngle(desiredState.angle.getDegrees());
     setVel(desiredState.speedMetersPerSecond);
   }
   
   // Returns the postion and angle of the module.
   public SwerveModulePosition getSMP() {
-    return new SwerveModulePosition(getDriveMotorPos(), Rotation2d.fromDegrees(getWheelAngle()));
+    SMP.angle = Rotation2d.fromDegrees(getWheelAngle());
+    SMP.distanceMeters = getDriveMotorPos();
+    return SMP;
   }
 
   // Returns total distance the wheel has rotated. Unit: meters
   public double getDriveMotorPos() {
-    return BaseStatusSignal.getLatencyCompensatedValueAsDouble(driveMotor.getPosition(), driveMotor.getVelocity(), 0.02)*wheelCirc*correctionFactor/driveGearRatio;
+    return BaseStatusSignal.getLatencyCompensatedValueAsDouble(driveMotorPosition, driveMotorVelocity, 0.02)*wheelCirc*correctionFactor/driveGearRatio;
   }
   
   // Returns the raw value of the wheel encoder. Range: -180 to 180 degrees. 0 degrees corresponds to facing to the front (+x). 90 degrees in facing left (+y). CCW positive coordinate system.
   public double getWheelAngle() {
-    return BaseStatusSignal.getLatencyCompensatedValueAsDouble(wheelEncoder.getAbsolutePosition(), wheelEncoder.getVelocity(), 0.02)*360.0;
+    return BaseStatusSignal.getLatencyCompensatedValueAsDouble(wheelEncoderPosition, wheelEncoderVelocity, 0.02)*360.0;
   }
   
   // Sets the velocity of the module. Units: meters per second
   private void setVel(double vel) {
-    driveMotor.setControl(new VelocityVoltage(vel*driveGearRatio/(wheelCirc*correctionFactor)).withEnableFOC(true));
+    driveMotor.setControl(driveMotorVelocityRequest.withVelocity(vel*driveGearRatio/(wheelCirc*correctionFactor)));
   }
   
   // Sets the angle of the module. Units: degrees Can accept values outside of -180 to 180, corresponding to multiple rotations of the swerve wheel.
   private void setAngle(double angle) {
-    turnMotor.setControl(new MotionMagicTorqueCurrentFOC(angle/360.0));
+    turnMotor.setControl(turnMotorPositionRequest.withPosition(angle/360.0));
   }
 
   // Configures the swerve module's drive motor.
