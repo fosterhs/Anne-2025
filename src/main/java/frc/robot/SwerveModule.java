@@ -30,7 +30,7 @@ class SwerveModule {
   public final TalonFX turnMotor; // The Kraken X60 motor that controls the turning of the swerve module.
   public final StatusSignal<Angle> driveMotorPosition; // Stores the position of the drive motor.
   public final StatusSignal<AngularVelocity> driveMotorVelocity; // Stores the velocity of the drive motor.
-  public final StatusSignal<Angle> turnMotorPosition; // Stores the position of the turn motor.
+  public final StatusSignal<Double> turnMotorDutyCycle; // Stores the position of the turn motor.
   public final StatusSignal<Angle> wheelEncoderPosition; // Stores the position of the wheel encoder.
   public final StatusSignal<AngularVelocity> wheelEncoderVelocity; // Stores the velocity of the wheel encoder.
   private final VelocityVoltage driveMotorVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(true); // Communicates velocity voltage velocity requests to the drive motor.
@@ -49,8 +49,8 @@ class SwerveModule {
     driveMotorVelocity = driveMotor.getVelocity();
     wheelEncoderPosition = wheelEncoder.getAbsolutePosition();
     wheelEncoderVelocity = wheelEncoder.getVelocity();
-    turnMotorPosition = turnMotor.getPosition();
-    BaseStatusSignal.setUpdateFrequencyForAll(250.0, driveMotorPosition, driveMotorVelocity, wheelEncoderPosition, wheelEncoderVelocity, turnMotorPosition);
+    turnMotorDutyCycle = turnMotor.getDutyCycle();
+    BaseStatusSignal.setUpdateFrequencyForAll(250.0, driveMotorPosition, driveMotorVelocity, wheelEncoderPosition, wheelEncoderVelocity, turnMotorDutyCycle);
     ParentDevice.optimizeBusUtilizationForAll(driveMotor, turnMotor, wheelEncoder);
   }
 

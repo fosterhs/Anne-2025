@@ -104,6 +104,10 @@ class Drivetrain {
     pigeonYawRate = pigeon.getAngularVelocityZWorld();
     BaseStatusSignal.setUpdateFrequencyForAll(250.0, pigeonYaw, pigeonYawRate, pigeonPitch);
     ParentDevice.optimizeBusUtilizationForAll(pigeon);
+    for (int moduleIndex = 0; moduleIndex < modules.length; moduleIndex++) {
+      moduleStates[moduleIndex] = new SwerveModuleState();
+      modulePositions[moduleIndex] = new SwerveModulePosition();
+    }
   }
   
   // Drives the robot at a certain speed and rotation rate. Units: meters per second for xVel and yVel, radians per second for angVel. 
