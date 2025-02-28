@@ -38,10 +38,10 @@ public class Robot extends TimedRobot {
   // Auto Aim Variables
   final double reefX = 176.75*0.0254; // The x-coordinate of the center of the reef in meters.
   final double reefY = Drivetrain.fieldWidth/2.0; // The y-coordinate of the center of the reef in meters.
-  double[] scoringPositionsX = new double[17]; // Contains all scoring positions of the robot in the x-direction.
-  double[] scoringPositionsY = new double[17]; // Contains all scoring positions of the robot in the y-direction.
-  double[] scoringHeadings = new double[17]; // Contains all scoring headings of the robot.
-  double[] scoreDistances = new double[17]; // Stores the distance to each scoring location from the currenly position of the robot. Updated when scoreCalc() is called.
+  double[] scoringPositionsX = new double[18]; // Contains all scoring positions of the robot in the x-direction.
+  double[] scoringPositionsY = new double[18]; // Contains all scoring positions of the robot in the y-direction.
+  double[] scoringHeadings = new double[18]; // Contains all scoring headings of the robot.
+  double[] scoreDistances = new double[18]; // Stores the distance to each scoring location from the currenly position of the robot. Updated when scoreCalc() is called.
   int nearestScoreIndex = 0; // Array index corresponding to the closest scoring location to the current position of the robot. Updated when scoreCalc() is called.
 
   public void robotInit() { 
@@ -332,6 +332,11 @@ public class Robot extends TimedRobot {
     scoringPositionsX[16] = 11.561; // X-position of the processor scoring location in meters.
     scoringPositionsY[16] = 7.609; // Y-position of the processor scoring location in meters.
     scoringHeadings[16] = 90.0; // Heading of the processor scoring location.
+
+    // The scoring location of the barge.
+    scoringPositionsX[17] = 7.500; // X-position of the barge scoring location in meters.
+    scoringPositionsY[17] = 6.000; // Y-position of the barge scoring location in meters.
+    scoringHeadings[17] = -90.0; // Heading of the barge scoring location.
   }
 
   // Helps prevent loop overruns on startup by running every user created command in every class before the match starts. Not sure why this helps, but it does.
