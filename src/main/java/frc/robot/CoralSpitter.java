@@ -22,7 +22,7 @@ public class CoralSpitter {
   private boolean isSpitting = false; // Returns true if the spitter is in the process of ejecting a coral. 
 
   public CoralSpitter() {
-    configMotor(spitMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 80A current limit.
+    configMotor(spitMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 120A current limit.
     exhaustSensorTimer.restart();
     intakeSensorTimer.restart();
     ParentDevice.optimizeBusUtilizationForAll(spitMotor);

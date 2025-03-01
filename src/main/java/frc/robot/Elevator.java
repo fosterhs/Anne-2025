@@ -17,7 +17,6 @@ class Elevator {
   private final TalonFX elevatorSlaveMotor = new TalonFX(10, "canivore"); // The slave elevator motor.
   private final MotionMagicTorqueCurrentFOC elevatorMotorPositionRequest = new MotionMagicTorqueCurrentFOC(0.0); // Communicates motion magic torque current FOC position requests to the elevator motor.
   private final StatusSignal<Angle> elevatorMasterMotorPosition; // Stores the position of the master elevator motor.
-  private final StatusSignal<Angle> elevatorSlaveMotorPosition; // Stores the position of the slave elevator motor.
   public enum Level {L1, L2, L3, L4, lowAlgae, highAlgae, bottom} // A list containing important elevator heights that are pre-programmed.
   private final double highLimit = 56.0; // The high limit of the elevator motor in motor rotations.
   private final double lowLimit = 0.5; // The low limit of the elevator motor in motor rotations.
@@ -26,14 +25,12 @@ class Elevator {
   private Level currLevel = Level.bottom; // Stores the last commanded position of the arm.
 
   public Elevator() {
-    configMotor(elevatorMasterMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 25A current limit.
-    configMotor(elevatorSlaveMotor, true, 120.0); // Configures the motor with clockwise rotation positive and 25A current limit.
+    configMotor(elevatorMasterMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 120A current limit.
+    configMotor(elevatorSlaveMotor, true, 120.0); // Configures the motor with clockwise rotation positive and 120A current limit.
     elevatorMasterMotor.setPosition(0.0, 0.03); // Sets the position of the motor to 0.
-    elevatorSlaveMotor.setPosition(0.0, 0.03); // Sets the position of the motor to 0.
-    elevatorSlaveMotor.setControl(new Follower(9, true)); // Sets the slave motor to follow the master motor exactly.
     elevatorMasterMotorPosition = elevatorMasterMotor.getPosition();
-    elevatorSlaveMotorPosition = elevatorSlaveMotor.getPosition();
-    BaseStatusSignal.setUpdateFrequencyForAll(250.0, elevatorMasterMotorPosition, elevatorSlaveMotorPosition);
+    elevatorSlaveMotor.setControl(new Follower(elevatorMasterMotor.getDeviceID(), true)); // Sets the slave motor to follow the master motor exactly.
+    BaseStatusSignal.setUpdateFrequencyForAll(250.0, elevatorMasterMotorPosition);
     ParentDevice.optimizeBusUtilizationForAll(elevatorMasterMotor, elevatorSlaveMotor);
   }
 
@@ -79,7 +76,7 @@ class Elevator {
 
   // Checks if the motor is at the target position.
   public boolean atSetpoint() {
-    return Math.abs(getMasterPosition() - setpoint) < posTol; // Checks if the motor is at the target position.
+    return Math.abs(getPosition() - setpoint) < posTol; // Checks if the motor is at the target position.
   }
 
   // Returns the last requested position of the elevator
@@ -89,13 +86,11 @@ class Elevator {
 
   // Returns the current position of the elevator in motor rotations.
   public double getPosition() {
-    return (getMasterPosition() + getSlavePosition()) / 2.0;
+    return elevatorMasterMotorPosition.refresh().getValueAsDouble();
   }
 
   // Updates the SmartDashboard with information about the elevator.
   public void updateDash() {
-    //SmartDashboard.putNumber("Elevator Master Position", getMasterPosition());
-    //SmartDashboard.putNumber("Elevator Slave Position", getSlavePosition());
     //SmartDashboard.putNumber("Elevator Position", getPosition());
     //SmartDashboard.putBoolean("Elevator AtSetpoint", atSetpoint());
     //SmartDashboard.putNumber("Elevator Setpoint", setpoint);
@@ -107,16 +102,6 @@ class Elevator {
     if (desiredRotations < lowLimit) desiredRotations = lowLimit; // If the position is less than the low limit, set the position to the low limit.
     elevatorMasterMotor.setControl(elevatorMotorPositionRequest.withPosition(desiredRotations)); 
     setpoint = desiredRotations;
-  }
-  
-  // Returns the position of the master elevator motor in motor rotations.
-  private double getMasterPosition() {
-    return elevatorMasterMotorPosition.refresh().getValueAsDouble();
-  }
-
-  // Returns the position of the slave elevator motor in motor rotations.
-  private double getSlavePosition() {
-    return elevatorSlaveMotorPosition.refresh().getValueAsDouble();
   }
 
   // Configures the motor with the given parameters.

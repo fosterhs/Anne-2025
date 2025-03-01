@@ -17,12 +17,12 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class AlgaeYeeter {
-  private final TalonFX armMotor = new TalonFX(13, "canivore"); // Initializes the motor with CAN ID of 0 connected to the canivore. 
-  private final TalonFX intakeMasterMotor = new TalonFX(14, "canivore");  // Initializes the motor with CAN ID of 0 connected to the canivore. 
-  private final TalonFX intakeSlaveMotor = new TalonFX(15, "canivore");  // Initializes the motor with CAN ID of 0 connected to the canivore. 
+  private final TalonFX armMotor = new TalonFX(13, "rio"); // Initializes the motor with CAN ID of 13 connected to the roboRIO. 
+  private final TalonFX intakeMasterMotor = new TalonFX(14, "rio");  // Initializes the motor with CAN ID of 14 connected to the roboRIO. 
+  private final TalonFX intakeSlaveMotor = new TalonFX(15, "rio");  // Initializes the motor with CAN ID of 15 connected to the roboRIO. 
   private final StatusSignal<Angle> armMotorPosition; // Stores the position of the arm motor.
-  private final VoltageOut intakeMasterMotorVoltageRequest = new VoltageOut(0.0).withEnableFOC(true);
-  private final TorqueCurrentFOC intakeMasterMotorTorqueRequest = new TorqueCurrentFOC(0.0);
+  private final VoltageOut intakeMasterMotorVoltageRequest = new VoltageOut(0.0).withEnableFOC(true); // Communicates voltage requests to the intake motors.
+  private final TorqueCurrentFOC intakeMasterMotorTorqueRequest = new TorqueCurrentFOC(0.0); // Comunicates current requests to the intake motors.
   private final MotionMagicTorqueCurrentFOC armMotorPositionRequest = new MotionMagicTorqueCurrentFOC(0.0); // Communicates motion magic torque current FOC position requests to the arm motor.
   private final DigitalInput algaeSensor = new DigitalInput(2); // Initializes the sensor connected to DIO port 2 on the RoboRIO.
   private final Timer algaeIntakeTimer = new Timer(); // Keeps track of how long has passed since an algae was first detected.
@@ -38,11 +38,11 @@ public class AlgaeYeeter {
   private boolean isYeeting = false; // Returns true if the yeeter is in the process of launching an algae. 
 
   public AlgaeYeeter() {
-    configArmMotor(armMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
-    configIntakeMotor(intakeMasterMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
-    configIntakeMotor(intakeSlaveMotor, true, 120.0); // Configures the motor with counterclockwise rotation positive and 80A current limit. 
+    configArmMotor(armMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 120A current limit. 
+    configIntakeMotor(intakeMasterMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 120A current limit. 
+    configIntakeMotor(intakeSlaveMotor, true, 120.0); // Configures the motor with clockwise rotation positive and 120A current limit. 
     armMotor.setPosition(0.0, 0.03); // Sets the position of the motor to 0 on startup.
-    intakeSlaveMotor.setControl(new Follower(14, true)); // Sets the second intake motor to follow the first intake motor exactly.
+    intakeSlaveMotor.setControl(new Follower(intakeMasterMotor.getDeviceID(), true)); // Sets the second intake motor to follow the first intake motor exactly.
     armMotorPosition = armMotor.getPosition();
     algaeExhaustTimer.restart();
     algaeIntakeTimer.restart();
@@ -133,7 +133,6 @@ public class AlgaeYeeter {
     //SmartDashboard.putNumber("Algae Yeeter Intake Timer", algaeIntakeTimer.get());
     //SmartDashboard.putNumber("Algae Yeeter Exhaust Timer", algaeExhaustTimer.get());
     //SmartDashboard.putNumber("Algae Yeeter Setpoint", setpoint);
-
   }
 
   // Sets the arm to the desired position in motor rotations.
