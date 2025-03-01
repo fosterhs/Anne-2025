@@ -163,36 +163,35 @@ public class Robot extends TimedRobot {
           break;
 
           case 7:
-          // Auto 2, Stage 7 code goes here.
-          swerve.driveTo(scoringPositionsX[0], scoringPositionsY[0], scoringHeadings[0]); // This moves the robot to the reef.
-          if (swerve.atDriveGoal()) {
-            autoStage = 8;
-          }
-        break;
+            // Auto 2, Stage 7 code goes here.
+            swerve.driveTo(scoringPositionsX[0], scoringPositionsY[0], scoringHeadings[0]); // This moves the robot to the reef.
+            if (swerve.atDriveGoal()) {
+              autoStage = 8;
+            }
+          break;
 
-        case 8:
-          // Auto 2, Stage 8 code goes here.
-          elevator.setLevel(Elevator.Level.L2); // This moves the elevator to the second level.       
-          if (elevator.atSetpoint()) {
-            autoStage = 9;
-          }
-        break;
+          case 8:
+            // Auto 2, Stage 8 code goes here.
+            elevator.setLevel(Elevator.Level.L2); // This moves the elevator to the second level.       
+            if (elevator.atSetpoint()) {
+              autoStage = 9;
+            }
+          break;
 
           case 9:
-           //Auto 2, Stage 9 code goes here.
-           coralSpitter.spit();
-           if (!coralSpitter.isSpitting()) {
-              autoStage = 10;
-           }
-         break;
+            //Auto 2, Stage 9 code goes here.
+            coralSpitter.spit();
+            if (!coralSpitter.isSpitting()) {
+                autoStage = 10;
+            }
+          break;
 
-        case 10:
+          case 10:
             // Auto 2, Stage 10 code goes here.
             elevator.setLevel(Elevator.Level.bottom); // This moves the elevator to the Bottom level.
           break;
-
-      }   
-    break;
+        }   
+      break;
 
       case auto3:
         switch (autoStage) {
