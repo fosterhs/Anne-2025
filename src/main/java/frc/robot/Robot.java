@@ -101,7 +101,7 @@ public class Robot extends TimedRobot {
           case 1:
             // Auto 2, Stage 1 code goes here.
             swerve.driveTo(scoringPositionsX[2],scoringPositionsY[2],scoringHeadings[2]); // This moves the robot to the reef.
-            elevator.setLevel(Elevator.Level.L2); // This moves the elevator to the second level.
+            elevator.setLevel(Level.L2); // This moves the elevator to the second level.
             if (swerve.atDriveGoal() && elevator.atSetpoint()) {
               autoStage = 2;
             }
@@ -126,7 +126,7 @@ public class Robot extends TimedRobot {
 
           case 2:
             // Auto 2, Stage 2 code goes here.
-            elevator.setLevel(Elevator.Level.L2); // This moves the elevator to the second level.       
+            elevator.setLevel(Level.L2); // This moves the elevator to the second level.       
             if (elevator.atSetpoint()) {
               autoStage = 3;
             }
@@ -142,7 +142,7 @@ public class Robot extends TimedRobot {
 
           case 4:
             // Auto 2, Stage 4 code goes here.
-            elevator.setLevel(Elevator.Level.bottom); // This moves the elevator to the Bottom level.]
+            elevator.setLevel(Level.bottom); // This moves the elevator to the Bottom level.]
             autoStage = 5;
           break;
 
@@ -172,7 +172,7 @@ public class Robot extends TimedRobot {
 
           case 8:
             // Auto 2, Stage 8 code goes here.
-            elevator.setLevel(Elevator.Level.L2); // This moves the elevator to the second level.       
+            elevator.setLevel(Level.L2); // This moves the elevator to the second level.       
             if (elevator.atSetpoint()) {
               autoStage = 9;
             }
@@ -188,7 +188,7 @@ public class Robot extends TimedRobot {
 
           case 10:
             // Auto 2, Stage 10 code goes here.
-            elevator.setLevel(Elevator.Level.bottom); // This moves the elevator to the Bottom level.
+            elevator.setLevel(Level.bottom); // This moves the elevator to the Bottom level.
           break;
         }   
       break;
