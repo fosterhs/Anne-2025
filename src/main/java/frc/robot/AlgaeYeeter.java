@@ -29,7 +29,7 @@ public class AlgaeYeeter {
   private final Timer algaeExhaustTimer = new Timer(); // Keeps track of how long has passed since an algae has stopped being detected.
   private final double exhaustDelay = 0.3; // How long the wheels will continue running for after an algae is no longer detected in seconds.
   private final double intakeDelay = 0.3; // How long the wheels will wait before stopping to spin after an algae is detected.
-  public enum ArmPosition {lowAlgae, highAlgae, barge, stow} // A list containing important arm positions that are pre-programmed.
+  public enum ArmPosition {algae, barge, stow} // A list containing important arm positions that are pre-programmed.
   private final double highLimit = 10.0; // The high limit of the arm motor in motor rotations.
   private final double lowLimit = 0.0; // The low limit of the arm motor in motor rotations.
   private final double posTol = 0.1; // How much error is acceptable between the setpoint and the current position of the elevator in motor rotations.
@@ -75,14 +75,9 @@ public class AlgaeYeeter {
   // Sets the arm to a pre-programmed position. 
   public void setArmPosition(ArmPosition desiredPosition) {
     switch(desiredPosition) {
-      case lowAlgae:
+      case algae:
         setArmMotorRotations(4.0);
-        currPosition = ArmPosition.lowAlgae;
-      break;
-
-      case highAlgae:
-        setArmMotorRotations(4.0); 
-        currPosition = ArmPosition.highAlgae;
+        currPosition = ArmPosition.algae;
       break;
 
       case barge:
@@ -91,8 +86,10 @@ public class AlgaeYeeter {
       break;
       
       case stow:
-        setArmMotorRotations(0.0);
-        currPosition = ArmPosition.stow;
+        if (!algaeDetected()) {
+          setArmMotorRotations(0.0);
+          currPosition = ArmPosition.stow;
+        }
       break;
     }
   }

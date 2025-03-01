@@ -261,8 +261,11 @@ public class Robot extends TimedRobot {
     if (operator.getRawButtonPressed(2)) elevator.setLevel(Level.L2); // B button
     if (operator.getRawButtonPressed(3)) elevator.setLevel(Level.L3); // X button
     if (operator.getRawButtonPressed(4)) elevator.setLevel(Level.L4); // Y button 
-    if (operator.getRawButtonPressed(5)) elevator.setLevel(Level.source); // Left bumper button
-    if (operator.getRawButtonPressed(7)) elevator.setLevel(Level.bottom); // Left center button
+    if (operator.getLeftTriggerAxis() > 0.25) elevator.setLevel(Level.lowAlgae); // Left Trigger
+    if (operator.getRightTriggerAxis() > 0.25) elevator.setLevel(Level.highAlgae); // Left Trigger
+    //if (algaeYeeter.getArmPosition() != ArmPosition.algae) {
+      if (operator.getRawButtonPressed(5)) elevator.setLevel(Level.bottom); // Left bumper button
+    //}  
 
     // Controls the spitter
     if (operator.getRawButtonPressed(6)) coralSpitter.spit(); // Right bumper button
@@ -279,11 +282,12 @@ public class Robot extends TimedRobot {
     }
 
     // Controls the algae yeeter.
-    if (operator.getRawButton(9)) algaeYeeter.yeet();
-    if (operator.getPOV() == 0) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.barge); // D pad up
-    if (operator.getPOV() == 90) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.lowAlgae); // D pad left
-    if (operator.getPOV() == 180) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.stow); // D pad down
-    if (operator.getPOV() == 270) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.highAlgae); // D pad right
+    if (elevator.getLevel() != Level.bottom) {
+      if (operator.getPOV() == 180) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.algae); // D pad down
+    }
+    if (operator.getPOV() == 0) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.stow); // D pad up
+    if (operator.getPOV() == 90) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.barge); // D pad left
+    if (operator.getRawButtonPressed(7)) algaeYeeter.yeet(); // Left center button
     */
   }
 
