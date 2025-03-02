@@ -35,15 +35,17 @@ public class Robot extends TimedRobot {
   private static final String auto3 = "auto3";
   private String autoSelected;
   private int autoStage = 1;
+  private enum scoreMode {Branch, L1, Algae};
+  private scoreMode currScoreMode = scoreMode.Branch;
 
   // Auto Aim Variables
-  final double reefX = 176.75*0.0254; // The x-coordinate of the center of the reef in meters.
-  final double reefY = Drivetrain.fieldWidth/2.0; // The y-coordinate of the center of the reef in meters.
-  double[] scoringPositionsX = new double[18]; // Contains all scoring positions of the robot in the x-direction.
-  double[] scoringPositionsY = new double[18]; // Contains all scoring positions of the robot in the y-direction.
-  double[] scoringHeadings = new double[18]; // Contains all scoring headings of the robot.
-  double[] scoreDistances = new double[18]; // Stores the distance to each scoring location from the currenly position of the robot. Updated when scoreCalc() is called.
-  int nearestScoreIndex = 0; // Array index corresponding to the closest scoring location to the current position of the robot. Updated when scoreCalc() is called.
+  private final double reefX = 176.75*0.0254; // The x-coordinate of the center of the reef in meters.
+  private final double reefY = Drivetrain.fieldWidth/2.0; // The y-coordinate of the center of the reef in meters.
+  private double[] scoringPositionsX = new double[30]; // Contains all scoring positions of the robot in the x-direction.
+  private double[] scoringPositionsY = new double[30]; // Contains all scoring positions of the robot in the y-direction.
+  private double[] scoringHeadings = new double[30]; // Contains all scoring headings of the robot.
+  private double[] scoreDistances = new double[30]; // Stores the distance to each scoring location from the currenly position of the robot. Updated when scoreCalc() is called.
+  private int nearestScoreIndex = 0; // Array index corresponding to the closest scoring location to the current position of the robot. Updated when scoreCalc() is called.
 
   public void robotInit() { 
     // Configures the auto chooser on the dashboard.
@@ -52,6 +54,7 @@ public class Robot extends TimedRobot {
     autoChooser.addOption(auto3, auto3);
     SmartDashboard.putData("Autos", autoChooser);
 
+    SmartDashboard.putString("currScoreMode", "Branch");
     swerve.loadPath("Test", 0.0, 0.0, 0.0, 0.0); // Loads a Path Planner generated path into the path follower code in the drivetrain. 
     runAll(); // Helps prevent loop overruns on startup by running every command before the match starts.
   }
@@ -215,6 +218,20 @@ public class Robot extends TimedRobot {
       swerve.addVisionEstimate(limelightIndex); // Checks to see ifs there are reliable April Tags in sight of the Limelight and updates the robot position on the field.
     }
 
+    // The left center button (button 7) cycles through the 3 scoring modes of the robot.
+    if (operator.getRawButtonPressed(7) && currScoreMode == scoreMode.Branch) {
+      currScoreMode = scoreMode.L1;
+      SmartDashboard.putString("currScoreMode", "L1");
+    }
+    if (operator.getRawButtonPressed(7) && currScoreMode == scoreMode.L1) {
+      currScoreMode = scoreMode.Algae;
+      SmartDashboard.putString("currScoreMode", "Algae");
+    }
+    if (operator.getRawButtonPressed(7) && currScoreMode == scoreMode.Algae) {
+      currScoreMode = scoreMode.Branch;
+      SmartDashboard.putString("currScoreMode", "Branch");
+    }
+
     coralSpitter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the coralSpitter to function correctly.
     //algaeYeeter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the algaeYeeter to function correctly.
 
@@ -269,7 +286,6 @@ public class Robot extends TimedRobot {
 
     // Controls the spitter
     if (operator.getRawButtonPressed(6)) coralSpitter.spit(); // Right bumper button
-
     /* 
     // Controls the climber
     climber.setSpeed(MathUtil.applyDeadband(-operator.getLeftY(), 0.05)); // Left stick Y
@@ -287,7 +303,7 @@ public class Robot extends TimedRobot {
     }
     if (operator.getPOV() == 0) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.stow); // D pad up
     if (operator.getPOV() == 90) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.barge); // D pad left
-    if (operator.getRawButtonPressed(7)) algaeYeeter.yeet(); // Left center button
+    if (operator.getPOV() == 270) algaeYeeter.yeet(); // D pad right
     */
   }
 
@@ -316,15 +332,29 @@ public class Robot extends TimedRobot {
       scoreDistances[i] = Math.sqrt(Math.pow(scoringPositionsY[i] - swerve.getYPos(), 2) + Math.pow(scoringPositionsX[i] - swerve.getXPos(), 2));
     }
 
-    double shortestDistance = scoreDistances[0]; // Stores the value of the shortest distance in the scoreDistances[] array.
-    nearestScoreIndex = 0; // Stores the index of the shortest distance in the scoreDistances[] array.
+    double shortestDistance = scoreDistances[scoreDistances.length - 1]; // Stores the value of the shortest distance in the scoreDistances[] array.
+    nearestScoreIndex = scoreDistances.length - 1; // Stores the index of the shortest distance in the scoreDistances[] array.
 
     // Finds the shortest distance in the scoreDistances[] array and updates nearestScoreIndex
-    for (int i = 0; i < scoreDistances.length; i++) {
-      if (scoreDistances[i] < shortestDistance) {
-        shortestDistance = scoreDistances[i];
-        nearestScoreIndex = i;
-      }
+    for (int i = 0; i < scoreDistances.length - 1; i++) {
+      if ((currScoreMode == scoreMode.Branch) && (i <= 11 || i >= 24)) {
+        if (scoreDistances[i] < shortestDistance ) {
+          shortestDistance = scoreDistances[i];
+          nearestScoreIndex = i;
+        }
+      } 
+      if ((currScoreMode == scoreMode.L1) && ((i >= 12 && i <= 17) || i >= 24)) {
+        if (scoreDistances[i] < shortestDistance ) {
+          shortestDistance = scoreDistances[i];
+          nearestScoreIndex = i;
+        }
+      } 
+      if ((currScoreMode == scoreMode.Algae) && (i >= 18)) {
+        if (scoreDistances[i] < shortestDistance ) {
+          shortestDistance = scoreDistances[i];
+          nearestScoreIndex = i;
+        }
+      } 
     }
   }
 
@@ -350,39 +380,67 @@ public class Robot extends TimedRobot {
 
     // Calculates the scoring positions of the remaining 5 faces of the reef by rotating the coordinates of the 6th index by 60 degrees.
     for (int index = 7; index < 12; index++) {
-      scoringPositionsX[index] = (scoringPositionsX[6] - reefX)*Math.cos(Math.toRadians(index*60.0)) - (scoringPositionsY[6] - reefY)*Math.sin(Math.toRadians(index*60.0)) + reefX;
-      scoringPositionsY[index] = (scoringPositionsX[6] - reefX)*Math.sin(Math.toRadians(index*60.0)) + (scoringPositionsY[6] - reefY)*Math.cos(Math.toRadians(index*60.0)) + reefY;
-      scoringHeadings[index] = scoringHeadings[0] + (index-6)*60.0;
+      scoringPositionsX[index] = (scoringPositionsX[6] - reefX)*Math.cos(Math.toRadians((index-6)*60.0)) - (scoringPositionsY[6] - reefY)*Math.sin(Math.toRadians((index-6)*60.0)) + reefX;
+      scoringPositionsY[index] = (scoringPositionsX[6] - reefX)*Math.sin(Math.toRadians((index-6)*60.0)) + (scoringPositionsY[6] - reefY)*Math.cos(Math.toRadians((index-6)*60.0)) + reefY;
+      scoringHeadings[index] = scoringHeadings[6] + (index-6)*60.0;
+      if (scoringHeadings[index] > 180.0) scoringHeadings[index] -= 360.0;
+      if (scoringHeadings[index] < -180.0) scoringHeadings[index] += 360.0;
+    }
+
+    // L1 scoring position based on the April Tag 8 face of the reef on the Red Alliance.
+    scoringPositionsX[12] = 3.822;
+    scoringPositionsY[12] = 2.924;
+    scoringHeadings[12] = -30.0;
+
+    // Calculates the scoring positions of the remaining 5 faces of the reef by rotating the coordinates of the 12th index by 60 degrees.
+    for (int index = 13; index < 18; index++) {
+      scoringPositionsX[index] = (scoringPositionsX[12] - reefX)*Math.cos(Math.toRadians((index-12)*60.0)) - (scoringPositionsY[12] - reefY)*Math.sin(Math.toRadians((index-12)*60.0)) + reefX;
+      scoringPositionsY[index] = (scoringPositionsX[12] - reefX)*Math.sin(Math.toRadians((index-12)*60.0)) + (scoringPositionsY[12] - reefY)*Math.cos(Math.toRadians((index-12)*60.0)) + reefY;
+      scoringHeadings[index] = scoringHeadings[12] + (index-12)*60.0;
+      if (scoringHeadings[index] > 180.0) scoringHeadings[index] -= 360.0;
+      if (scoringHeadings[index] < -180.0) scoringHeadings[index] += 360.0;
+    }
+
+    // Algae scoring position based on the April Tag 8 face of the reef on the Red Alliance.
+    scoringPositionsX[18] = 3.822;
+    scoringPositionsY[18] = 2.924;
+    scoringHeadings[18] = 150.0;
+
+    // Calculates the scoring positions of the remaining 5 faces of the reef by rotating the coordinates of the 18th index by 60 degrees.
+    for (int index = 19; index < 24; index++) {
+      scoringPositionsX[index] = (scoringPositionsX[18] - reefX)*Math.cos(Math.toRadians((index-18)*60.0)) - (scoringPositionsY[18] - reefY)*Math.sin(Math.toRadians((index-18)*60.0)) + reefX;
+      scoringPositionsY[index] = (scoringPositionsX[18] - reefX)*Math.sin(Math.toRadians((index-18)*60.0)) + (scoringPositionsY[18] - reefY)*Math.cos(Math.toRadians((index-18)*60.0)) + reefY;
+      scoringHeadings[index] = scoringHeadings[18] + (index-18)*60.0;
       if (scoringHeadings[index] > 180.0) scoringHeadings[index] -= 360.0;
       if (scoringHeadings[index] < -180.0) scoringHeadings[index] += 360.0;
     }
     
     // These 4 scoring locations correspond to the source. There are 2 scoring locations at each of the 2 sources, for a total of 4. 
-    scoringPositionsX[12] = 0.601; // X-position of the first scoring location at the source nearest the origin in meters.
-    scoringPositionsY[12] = 1.343; // Y-position of the first scoring location at the source nearest the origin in meters.
-    scoringHeadings[12] = 144.0; // Heading of the first scoring location at the source nearest the origin. The source makes 54 and 36 degree angles with the coordinate axes.
+    scoringPositionsX[24] = 0.601; // X-position of the first scoring location at the source nearest the origin in meters.
+    scoringPositionsY[24] = 1.343; // Y-position of the first scoring location at the source nearest the origin in meters.
+    scoringHeadings[24] = 144.0; // Heading of the first scoring location at the source nearest the origin. The source makes 54 and 36 degree angles with the coordinate axes.
 
-    scoringPositionsX[13] = 1.608; // X-position of the second scoring location at the source nearest the origin in meters.
-    scoringPositionsY[13] = 0.592; // Y-position of the second scoring location at the source nearest the origin in meters.
-    scoringHeadings[13] = scoringHeadings[12]; // This is automatically calculated. Does not need to be edited.
+    scoringPositionsX[25] = 1.608; // X-position of the second scoring location at the source nearest the origin in meters.
+    scoringPositionsY[25] = 0.592; // Y-position of the second scoring location at the source nearest the origin in meters.
+    scoringHeadings[25] = scoringHeadings[12]; // This is automatically calculated. Does not need to be edited.
 
-    scoringPositionsX[14] = scoringPositionsX[12]; // This is automatically calculated. Does not need to be edited.
-    scoringPositionsY[14] = Drivetrain.fieldWidth - scoringPositionsY[12]; // This is automatically calculated. Does not need to be edited.
-    scoringHeadings[14] = 36.0; // Heading of the first scoring location at the source furthest from the origin.
+    scoringPositionsX[26] = scoringPositionsX[12]; // This is automatically calculated. Does not need to be edited.
+    scoringPositionsY[26] = Drivetrain.fieldWidth - scoringPositionsY[12]; // This is automatically calculated. Does not need to be edited.
+    scoringHeadings[26] = 36.0; // Heading of the first scoring location at the source furthest from the origin.
 
-    scoringPositionsX[15] = scoringPositionsX[13]; // This is automatically calculated. Does not need to be edited.
-    scoringPositionsY[15] = Drivetrain.fieldWidth - scoringPositionsY[13]; // This is automatically calculated. Does not need to be edited.
-    scoringHeadings[15] = scoringHeadings[14]; // This is automatically calculated. Does not need to be edited.
+    scoringPositionsX[27] = scoringPositionsX[13]; // This is automatically calculated. Does not need to be edited.
+    scoringPositionsY[27] = Drivetrain.fieldWidth - scoringPositionsY[13]; // This is automatically calculated. Does not need to be edited.
+    scoringHeadings[27] = scoringHeadings[14]; // This is automatically calculated. Does not need to be edited.
 
     // The scoring location of the processor.
-    scoringPositionsX[16] = 11.561; // X-position of the processor scoring location in meters.
-    scoringPositionsY[16] = 7.609; // Y-position of the processor scoring location in meters.
-    scoringHeadings[16] = 90.0; // Heading of the processor scoring location.
+    scoringPositionsX[28] = 11.561; // X-position of the processor scoring location in meters.
+    scoringPositionsY[28] = 7.609; // Y-position of the processor scoring location in meters.
+    scoringHeadings[28] = 90.0; // Heading of the processor scoring location.
 
     // The scoring location of the barge.
-    scoringPositionsX[17] = 7.500; // X-position of the barge scoring location in meters.
-    scoringPositionsY[17] = 6.000; // Y-position of the barge scoring location in meters.
-    scoringHeadings[17] = -90.0; // Heading of the barge scoring location.
+    scoringPositionsX[29] = 7.500; // X-position of the barge scoring location in meters.
+    scoringPositionsY[29] = 6.000; // Y-position of the barge scoring location in meters.
+    scoringHeadings[29] = -90.0; // Heading of the barge scoring location.
   }
 
   // Helps prevent loop overruns on startup by running every user created command in every class before the match starts. Not sure why this helps, but it does.

@@ -63,6 +63,7 @@ class Drivetrain {
   private final Pigeon2 pigeon = new Pigeon2(0, "canivore"); // Pigeon 2.0 CAN Gyroscope
   private final StatusSignal<Angle> pigeonYaw; // Stores the yaw angle measured by the pigeon. 
   private final StatusSignal<Angle> pigeonPitch; // Stores the pitch angle measured by the pigeon.
+  private final StatusSignal<Angle> pigeonRoll; // Stores the roll angle measured by the pigeon.
   private final StatusSignal<AngularVelocity> pigeonYawRate; // Stores the yaw velocity measured by the pigeon.
 
   // Limelight Variables
@@ -101,8 +102,9 @@ class Drivetrain {
     calibrationTimer.restart();
     pigeonYaw = pigeon.getYaw();
     pigeonPitch = pigeon.getPitch();
+    pigeonRoll = pigeon.getRoll();
     pigeonYawRate = pigeon.getAngularVelocityZWorld();
-    BaseStatusSignal.setUpdateFrequencyForAll(250.0, pigeonYaw, pigeonYawRate, pigeonPitch);
+    BaseStatusSignal.setUpdateFrequencyForAll(250.0, pigeonYaw, pigeonYawRate, pigeonPitch, pigeonRoll);
     ParentDevice.optimizeBusUtilizationForAll(pigeon);
     for (int moduleIndex = 0; moduleIndex < modules.length; moduleIndex++) {
       moduleStates[moduleIndex] = new SwerveModuleState();
@@ -272,7 +274,7 @@ class Drivetrain {
 
   // Updates the position of the robot on the field. Should be called each period to remain accurate. Tends to noticably drift for periods of time >15 sec.
   public void updateOdometry() {
-    BaseStatusSignal.waitForAll(0.008, pigeonYaw, pigeonYawRate, pigeonPitch,
+    BaseStatusSignal.waitForAll(0.008, pigeonYaw, pigeonYawRate, pigeonPitch, pigeonRoll,
     frontLeftModule.driveMotorPosition, frontLeftModule.driveMotorVelocity, frontLeftModule.wheelEncoderPosition, frontLeftModule.wheelEncoderVelocity,
     frontRightModule.driveMotorPosition, frontRightModule.driveMotorVelocity, frontRightModule.wheelEncoderPosition, frontRightModule.wheelEncoderVelocity,
     backRightModule.driveMotorPosition, backRightModule.driveMotorVelocity, backRightModule.wheelEncoderPosition, backRightModule.wheelEncoderVelocity,
@@ -361,6 +363,11 @@ class Drivetrain {
     return pigeonPitch.getValueAsDouble();
   }
 
+  // Returns the roll of the robot in degrees. An elevated left side is positive. An elevated right side is negative.
+  public double getGyroRoll() {
+    return pigeonRoll.getValueAsDouble();
+  }
+
   // Returns true if the robot is on the red alliance.
   public boolean isRedAlliance() {
     return DriverStation.getAlliance().get().equals(Alliance.Red);
@@ -428,6 +435,7 @@ class Drivetrain {
     //SmartDashboard.putNumber("Robot Angular Position (Fused)", getFusedAng());
     //SmartDashboard.putNumber("Robot Angular Position (Gyro)", getGyroAng());
     //SmartDashboard.putNumber("Robot Pitch", getGyroPitch());
+    //SmartDashboard.putNumber("Robot Roll", getGyroRoll());
     //SmartDashboard.putNumber("Robot Demanded X Velocity", getXVel());
     //SmartDashboard.putNumber("Robot Demanded Y Velocity", getYVel());
     //SmartDashboard.putNumber("Robot Demanded Angular Velocity", getAngVel());
