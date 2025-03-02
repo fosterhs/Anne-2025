@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.ctre.phoenix.led.CANdle;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -28,6 +29,10 @@ public class Robot extends TimedRobot {
   private final CoralSpitter coralSpitter = new CoralSpitter(); // Contains the coral ejector motor and coral sensor. 
   //private final Climber climber = new Climber(); // Contains the climber motor.
   //private final AlgaeYeeter algaeYeeter = new AlgaeYeeter(); // Contains the algae sensor, algae yeeter arm motor, and algae yeeter intake motors.
+  //private final CANdle leftCandle = new CANdle(0, "canivore"); // Initializes the lights on the left side of the robot.
+  //private final CANdle rightCandle = new CANdle(1, "canivore"); // Initializes the lights on the right side of the robot.
+  private boolean candleStrobeState = true; // Stores whether the candles are on or off. Used to produce a stobe effect.
+  private int period = 0; // Keeps track of how many periods have elapsed since the begining of the program.
   
   // Auto Variables
   private final SendableChooser<String> autoChooser = new SendableChooser<>();
@@ -68,6 +73,25 @@ public class Robot extends TimedRobot {
     //algaeYeeter.updateDash();
     //climber.updateDash();
     updateDash();
+
+    // Causes the candleStrobeState variable to oscillate between true and false every 5 periods (0.1 seconds).
+    period++;
+    if (period % 5 == 0) candleStrobeState = !candleStrobeState;
+    /* 
+    if (swerve.getAccurateCalibrationTimer() < 1.0 && candleStrobeState) { // Strobes the lights for 1 second after an accurate vision calibration is made.
+      leftCandle.setLEDs(0, 0, 0, 0, 0, 8);
+      rightCandle.setLEDs(0, 0, 0, 0, 0, 8);
+    } else if (currScoreMode == scoreMode.Branch) { // White color for Branch mode.
+      leftCandle.setLEDs(255, 255, 255, 0, 0, 8);
+      rightCandle.setLEDs(255, 255, 255, 0, 0, 8);
+    } else if (currScoreMode == scoreMode.L1) { // Purple color for L1 mode.
+      leftCandle.setLEDs(255, 0, 255, 0, 0, 8);
+      rightCandle.setLEDs(255, 0, 255, 0, 0, 8);
+    } else if (currScoreMode == scoreMode.Algae) { // Green color for Algae Mode.
+      leftCandle.setLEDs(0, 255, 0, 0, 0, 8);
+      rightCandle.setLEDs(0, 255, 0, 0, 0, 8);
+    }
+    */
   }
 
   public void autonomousInit() {
@@ -291,7 +315,7 @@ public class Robot extends TimedRobot {
     if (operator.getRawButtonPressed(4)) elevator.setLevel(Level.L4); // Y button 
     if (operator.getLeftTriggerAxis() > 0.25) elevator.setLevel(Level.lowAlgae); // Left Trigger
     if (operator.getRightTriggerAxis() > 0.25) elevator.setLevel(Level.highAlgae); // Left Trigger
-    //if (algaeYeeter.getArmPosition() != ArmPosition.algae) {
+    //if (algaeYeeter.getArmPosition() == ArmPosition.stow) {
       if (operator.getRawButtonPressed(5)) elevator.setLevel(Level.bottom); // Left bumper button
     //}  
 
@@ -311,9 +335,9 @@ public class Robot extends TimedRobot {
     // Controls the algae yeeter.
     if (elevator.getLevel() != Level.bottom) {
       if (operator.getPOV() == 180) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.algae); // D pad down
+      if (operator.getPOV() == 90) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.barge); // D pad left
     }
     if (operator.getPOV() == 0) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.stow); // D pad up
-    if (operator.getPOV() == 90) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.barge); // D pad left
     if (operator.getPOV() == 270) algaeYeeter.yeet(); // D pad right
     */
   }
