@@ -4,6 +4,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.AlgaeYeeter.ArmPosition;
@@ -216,6 +217,16 @@ public class Robot extends TimedRobot {
     swerve.updateVisionHeading(); // Updates the Limelights with the robot heading (for MegaTag2).
     for (int limelightIndex = 0; limelightIndex < swerve.limelights.length; limelightIndex++) { // Iterates through each limelight.
       swerve.addVisionEstimate(limelightIndex); // Checks to see ifs there are reliable April Tags in sight of the Limelight and updates the robot position on the field.
+    }
+
+    // Sets both controllers to rumble for 0.7 seconds if a coral or algae has just been intaked or exhuasted.
+    if ((coralSpitter.getExhaustTimer() > 0.1 && coralSpitter.getExhaustTimer() < 0.8) || (coralSpitter.getIntakeTimer() > 0.1 && coralSpitter.getIntakeTimer() < 0.8)) {
+    //  || (algaeYeeter.getExhaustTimer() > 0.1 && algaeYeeter.getExhaustTimer() < 0.8) || (algaeYeeter.getIntakeTimer() > 0.1 && algaeYeeter.getIntakeTimer() < 0.8)) {
+      operator.setRumble(RumbleType.kBothRumble, 1.0);
+      driver.setRumble(RumbleType.kBothRumble, 1.0);
+    } else {
+      operator.setRumble(RumbleType.kBothRumble, 0.0);
+      driver.setRumble(RumbleType.kBothRumble, 0.0);
     }
 
     // The left center button (button 7) cycles through the 3 scoring modes of the robot.
@@ -485,6 +496,8 @@ public class Robot extends TimedRobot {
     System.out.println("spitter getIntakeSensor: " + coralSpitter.getIntakeSensor());
     System.out.println("spitter getExhaustSensor: " + coralSpitter.getExhaustSensor());
     System.out.println("spitter isSpitting: " + coralSpitter.isSpitting());
+    System.out.println("spitter intakeTimer: " + coralSpitter.getIntakeTimer());
+    System.out.println("spitter exhaustTimer: " + coralSpitter.getExhaustTimer());
     coralSpitter.updateDash();
 
     elevator.setLevel(Level.bottom);
@@ -509,6 +522,8 @@ public class Robot extends TimedRobot {
     System.out.println("algae yeeter isYeeting: " + algaeYeeter.isYeeting());
     System.out.println("algae yeeter algaeDetected: " + algaeYeeter.algaeDetected());
     System.out.println("algae yeeter armAtSetpoint: " + algaeYeeter.armAtSetpoint());
+    System.out.println("algae yeeter intakeTimer: " + algaeYeeter.getIntakeTimer());
+    System.out.println("algae yeeter exhaustTimer: " + algaeYeeter.getExhaustTimer());
     */
 
     updateDash();

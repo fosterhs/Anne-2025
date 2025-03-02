@@ -124,6 +124,16 @@ public class AlgaeYeeter {
     return armMotorPosition.refresh().getValueAsDouble();
   }
 
+  // Returns the current value of the exhaust timer
+  public double getExhaustTimer() {
+    return algaeExhaustTimer.get();
+  }
+
+  // Returns the current value of the intake timer
+  public double getIntakeTimer() {
+    return algaeIntakeTimer.get();
+  }
+
   // Updates the SmartDashboard with information about the algae yeeter.
   public void updateDash() {
     //SmartDashboard.putBoolean("Algae Yeeter algaeDetected", algaeDetected());

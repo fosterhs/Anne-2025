@@ -70,6 +70,16 @@ public class CoralSpitter {
     return !coralExhaustSensor.get();
   }
 
+  // Returns the current value of the exhaust timer
+  public double getExhaustTimer() {
+    return exhaustSensorTimer.get();
+  }
+
+  // Returns the current value of the intake timer
+  public double getIntakeTimer() {
+    return exhaustSensorTimer.get();
+  }
+  
   // Returns true if the coralSpitter is in the process of ejecting a coral.
   public boolean isSpitting() {
     return isSpitting;
