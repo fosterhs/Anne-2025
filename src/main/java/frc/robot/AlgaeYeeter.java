@@ -20,10 +20,10 @@ public class AlgaeYeeter {
   private final TalonFX armMotor = new TalonFX(13, "rio"); // Initializes the motor with CAN ID of 13 connected to the roboRIO. 
   private final TalonFX intakeMasterMotor = new TalonFX(14, "rio");  // Initializes the motor with CAN ID of 14 connected to the roboRIO. 
   private final TalonFX intakeSlaveMotor = new TalonFX(15, "rio");  // Initializes the motor with CAN ID of 15 connected to the roboRIO. 
-  private final StatusSignal<Angle> armMotorPosition; // Stores the position of the arm motor.
   private final VoltageOut intakeMasterMotorVoltageRequest = new VoltageOut(0.0).withEnableFOC(true); // Communicates voltage requests to the intake motors.
   private final TorqueCurrentFOC intakeMasterMotorTorqueRequest = new TorqueCurrentFOC(0.0); // Comunicates current requests to the intake motors.
   private final MotionMagicTorqueCurrentFOC armMotorPositionRequest = new MotionMagicTorqueCurrentFOC(0.0); // Communicates motion magic torque current FOC position requests to the arm motor.
+  private final StatusSignal<Angle> armMotorPosition; // Stores the position of the arm motor.
   private final DigitalInput algaeSensor = new DigitalInput(2); // Initializes the sensor connected to DIO port 2 on the RoboRIO.
   private final Timer algaeIntakeTimer = new Timer(); // Keeps track of how long has passed since an algae was first detected.
   private final Timer algaeExhaustTimer = new Timer(); // Keeps track of how long has passed since an algae has stopped being detected.
@@ -32,7 +32,7 @@ public class AlgaeYeeter {
   public enum ArmPosition {algae, barge, stow} // A list containing important arm positions that are pre-programmed.
   private final double highLimit = 10.0; // The high limit of the arm motor in motor rotations.
   private final double lowLimit = 0.0; // The low limit of the arm motor in motor rotations.
-  private final double posTol = 0.1; // How much error is acceptable between the setpoint and the current position of the elevator in motor rotations.
+  private final double posTol = 0.5; // How much error is acceptable between the setpoint and the current position of the elevator in motor rotations.
   private double setpoint = 0.0; // The position that the arm motor is trying to reach in motor rotations.
   private ArmPosition currPosition = ArmPosition.stow; // Stores the last commanded position of the arm.
   private boolean isYeeting = false; // Returns true if the yeeter is in the process of launching an algae. 
@@ -42,12 +42,12 @@ public class AlgaeYeeter {
     configIntakeMotor(intakeMasterMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 120A current limit. 
     configIntakeMotor(intakeSlaveMotor, true, 120.0); // Configures the motor with clockwise rotation positive and 120A current limit. 
     armMotor.setPosition(0.0, 0.03); // Sets the position of the motor to 0 on startup.
-    intakeSlaveMotor.setControl(new Follower(intakeMasterMotor.getDeviceID(), true)); // Sets the second intake motor to follow the first intake motor exactly.
     armMotorPosition = armMotor.getPosition();
-    algaeExhaustTimer.restart();
-    algaeIntakeTimer.restart();
     BaseStatusSignal.setUpdateFrequencyForAll(250.0, armMotorPosition);
     ParentDevice.optimizeBusUtilizationForAll(armMotor, intakeMasterMotor, intakeSlaveMotor);
+    intakeSlaveMotor.setControl(new Follower(intakeMasterMotor.getDeviceID(), true)); // Sets the second intake motor to follow the first intake motor exactly.
+    algaeExhaustTimer.restart();
+    algaeIntakeTimer.restart();
   }
 
   // Should be called in autoInit() and teleopInit(). Required for the algaeYeeter to function correctly.
@@ -140,8 +140,8 @@ public class AlgaeYeeter {
     //SmartDashboard.putNumber("Algae Yeeter getArmAngle", getArmAngle());
     //SmartDashboard.putBoolean("Algae Yeeter armAtSetpoint", armAtSetpoint());
     //SmartDashboard.putBoolean("Algae Yeeter isYeeting", isYeeting());
-    //SmartDashboard.putNumber("Algae Yeeter Intake Timer", algaeIntakeTimer.get());
-    //SmartDashboard.putNumber("Algae Yeeter Exhaust Timer", algaeExhaustTimer.get());
+    //SmartDashboard.putNumber("Algae Yeeter Intake Timer", getExhaustTimer());
+    //SmartDashboard.putNumber("Algae Yeeter Exhaust Timer", getIntakeTimer());
     //SmartDashboard.putNumber("Algae Yeeter Setpoint", setpoint);
   }
 

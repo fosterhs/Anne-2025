@@ -23,9 +23,9 @@ public class CoralSpitter {
 
   public CoralSpitter() {
     configMotor(spitMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 120A current limit.
+    ParentDevice.optimizeBusUtilizationForAll(spitMotor);
     exhaustSensorTimer.restart();
     intakeSensorTimer.restart();
-    ParentDevice.optimizeBusUtilizationForAll(spitMotor);
   }
 
   // Should be called in autoInit() and teleopInit(). Required for the coralSpitter to function correctly.
@@ -90,9 +90,9 @@ public class CoralSpitter {
     //SmartDashboard.putBoolean("Spitter getIntakeSensor", getIntakeSensor());
     //SmartDashboard.putBoolean("Spitter getExhaustSensor", getExhaustSensor());
     //SmartDashboard.putBoolean("Spitter coralDetected", coralDetected());
-    //SmartDashboard.putBoolean("Spitter isSpitting", isSpitting);
-    //SmartDashboard.putNumber("Spitter Intake Timer", intakeSensorTimer.get());
-    //SmartDashboard.putNumber("Spitter Exhaust Timer", exhaustSensorTimer.get());
+    //SmartDashboard.putBoolean("Spitter isSpitting", isSpitting());
+    //SmartDashboard.putNumber("Spitter Intake Timer", getIntakeTimer());
+    //SmartDashboard.putNumber("Spitter Exhaust Timer", getExhaustTimer());
   }
 
   private void configMotor(TalonFX motor, boolean invert, double currentLimit) {

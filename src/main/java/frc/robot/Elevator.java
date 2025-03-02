@@ -17,7 +17,7 @@ class Elevator {
   private final TalonFX elevatorSlaveMotor = new TalonFX(10, "canivore"); // The slave elevator motor.
   private final MotionMagicTorqueCurrentFOC elevatorMotorPositionRequest = new MotionMagicTorqueCurrentFOC(0.0); // Communicates motion magic torque current FOC position requests to the elevator motor.
   private final StatusSignal<Angle> elevatorMasterMotorPosition; // Stores the position of the master elevator motor.
-  public enum Level {L1, L2, L3, L4, lowAlgae, highAlgae, bottom} // A list containing important elevator heights that are pre-programmed.
+  public enum Level {L1, L2, L3, L4, lowAlgae, highAlgae, bottom, barge} // A list containing important elevator heights that are pre-programmed.
   private final double highLimit = 56.0; // The high limit of the elevator motor in motor rotations.
   private final double lowLimit = 0.5; // The low limit of the elevator motor in motor rotations.
   private final double posTol = 0.5; // How much error is acceptable between the setpoint and the current position of the elevator in motor rotations.
@@ -29,9 +29,9 @@ class Elevator {
     configMotor(elevatorSlaveMotor, true, 120.0); // Configures the motor with clockwise rotation positive and 120A current limit.
     elevatorMasterMotor.setPosition(0.0, 0.03); // Sets the position of the motor to 0.
     elevatorMasterMotorPosition = elevatorMasterMotor.getPosition();
-    elevatorSlaveMotor.setControl(new Follower(elevatorMasterMotor.getDeviceID(), true)); // Sets the slave motor to follow the master motor exactly.
     BaseStatusSignal.setUpdateFrequencyForAll(250.0, elevatorMasterMotorPosition);
     ParentDevice.optimizeBusUtilizationForAll(elevatorMasterMotor, elevatorSlaveMotor);
+    elevatorSlaveMotor.setControl(new Follower(elevatorMasterMotor.getDeviceID(), true)); // Sets the slave motor to follow the master motor exactly.
   }
 
   // Sets the elevator to a pre-programmed position. 
@@ -70,6 +70,11 @@ class Elevator {
       case bottom:
         setMotorRotations(0.0);
         currLevel = Level.bottom;
+      break;
+
+      case barge:
+        setMotorRotations(0.0);
+        currLevel = Level.barge;
       break;
     }
   }

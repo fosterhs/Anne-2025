@@ -28,10 +28,10 @@ public class Climber {
     configMotor(climbSlaveMotor, false, 120.0); // Configures the motor with clockwise rotation positive and 120A current limit.
     climbMasterMotor.setPosition(0.0, 0.03); // Sets the position of the motor to 0 on startup.
     climbMasterMotorPosition = climbMasterMotor.getPosition();
-    climbSlaveMotor.setControl(new Follower(climbMasterMotor.getDeviceID(), true));
-    openLatch();
     BaseStatusSignal.setUpdateFrequencyForAll(250.0, climbMasterMotorPosition);
     ParentDevice.optimizeBusUtilizationForAll(climbMasterMotor, climbSlaveMotor);
+    climbSlaveMotor.setControl(new Follower(climbMasterMotor.getDeviceID(), true));
+    openLatch();
   }
 
   // Controls the velocity of the climber. 1.0 is full speed up, -1.0 is full speed down, 0.0 is stopped.
