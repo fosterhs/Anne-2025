@@ -376,7 +376,7 @@ public class Robot extends TimedRobot {
     scoringHeadings[0] = 60.0; // Heading of the robot at each coral scoring location in degrees. Based on AprilTag 8, using the scoring position nearest to AprilTag 7 on the Red alliance.
 
     // Calculates the scoring positions of the remaining 5 faces of the reef by rotating the coordinates of the 0th index by 60 degrees.
-    for (int index = 1; index < 6; index++) {
+    for (int index = 1; index <= 5; index++) {
       scoringPositionsX[index] = (scoringPositionsX[0] - reefX)*Math.cos(Math.toRadians(index*60.0)) - (scoringPositionsY[0] - reefY)*Math.sin(Math.toRadians(index*60.0)) + reefX;
       scoringPositionsY[index] = (scoringPositionsX[0] - reefX)*Math.sin(Math.toRadians(index*60.0)) + (scoringPositionsY[0] - reefY)*Math.cos(Math.toRadians(index*60.0)) + reefY;
       scoringHeadings[index] = scoringHeadings[0] + index*60.0;
@@ -390,7 +390,7 @@ public class Robot extends TimedRobot {
     scoringHeadings[6] = scoringHeadings[0];
 
     // Calculates the scoring positions of the remaining 5 faces of the reef by rotating the coordinates of the 6th index by 60 degrees.
-    for (int index = 7; index < 12; index++) {
+    for (int index = 7; index <= 11; index++) {
       scoringPositionsX[index] = (scoringPositionsX[6] - reefX)*Math.cos(Math.toRadians((index-6)*60.0)) - (scoringPositionsY[6] - reefY)*Math.sin(Math.toRadians((index-6)*60.0)) + reefX;
       scoringPositionsY[index] = (scoringPositionsX[6] - reefX)*Math.sin(Math.toRadians((index-6)*60.0)) + (scoringPositionsY[6] - reefY)*Math.cos(Math.toRadians((index-6)*60.0)) + reefY;
       scoringHeadings[index] = scoringHeadings[6] + (index-6)*60.0;
@@ -404,7 +404,7 @@ public class Robot extends TimedRobot {
     scoringHeadings[12] = -30.0;
 
     // Calculates the scoring positions of the remaining 5 faces of the reef by rotating the coordinates of the 12th index by 60 degrees.
-    for (int index = 13; index < 18; index++) {
+    for (int index = 13; index <= 17; index++) {
       scoringPositionsX[index] = (scoringPositionsX[12] - reefX)*Math.cos(Math.toRadians((index-12)*60.0)) - (scoringPositionsY[12] - reefY)*Math.sin(Math.toRadians((index-12)*60.0)) + reefX;
       scoringPositionsY[index] = (scoringPositionsX[12] - reefX)*Math.sin(Math.toRadians((index-12)*60.0)) + (scoringPositionsY[12] - reefY)*Math.cos(Math.toRadians((index-12)*60.0)) + reefY;
       scoringHeadings[index] = scoringHeadings[12] + (index-12)*60.0;
@@ -418,7 +418,7 @@ public class Robot extends TimedRobot {
     scoringHeadings[18] = 150.0;
 
     // Calculates the scoring positions of the remaining 5 faces of the reef by rotating the coordinates of the 18th index by 60 degrees.
-    for (int index = 19; index < 24; index++) {
+    for (int index = 19; index <= 23; index++) {
       scoringPositionsX[index] = (scoringPositionsX[18] - reefX)*Math.cos(Math.toRadians((index-18)*60.0)) - (scoringPositionsY[18] - reefY)*Math.sin(Math.toRadians((index-18)*60.0)) + reefX;
       scoringPositionsY[index] = (scoringPositionsX[18] - reefX)*Math.sin(Math.toRadians((index-18)*60.0)) + (scoringPositionsY[18] - reefY)*Math.cos(Math.toRadians((index-18)*60.0)) + reefY;
       scoringHeadings[index] = scoringHeadings[18] + (index-18)*60.0;
