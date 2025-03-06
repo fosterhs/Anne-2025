@@ -27,10 +27,10 @@ public class Robot extends TimedRobot {
   private final Drivetrain swerve = new Drivetrain(); // Contains the Swerve Modules, Gyro, Path Follower, Target Tracking, Odometry, and Vision Calibration.
   private final Elevator elevator = new Elevator(); // Contains the elevator motor and limit switches.
   private final CoralSpitter coralSpitter = new CoralSpitter(); // Contains the coral ejector motor and coral sensor. 
-  //private final Climber climber = new Climber(); // Contains the climber motor.
-  //private final AlgaeYeeter algaeYeeter = new AlgaeYeeter(); // Contains the algae sensor, algae yeeter arm motor, and algae yeeter intake motors.
-  //private final CANdle leftCandle = new CANdle(0, "canivore"); // Initializes the lights on the left side of the robot.
-  //private final CANdle rightCandle = new CANdle(1, "canivore"); // Initializes the lights on the right side of the robot.
+  private final Climber climber = new Climber(); // Contains the climber motor.
+  private final AlgaeYeeter algaeYeeter = new AlgaeYeeter(); // Contains the algae sensor, algae yeeter arm motor, and algae yeeter intake motors.
+  private final CANdle leftCandle = new CANdle(0, "canivore"); // Initializes the lights on the left side of the robot.
+  private final CANdle rightCandle = new CANdle(1, "canivore"); // Initializes the lights on the right side of the robot.
   private boolean candleStrobeState = true; // Stores whether the candles are on or off. Used to produce a stobe effect.
   private int period = 0; // Keeps track of how many periods have elapsed since the begining of the program.
   
@@ -61,7 +61,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Autos", autoChooser);
 
     SmartDashboard.putString("currScoreMode", "Branch");
-    swerve.loadPath("Test", 0.0, 0.0, 0.0, 0.0); // Loads a Path Planner generated path into the path follower code in the drivetrain. 
+    swerve.loadPath("Test", 0.0, 0.0, 0.0, 0.0); // Loads a Path Planner generated path into the path follower code in the drivetrain.
     runAll(); // Helps prevent loop overruns on startup by running every command before the match starts.
   }
 
@@ -70,14 +70,14 @@ public class Robot extends TimedRobot {
     swerve.updateDash();
     elevator.updateDash();
     coralSpitter.updateDash();
-    //algaeYeeter.updateDash();
-    //climber.updateDash();
+    algaeYeeter.updateDash();
+    climber.updateDash();
     updateDash();
 
     // Causes the candleStrobeState variable to oscillate between true and false every 5 periods (0.1 seconds).
     period++;
     if (period % 5 == 0) candleStrobeState = !candleStrobeState;
-    /* 
+  
     if (swerve.getAccurateCalibrationTimer() < 1.0 && candleStrobeState) { // Strobes the lights for 1 second after an accurate vision calibration is made.
       leftCandle.setLEDs(0, 0, 0, 0, 0, 8);
       rightCandle.setLEDs(0, 0, 0, 0, 0, 8);
@@ -91,13 +91,13 @@ public class Robot extends TimedRobot {
       leftCandle.setLEDs(0, 255, 0, 0, 0, 8);
       rightCandle.setLEDs(0, 255, 0, 0, 0, 8);
     }
-    */
+    
   }
 
   public void autonomousInit() {
     swerve.pushCalibration(); // Updates the robot's position on the field.
     coralSpitter.init(); // Should be called in autoInit() and teleopInit(). Required for the coralSpitter to function correctly.
-    //algaeYeeter.init(); // Should be called in autoInit() and teleopInit(). Required for the algaeYeeter to function correctly.
+    algaeYeeter.init(); // Should be called in autoInit() and teleopInit(). Required for the algaeYeeter to function correctly.
     autoStage = 1;
     autoSelected = autoChooser.getSelected();
     switch (autoSelected) {
@@ -122,7 +122,7 @@ public class Robot extends TimedRobot {
     swerve.updateOdometry(); // Keeps track of the position of the robot on the field. Must be called each period.
     swerve.updateVisionHeading(); // Updates the Limelights with the robot heading (for MegaTag2).
     coralSpitter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the coralSpitter to function correctly.
-    //algaeYeeter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the algaeYeeter to function correctly.
+    algaeYeeter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the algaeYeeter to function correctly.
     switch (autoSelected) {
       case auto1:
         switch (autoStage) {
@@ -171,12 +171,14 @@ public class Robot extends TimedRobot {
           case 4:
             // Auto 2, Stage 4 code goes here.
             elevator.setLevel(Level.bottom); // This moves the elevator to the Bottom level.]
-            autoStage = 5;
+            if (elevator.atSetpoint()) {
+              autoStage = 5;
+            }
           break;
 
           case 5:
             // Auto 2, Stage 5 code goes here.
-            swerve.driveTo(6.446,1.561 ,-178.00 );
+            swerve.driveTo(scoringPositionsX[0],scoringPositionsY[0],scoringHeadings[0]); // This moves the robot to the reef.
             if (swerve.atDriveGoal()) {
               autoStage = 6;
             }
@@ -191,40 +193,57 @@ public class Robot extends TimedRobot {
           break;
 
           case 7:
-            // Auto 2, Stage 7 code goes here.
-            swerve.driveTo(scoringPositionsX[0], scoringPositionsY[0], scoringHeadings[0]); // This moves the robot to the reef.
-            if (swerve.atDriveGoal()) {
-              autoStage = 8;
-            }
+          // Auto 2, Stage 7 code goes here.
+           if(coralSpitter.coralDetected()){   // This checks if the coral is detected.
+            autoStage = 8;                     
+           }  
           break;
 
           case 8:
             // Auto 2, Stage 8 code goes here.
-            elevator.setLevel(Level.L2); // This moves the elevator to the second level.       
-            if (elevator.atSetpoint()) {
+            swerve.driveTo(4.031, 3.005, 60.00); // This moves the robot to the reef.
+            if (swerve.atDriveGoal()) {
               autoStage = 9;
             }
           break;
 
           case 9:
-            //Auto 2, Stage 9 code goes here.
-            coralSpitter.spit();
-            if (!coralSpitter.isSpitting()) {
-                autoStage = 10;
+            // Auto 2, Stage 9 code goes here.
+            elevator.setLevel(Level.L2); // This moves the elevator to the second level.       
+            if (elevator.atSetpoint()) {
+              autoStage = 10;
             }
           break;
 
           case 10:
+            //Auto 2, Stage 10 code goes here.
+            coralSpitter.spit();
+            if (!coralSpitter.isSpitting()) {   // This checks if the coral is detected.
+                autoStage = 11;
+            }
+          break;
+
+          case 11:
             // Auto 2, Stage 10 code goes here.
             elevator.setLevel(Level.bottom); // This moves the elevator to the Bottom level.
           break;
         }   
       break;
 
-      case auto3:
-        switch (autoStage) {
-          case 1:
-            swerve.followPath(0); 
+    case auto3:
+      switch (autoStage) {
+        case 1:
+          swerve.driveTo(5.965, 4.055, 180); // This moves the robot to the reef
+          if (swerve.atDriveGoal() ) {
+            autoStage = 2;
+          }
+        break;
+
+        case 2:
+          swerve.followPath(0);
+          if (swerve.atPathEndpoint(0)) {
+            autoStage = 3;
+          }
         break;
       }
     }
@@ -233,7 +252,7 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     swerve.pushCalibration(); // Updates the robot's position on the field.
     coralSpitter.init(); // Should be called in autoInit() and teleopInit(). Required for the coralSpitter to function correctly.
-    //algaeYeeter.init(); // Should be called in autoInit() and teleopInit(). Required for the algaeYeeter to function correctly.
+    algaeYeeter.init(); // Should be called in autoInit() and teleopInit(). Required for the algaeYeeter to function correctly.
   }
 
   public void teleopPeriodic() {
@@ -244,8 +263,8 @@ public class Robot extends TimedRobot {
     }
 
     // Sets both controllers to rumble for 0.7 seconds if a coral or algae has just been intaked or exhuasted.
-    if ((coralSpitter.getExhaustTimer() > 0.1 && coralSpitter.getExhaustTimer() < 0.8) || (coralSpitter.getIntakeTimer() > 0.1 && coralSpitter.getIntakeTimer() < 0.8)) {
-    //  || (algaeYeeter.getExhaustTimer() > 0.1 && algaeYeeter.getExhaustTimer() < 0.8) || (algaeYeeter.getIntakeTimer() > 0.1 && algaeYeeter.getIntakeTimer() < 0.8)) {
+    if ((coralSpitter.getExhaustTimer() > 0.1 && coralSpitter.getExhaustTimer() < 0.8) || (coralSpitter.getIntakeTimer() > 0.1 && coralSpitter.getIntakeTimer() < 0.8)
+      || (algaeYeeter.getExhaustTimer() > 0.1 && algaeYeeter.getExhaustTimer() < 0.8) || (algaeYeeter.getIntakeTimer() > 0.1 && algaeYeeter.getIntakeTimer() < 0.8)) {
       operator.setRumble(RumbleType.kBothRumble, 1.0);
       driver.setRumble(RumbleType.kBothRumble, 1.0);
     } else {
@@ -266,9 +285,9 @@ public class Robot extends TimedRobot {
       currScoreMode = scoreMode.Branch;
       SmartDashboard.putString("currScoreMode", "Branch");
     }
-
+    
     coralSpitter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the coralSpitter to function correctly.
-    //algaeYeeter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the algaeYeeter to function correctly.
+    algaeYeeter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the algaeYeeter to function correctly.
 
     if (driver.getRawButtonPressed(4)) speedScaleFactor = 1.0; // Y Button sets the drivetrain in full speed mode.
     if (driver.getRawButtonPressed(2)) speedScaleFactor = 0.6; // B button sets the drivetrain in medium speed mode.
@@ -315,15 +334,15 @@ public class Robot extends TimedRobot {
     if (operator.getRawButtonPressed(4)) elevator.setLevel(Level.L4); // Y button 
     if (operator.getLeftTriggerAxis() > 0.25) elevator.setLevel(Level.lowAlgae); // Left Trigger
     if (operator.getRightTriggerAxis() > 0.25) elevator.setLevel(Level.highAlgae); // Left Trigger
-    //if (algaeYeeter.getArmPosition() == ArmPosition.stow) {
+    if (algaeYeeter.getArmPosition() == ArmPosition.stow) {
       if (operator.getRawButtonPressed(5)) elevator.setLevel(Level.bottom); // Left bumper button
-    //}  
+    }  
 
     // Controls the spitter
     if (operator.getRawButtonPressed(6)) coralSpitter.spit(); // Right bumper button
-    /* 
+   
     // Controls the climber
-    climber.setSpeed(MathUtil.applyDeadband(-operator.getLeftY(), 0.05)); // Left stick Y
+    climber.setSpeed(MathUtil.applyDeadband(-operator.getLeftY(), 0.1)); // Left stick Y
     if (operator.getRawButtonPressed(8)) { // Right center button
       if (climber.isLatched()) {
         climber.openLatch();
@@ -339,9 +358,8 @@ public class Robot extends TimedRobot {
     }
     if (operator.getPOV() == 0) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.stow); // D pad up
     if (operator.getPOV() == 270) algaeYeeter.yeet(); // D pad right
-    */
   }
-
+  
   public void disabledInit() {    
     swerve.resetCalibration(); // Begins calculating the position of the robot on the field based on visible April Tags.
   }
@@ -356,8 +374,8 @@ public class Robot extends TimedRobot {
 
   // Publishes information to the dashboard.
   public void updateDash() {
-    //SmartDashboard.putNumber("Speed Scale Factor", speedScaleFactor);
-    //SmartDashboard.putNumber("Auto Stage", autoStage);
+    SmartDashboard.putNumber("Speed Scale Factor", speedScaleFactor);
+    SmartDashboard.putNumber("Auto Stage", autoStage);
   }
 
   // Updates nearestScoreIndex to reflect the closest scoring location to the robot.
@@ -530,7 +548,6 @@ public class Robot extends TimedRobot {
     System.out.println("elevator getPosition: " + elevator.getPosition());
     elevator.updateDash();
 
-    /* 
     climber.setSpeed(0.0);
     climber.closeLatch();
     climber.openLatch();
@@ -548,7 +565,6 @@ public class Robot extends TimedRobot {
     System.out.println("algae yeeter armAtSetpoint: " + algaeYeeter.armAtSetpoint());
     System.out.println("algae yeeter intakeTimer: " + algaeYeeter.getIntakeTimer());
     System.out.println("algae yeeter exhaustTimer: " + algaeYeeter.getExhaustTimer());
-    */
 
     updateDash();
     calcScoringPoses();

@@ -22,7 +22,7 @@ public class CoralSpitter {
   private boolean isSpitting = false; // Returns true if the spitter is in the process of ejecting a coral. 
 
   public CoralSpitter() {
-    configMotor(spitMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 120A current limit.
+    configMotor(spitMotor, true, 120.0); // Configures the motor with counterclockwise rotation positive and 120A current limit.
     ParentDevice.optimizeBusUtilizationForAll(spitMotor);
     exhaustSensorTimer.restart();
     intakeSensorTimer.restart();
@@ -77,7 +77,7 @@ public class CoralSpitter {
 
   // Returns the current value of the intake timer
   public double getIntakeTimer() {
-    return exhaustSensorTimer.get();
+    return intakeSensorTimer.get();
   }
   
   // Returns true if the coralSpitter is in the process of ejecting a coral.
@@ -87,12 +87,12 @@ public class CoralSpitter {
 
   // Updates the SmartDashboard with information about the coralSpitter.
   public void updateDash() { 
-    //SmartDashboard.putBoolean("Spitter getIntakeSensor", getIntakeSensor());
-    //SmartDashboard.putBoolean("Spitter getExhaustSensor", getExhaustSensor());
-    //SmartDashboard.putBoolean("Spitter coralDetected", coralDetected());
-    //SmartDashboard.putBoolean("Spitter isSpitting", isSpitting());
-    //SmartDashboard.putNumber("Spitter Intake Timer", getIntakeTimer());
-    //SmartDashboard.putNumber("Spitter Exhaust Timer", getExhaustTimer());
+    SmartDashboard.putBoolean("Spitter getIntakeSensor", getIntakeSensor());
+    SmartDashboard.putBoolean("Spitter getExhaustSensor", getExhaustSensor());
+    SmartDashboard.putBoolean("Spitter coralDetected", coralDetected());
+    SmartDashboard.putBoolean("Spitter isSpitting", isSpitting());
+    SmartDashboard.putNumber("Spitter Intake Timer", getIntakeTimer());
+    SmartDashboard.putNumber("Spitter Exhaust Timer", getExhaustTimer());
   }
 
   private void configMotor(TalonFX motor, boolean invert, double currentLimit) {

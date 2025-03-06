@@ -20,12 +20,12 @@ public class Climber {
   private final StatusSignal<Angle> climbMasterMotorPosition; // Stores the position of the climb motor.
   private final Servo latch = new Servo(0); // Initializes the servo motor connected to PWM port 0 on the RoboRIO.
   private final double lowLimit = 0.0; // The lowest point in the climbers range of motion in motor rotations.
-  private final double highLimit = 100.0; // The highest point in the climbers range of motion in motor rotations.
+  private final double highLimit = 122.0; // The highest point in the climbers range of motion in motor rotations.
   private boolean isLatched = false; // Stores whether the latch is engaged. Returns true if the climber is latched and locked into place.
 
   public Climber() {
     configMotor(climbMasterMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 120A current limit.
-    configMotor(climbSlaveMotor, false, 120.0); // Configures the motor with clockwise rotation positive and 120A current limit.
+    configMotor(climbSlaveMotor, true, 120.0); // Configures the motor with clockwise rotation positive and 120A current limit.
     climbMasterMotor.setPosition(0.0, 0.03); // Sets the position of the motor to 0 on startup.
     climbMasterMotorPosition = climbMasterMotor.getPosition();
     BaseStatusSignal.setUpdateFrequencyForAll(250.0, climbMasterMotorPosition);
@@ -41,15 +41,20 @@ public class Climber {
     climbMasterMotor.setControl(climbMasterMotorDutyCycleRequest.withOutput(speed)); // Sets the speed of the motor according to the command given.
   }
 
+  // Directly controls the velocity of the climber without paying attention to limits. Used to reset the climber to its starting position.
+  public void setSpeedBypassLimits(double speed) {
+    climbMasterMotor.setControl(climbMasterMotorDutyCycleRequest.withOutput(speed)); // Sets the speed of the motor according to the command given.
+  }
+
   // Opens the latch, allowing the climber to move freely.
   public void openLatch() {
-    latch.set(0.0);
+    latch.set(0.6);
     isLatched = false;
   }
 
   // Closes the latch, locking the climber into place.
   public void closeLatch() {
-    latch.set(1.0);
+    latch.set(0.4);
     isLatched = true;
   }
 
@@ -65,8 +70,8 @@ public class Climber {
 
   // Updates the SmartDashboard with information about the climber.
   public void updateDash() {
-    //SmartDashboard.putBoolean("Climber isLatched", isLatched());
-    //SmartDashboard.putNumber("Climber getPosition", getPosition());
+    SmartDashboard.putBoolean("Climber isLatched", isLatched());
+    SmartDashboard.putNumber("Climber getPosition", getPosition());
   }
 
   private void configMotor(TalonFX motor, boolean invert, double currentLimit) {
