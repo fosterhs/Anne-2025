@@ -18,15 +18,15 @@ class Elevator {
   private final MotionMagicTorqueCurrentFOC elevatorMotorPositionRequest = new MotionMagicTorqueCurrentFOC(0.0); // Communicates motion magic torque current FOC position requests to the elevator motor.
   private final StatusSignal<Angle> elevatorMasterMotorPosition; // Stores the position of the master elevator motor.
   public enum Level {L1, L2, L3, L4, lowAlgae, highAlgae, bottom, barge} // A list containing important elevator heights that are pre-programmed.
-  private final double highLimit = 30.0; // The high limit of the elevator motor in motor rotations.
+  private final double highLimit = 133.0; // The high limit of the elevator motor in motor rotations.
   private final double lowLimit = 0.5; // The low limit of the elevator motor in motor rotations.
   private final double posTol = 0.5; // How much error is acceptable between the setpoint and the current position of the elevator in motor rotations.
   private double setpoint = 0.0; // The position that the elevator motor is trying to reach in motor rotations.
   private Level currLevel = Level.bottom; // Stores the last commanded position of the arm.
 
   public Elevator() {
-    configMotor(elevatorMasterMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 120A current limit.
-    configMotor(elevatorSlaveMotor, true, 120.0); // Configures the motor with clockwise rotation positive and 120A current limit.
+    configMotor(elevatorMasterMotor, true, 120.0); // Configures the motor with counterclockwise rotation positive and 120A current limit.
+    configMotor(elevatorSlaveMotor, false, 120.0); // Configures the motor with clockwise rotation positive and 120A current limit.
     elevatorMasterMotor.setPosition(0.0, 0.03); // Sets the position of the motor to 0.
     elevatorMasterMotorPosition = elevatorMasterMotor.getPosition();
     BaseStatusSignal.setUpdateFrequencyForAll(250.0, elevatorMasterMotorPosition);
@@ -38,27 +38,27 @@ class Elevator {
   public void setLevel(Level desiredLevel) {
     switch(desiredLevel) {
       case L1:
-        setMotorRotations(1.0);
+        setMotorRotations(highLimit);
         currLevel = Level.L1;
       break;
 
       case L2:
-        setMotorRotations(2.0); 
+        setMotorRotations(35.0); 
         currLevel = Level.L2;
       break;
 
       case L3:
-        setMotorRotations(3.0);
+        setMotorRotations(74.0);
         currLevel = Level.L3;
       break;
       
       case L4:
-        setMotorRotations(4.0);
+        setMotorRotations(highLimit);
         currLevel = Level.L4;
       break;
 
       case lowAlgae:
-        setMotorRotations(5.0);
+        setMotorRotations(85.0);
         currLevel = Level.lowAlgae;
       break;
 
@@ -121,11 +121,11 @@ class Elevator {
     motorConfigs.CurrentLimits.StatorCurrentLimit = currentLimit;
   
     // MotionMagicTorqueFOC closed-loop control configuration.
-    motorConfigs.Slot0.kP = 80.0; // Units: amperes per 1 rotation of error.
+    motorConfigs.Slot0.kP = 20.0; // Units: amperes per 1 rotation of error.
     motorConfigs.Slot0.kI = 0.0; // Units: amperes per 1 rotation * 1 second of error.
-    motorConfigs.Slot0.kD = 6.0; // Units: amperes per 1 rotartion / 1 second of error.
-    motorConfigs.Slot0.kG = 30.0; // output to overcome gravity
-    motorConfigs.Slot0.kS = 10.0; // Units: amperes.
+    motorConfigs.Slot0.kD = 2.0; // Units: amperes per 1 rotartion / 1 second of error.
+    motorConfigs.Slot0.kG = 20.0; // output to overcome gravity
+    motorConfigs.Slot0.kS = 5.0; // Units: amperes.
     motorConfigs.MotionMagic.MotionMagicAcceleration = 1000.0; // Units: rotations per second per second.
     motorConfigs.MotionMagic.MotionMagicCruiseVelocity = 100.0; // Units: rotations per second.
   

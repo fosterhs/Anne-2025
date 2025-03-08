@@ -333,7 +333,7 @@ public class Robot extends TimedRobot {
     if (operator.getRawButtonPressed(3)) elevator.setLevel(Level.L3); // X button
     if (operator.getRawButtonPressed(4)) elevator.setLevel(Level.L4); // Y button 
     if (operator.getLeftTriggerAxis() > 0.25) elevator.setLevel(Level.lowAlgae); // Left Trigger
-    if (operator.getRightTriggerAxis() > 0.25) elevator.setLevel(Level.highAlgae); // Left Trigger
+    if (operator.getRightTriggerAxis() > 0.25) elevator.setLevel(Level.highAlgae); // Right Trigger
     if (algaeYeeter.getArmPosition() == ArmPosition.stow) {
       if (operator.getRawButtonPressed(5)) elevator.setLevel(Level.bottom); // Left bumper button
     }  

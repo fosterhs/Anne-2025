@@ -32,7 +32,7 @@ public class AlgaeYeeter {
   private final double intakeDelay = 0.3; // How long the wheels will wait before stopping to spin after an algae is detected.
   public enum ArmPosition {algae, barge, stow} // A list containing important arm positions that are pre-programmed.
   private final double highLimit = 0.0; // The high limit of the arm motor in motor rotations.
-  private final double lowLimit = -1.5; // The low limit of the arm motor in motor rotations.
+  private final double lowLimit = -12.5; // The low limit of the arm motor in motor rotations.
   private final double posTol = 0.5; // How much error is acceptable between the setpoint and the current position of the elevator in motor rotations.
   private double setpoint = 0.0; // The position that the arm motor is trying to reach in motor rotations.
   private ArmPosition currPosition = ArmPosition.stow; // Stores the last commanded position of the arm.
@@ -80,12 +80,12 @@ public class AlgaeYeeter {
   public void setArmPosition(ArmPosition desiredPosition) {
     switch(desiredPosition) {
       case algae:
-        setArmMotorRotations(-1.5);
+        setArmMotorRotations(-12.5);
         currPosition = ArmPosition.algae;
       break;
 
       case barge:
-        setArmMotorRotations(-0.5);
+        setArmMotorRotations(-4.0);
         currPosition = ArmPosition.barge;
       break;
       
@@ -168,11 +168,11 @@ public class AlgaeYeeter {
     motorConfigs.CurrentLimits.StatorCurrentLimit = currentLimit;
   
     // MotionMagicTorqueFOC closed-loop control configuration.
-    motorConfigs.Slot0.kP = 200.0; // Units: amperes per 1 rotation of error.
+    motorConfigs.Slot0.kP = 20.0; // Units: amperes per 1 rotation of error.
     motorConfigs.Slot0.kI = 0.0; // Units: amperes per 1 rotation * 1 second of error.
     motorConfigs.Slot0.kD = 0.0; // Units: amperes per 1 rotation / 1 second of error.
-    motorConfigs.Slot0.kG = 50.0; // output to overcome gravity
-    motorConfigs.Slot0.kS = 10.0; // Units: amperes.
+    motorConfigs.Slot0.kG = 5.0; // output to overcome gravity
+    motorConfigs.Slot0.kS = 1.0; // Units: amperes.
     motorConfigs.MotionMagic.MotionMagicAcceleration = 1000.0; // Units: rotations per second per second.
     motorConfigs.MotionMagic.MotionMagicCruiseVelocity = 100.0; // Units: rotations per second.
   
