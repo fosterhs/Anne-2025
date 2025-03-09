@@ -17,7 +17,7 @@ class Elevator {
   private final TalonFX elevatorSlaveMotor = new TalonFX(10, "canivore"); // The slave elevator motor.
   private final MotionMagicTorqueCurrentFOC elevatorMotorPositionRequest = new MotionMagicTorqueCurrentFOC(0.0); // Communicates motion magic torque current FOC position requests to the elevator motor.
   private final StatusSignal<Angle> elevatorMasterMotorPosition; // Stores the position of the master elevator motor.
-  public enum Level {L1, L2, L3, L4, lowAlgae, highAlgae, bottom, barge} // A list containing important elevator heights that are pre-programmed.
+  public enum Level {L1, L2, L3, L4, lowAlgae, highAlgae, bottom} // A list containing important elevator heights that are pre-programmed.
   private final double highLimit = 133.0; // The high limit of the elevator motor in motor rotations.
   private final double lowLimit = 0.5; // The low limit of the elevator motor in motor rotations.
   private final double posTol = 0.5; // How much error is acceptable between the setpoint and the current position of the elevator in motor rotations.
@@ -38,7 +38,7 @@ class Elevator {
   public void setLevel(Level desiredLevel) {
     switch(desiredLevel) {
       case L1:
-        setMotorRotations(highLimit);
+        setMotorRotations(16.0);
         currLevel = Level.L1;
       break;
 
@@ -53,7 +53,7 @@ class Elevator {
       break;
       
       case L4:
-        setMotorRotations(highLimit);
+        setMotorRotations(133.0);
         currLevel = Level.L4;
       break;
 
@@ -63,18 +63,13 @@ class Elevator {
       break;
 
       case highAlgae:
-        setMotorRotations(6.0);
+        setMotorRotations(124.0);
         currLevel = Level.highAlgae;
       break;
 
       case bottom:
         setMotorRotations(0.0);
         currLevel = Level.bottom;
-      break;
-
-      case barge:
-        setMotorRotations(7.0);
-        currLevel = Level.barge;
       break;
     }
   }
@@ -121,11 +116,11 @@ class Elevator {
     motorConfigs.CurrentLimits.StatorCurrentLimit = currentLimit;
   
     // MotionMagicTorqueFOC closed-loop control configuration.
-    motorConfigs.Slot0.kP = 20.0; // Units: amperes per 1 rotation of error.
+    motorConfigs.Slot0.kP = 37.0; // Units: amperes per 1 rotation of error.
     motorConfigs.Slot0.kI = 0.0; // Units: amperes per 1 rotation * 1 second of error.
-    motorConfigs.Slot0.kD = 2.0; // Units: amperes per 1 rotartion / 1 second of error.
-    motorConfigs.Slot0.kG = 20.0; // output to overcome gravity
-    motorConfigs.Slot0.kS = 5.0; // Units: amperes.
+    motorConfigs.Slot0.kD = 0.84; // Units: amperes per 1 rotartion / 1 second of error.
+    motorConfigs.Slot0.kG = 8.0; // output to overcome gravity
+    motorConfigs.Slot0.kS = 2.0; // Units: amperes.
     motorConfigs.MotionMagic.MotionMagicAcceleration = 1000.0; // Units: rotations per second per second.
     motorConfigs.MotionMagic.MotionMagicCruiseVelocity = 100.0; // Units: rotations per second.
   

@@ -48,13 +48,13 @@ public class Climber {
 
   // Opens the latch, allowing the climber to move freely.
   public void openLatch() {
-    latch.set(0.6);
+    latch.set(0.7);
     isLatched = false;
   }
 
   // Closes the latch, locking the climber into place.
   public void closeLatch() {
-    latch.set(0.4);
+    latch.set(0.2);
     isLatched = true;
   }
 

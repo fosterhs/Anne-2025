@@ -413,9 +413,9 @@ public class Robot extends TimedRobot {
 
   // Calculates all of the scoring locations on the field.
   public void calcScoringPoses() {
-    scoringPositionsX[0] = 3.822; // X-coordinates of the coral scoring locations in meters. Based on AprilTag 8, using the scoring position nearest to AprilTag 7 on the Red alliance.
-    scoringPositionsY[0] = 2.924; // Y-coordinates of the coral scoring locations in meters. Based on AprilTag 8, using the scoring position nearest to AprilTag 7 on the Red alliance.
-    scoringHeadings[0] = 60.0; // Heading of the robot at each coral scoring location in degrees. Based on AprilTag 8, using the scoring position nearest to AprilTag 7 on the Red alliance.
+    scoringPositionsX[0] = (144.0-26.0/2.0-3.375)*0.0254; // X-coordinates of the coral scoring location in meters. Based on the scoring location closest to the alliance wall with the larger y-coordinate on the blue alliance.
+    scoringPositionsY[0] = Drivetrain.fieldWidth/2.0 + 12.94*0.0254/2.0 - 6.0*0.0254; // Y-coordinates of the coral scoring location in meters. Based on the scoring location closest to the alliance wall with the larger y-coordinate on the blue alliance.
+    scoringHeadings[0] = 0.0; // Heading of the robot at the coral scoring location in degrees. Based on the scoring location closest to the alliance wall with the larger y-coordinate on the blue alliance.
 
     // Calculates the scoring positions of the remaining 5 faces of the reef by rotating the coordinates of the 0th index by 60 degrees.
     for (int index = 1; index <= 5; index++) {
@@ -427,9 +427,9 @@ public class Robot extends TimedRobot {
     }
     
     // Calculates the scoring position of the other scoring position on the same face of the reef by using an x-offset and a y-offset.
-    scoringPositionsX[6] = scoringPositionsX[0] + 12.94*0.0254*Math.sin(Math.toRadians(60.0));
-    scoringPositionsY[6] = scoringPositionsY[0] - 12.94*0.0254*Math.cos(Math.toRadians(60.0));
-    scoringHeadings[6] = scoringHeadings[0];
+    scoringPositionsX[6] = (144.0-26.0/2.0-3.375)*0.0254; // X-coordinates of the coral scoring location in meters. Based on the scoring location closest to the alliance wall with the smaller y-coordinate on the blue alliance.
+    scoringPositionsY[6] = Drivetrain.fieldWidth/2.0 - 12.94*0.0254/2.0 - 6.0*0.0254; // Y-coordinates of the coral scoring location in meters. Based on the scoring location closest to the alliance wall with the smaller y-coordinate on the blue alliance.
+    scoringHeadings[6] = 0.0; // Heading of the robot at the coral scoring location in degrees. Based on the scoring location closest to the alliance wall with the smaller y-coordinate on the blue alliance.
 
     // Calculates the scoring positions of the remaining 5 faces of the reef by rotating the coordinates of the 6th index by 60 degrees.
     for (int index = 7; index <= 11; index++) {
@@ -441,9 +441,9 @@ public class Robot extends TimedRobot {
     }
 
     // L1 scoring position based on the April Tag 8 face of the reef on the Red Alliance.
-    scoringPositionsX[12] = 3.822;
-    scoringPositionsY[12] = 2.924;
-    scoringHeadings[12] = -30.0;
+    scoringPositionsX[12] = 3.166;
+    scoringPositionsY[12] = 3.640;
+    scoringHeadings[12] = -15.0;
 
     // Calculates the scoring positions of the remaining 5 faces of the reef by rotating the coordinates of the 12th index by 60 degrees.
     for (int index = 13; index <= 17; index++) {
@@ -455,9 +455,9 @@ public class Robot extends TimedRobot {
     }
 
     // Algae scoring position based on the April Tag 8 face of the reef on the Red Alliance.
-    scoringPositionsX[18] = 3.822;
-    scoringPositionsY[18] = 2.924;
-    scoringHeadings[18] = 150.0;
+    scoringPositionsX[18] = (144.0-33.5/2.0-3.375)*0.0254; // X-coordinates of the coral scoring location in meters. Based on the scoring location closest to the alliance wall with the smaller y-coordinate on the blue alliance.
+    scoringPositionsY[18] = Drivetrain.fieldWidth/2.0; // Y-coordinates of the coral scoring location in meters. Based on the scoring location closest to the alliance wall with the smaller y-coordinate on the blue alliance.
+    scoringHeadings[18] = -90.0; // Heading of the robot at the coral scoring location in degrees. Based on the scoring location closest to the alliance wall with the smaller y-coordinate on the blue alliance.
 
     // Calculates the scoring positions of the remaining 5 faces of the reef by rotating the coordinates of the 18th index by 60 degrees.
     for (int index = 19; index <= 23; index++) {
@@ -469,12 +469,12 @@ public class Robot extends TimedRobot {
     }
     
     // These 4 scoring locations correspond to the source. There are 2 scoring locations at each of the 2 sources, for a total of 4. 
-    scoringPositionsX[24] = 0.601; // X-position of the first scoring location at the source nearest the origin in meters.
-    scoringPositionsY[24] = 1.343; // Y-position of the first scoring location at the source nearest the origin in meters.
+    scoringPositionsX[24] = 0.770; // X-position of the first scoring location at the source nearest the origin in meters.
+    scoringPositionsY[24] = 1.312; // Y-position of the first scoring location at the source nearest the origin in meters.
     scoringHeadings[24] = 144.0; // Heading of the first scoring location at the source nearest the origin. The source makes 54 and 36 degree angles with the coordinate axes.
 
-    scoringPositionsX[25] = 1.608; // X-position of the second scoring location at the source nearest the origin in meters.
-    scoringPositionsY[25] = 0.592; // Y-position of the second scoring location at the source nearest the origin in meters.
+    scoringPositionsX[25] = 1.539; // X-position of the second scoring location at the source nearest the origin in meters.
+    scoringPositionsY[25] = 0.715; // Y-position of the second scoring location at the source nearest the origin in meters.
     scoringHeadings[25] = scoringHeadings[12]; // This is automatically calculated. Does not need to be edited.
 
     scoringPositionsX[26] = scoringPositionsX[12]; // This is automatically calculated. Does not need to be edited.
@@ -487,13 +487,13 @@ public class Robot extends TimedRobot {
 
     // The scoring location of the processor.
     scoringPositionsX[28] = 11.561; // X-position of the processor scoring location in meters.
-    scoringPositionsY[28] = 7.609; // Y-position of the processor scoring location in meters.
-    scoringHeadings[28] = 90.0; // Heading of the processor scoring location.
+    scoringPositionsY[28] = Drivetrain.fieldWidth - 33.5*0.0254/2; // Y-position of the processor scoring location in meters.
+    scoringHeadings[28] = 0.0; // Heading of the processor scoring location.
 
     // The scoring location of the barge.
-    scoringPositionsX[29] = 7.500; // X-position of the barge scoring location in meters.
-    scoringPositionsY[29] = 6.000; // Y-position of the barge scoring location in meters.
-    scoringHeadings[29] = -90.0; // Heading of the barge scoring location.
+    scoringPositionsX[29] = 7.697; // X-position of the barge scoring location in meters.
+    scoringPositionsY[29] = 4.910; // Y-position of the barge scoring location in meters.
+    scoringHeadings[29] = -180.0; // Heading of the barge scoring location.
   }
 
   // Helps prevent loop overruns on startup by running every user created command in every class before the match starts. Not sure why this helps, but it does.
@@ -504,12 +504,12 @@ public class Robot extends TimedRobot {
     swerve.driveTo(1.0, -2.0, -75.0);
     swerve.resetPathController(0);
     swerve.followPath(0);
-    if (swerve.limelights.length > 0) swerve.addCalibrationEstimate(0);
+    swerve.addCalibrationEstimate(0);
     swerve.pushCalibration();
     swerve.resetCalibration();
     swerve.resetGyro();
     swerve.updateVisionHeading();
-    if (swerve.limelights.length > 0) swerve.addVisionEstimate(0);
+    swerve.addVisionEstimate(0);
     swerve.updateOdometry();
     swerve.drive(0.01, 0.0, 0.0, true, 0.0, 0.0);
     System.out.println("swerve atDriveGoal: " + swerve.atDriveGoal());
@@ -519,6 +519,7 @@ public class Robot extends TimedRobot {
     System.out.println("swerve getFusedAng: " + swerve.getFusedAng());
     System.out.println("swerve getGyroAng: " + swerve.getGyroAng());
     System.out.println("swerve getGyroPitch: " + swerve.getGyroPitch());
+    System.out.println("swerve getGyroRoll: " + swerve.getGyroRoll());
     System.out.println("swerve getPathAngleError: " + swerve.getPathAngleError());
     System.out.println("swerve getPathPosError: " + swerve.getPathPosError());
     System.out.println("swerve getXPos: " + swerve.getXPos());
@@ -553,6 +554,7 @@ public class Robot extends TimedRobot {
     climber.openLatch();
     System.out.println("climber position: " + climber.getPosition());
     System.out.println("climber isLatched: " + climber.isLatched());
+    climber.updateDash();
 
     algaeYeeter.init();
     algaeYeeter.periodic();
@@ -565,6 +567,7 @@ public class Robot extends TimedRobot {
     System.out.println("algae yeeter armAtSetpoint: " + algaeYeeter.armAtSetpoint());
     System.out.println("algae yeeter intakeTimer: " + algaeYeeter.getIntakeTimer());
     System.out.println("algae yeeter exhaustTimer: " + algaeYeeter.getExhaustTimer());
+    algaeYeeter.updateDash();
 
     updateDash();
     calcScoringPoses();

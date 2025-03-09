@@ -7,6 +7,8 @@ import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
@@ -28,13 +30,13 @@ public class AlgaeYeeter {
   private final DigitalInput algaeSensor = new DigitalInput(2); // Initializes the sensor connected to DIO port 2 on the RoboRIO.
   private final Timer algaeIntakeTimer = new Timer(); // Keeps track of how long has passed since an algae was first detected.
   private final Timer algaeExhaustTimer = new Timer(); // Keeps track of how long has passed since an algae has stopped being detected.
-  private final double exhaustDelay = 0.3; // How long the wheels will continue running for after an algae is no longer detected in seconds.
-  private final double intakeDelay = 0.3; // How long the wheels will wait before stopping to spin after an algae is detected.
+  private final double exhaustDelay = 1.0; // How long the wheels will continue running for after an algae is no longer detected in seconds.
+  private final double intakeDelay = 1.0; // How long the wheels will wait before stopping to spin after an algae is detected.
   public enum ArmPosition {algae, barge, stow} // A list containing important arm positions that are pre-programmed.
-  private final double highLimit = 0.0; // The high limit of the arm motor in motor rotations.
-  private final double lowLimit = -12.5; // The low limit of the arm motor in motor rotations.
-  private final double posTol = 0.5; // How much error is acceptable between the setpoint and the current position of the elevator in motor rotations.
-  private double setpoint = 0.0; // The position that the arm motor is trying to reach in motor rotations.
+  private final double highLimit = 0.25; // The high limit of the arm motor in mechanism rotations.
+  private final double lowLimit = 0.0; // The low limit of the arm motor in mechanism rotations.
+  private final double posTol = 0.01; // How much error is acceptable between the setpoint and the current position of the elevator in mechanism rotations.
+  private double setpoint = 0.25; // The position that the arm motor is trying to reach in mechanism rotations.
   private ArmPosition currPosition = ArmPosition.stow; // Stores the last commanded position of the arm.
   private boolean isYeeting = false; // Returns true if the yeeter is in the process of launching an algae. 
 
@@ -42,7 +44,7 @@ public class AlgaeYeeter {
     configArmMotor(armMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 120A current limit. 
     configIntakeMotor(intakeMasterMotor, true, 120.0); // Configures the motor with counterclockwise rotation positive and 120A current limit. 
     configIntakeMotor(intakeSlaveMotor, false, 120.0); // Configures the motor with clockwise rotation positive and 120A current limit. 
-    armMotor.setPosition(0.0, 0.03); // Sets the position of the motor to 0 on startup.
+    armMotor.setPosition(0.25, 0.03); // Sets the position of the motor to 0 on startup.
     armMotorPosition = armMotor.getPosition();
     BaseStatusSignal.setUpdateFrequencyForAll(250.0, armMotorPosition);
     ParentDevice.optimizeBusUtilizationForAll(armMotor, intakeMasterMotor, intakeSlaveMotor);
@@ -59,7 +61,7 @@ public class AlgaeYeeter {
   public void periodic() {
     if (algaeDetected()) algaeExhaustTimer.restart();
     if (!algaeDetected()) algaeIntakeTimer.restart();
-    if (algaeExhaustTimer.get() > exhaustDelay || currPosition == ArmPosition.stow ) isYeeting = false;
+    if (algaeExhaustTimer.get() > exhaustDelay || currPosition == ArmPosition.stow) isYeeting = false;
 
     if (isYeeting) {
       intakeMasterMotor.setControl(intakeMasterMotorVoltageRequest.withOutput(-12.0)); // Sets the intake motors to exhaust at 12 volts.
@@ -80,18 +82,18 @@ public class AlgaeYeeter {
   public void setArmPosition(ArmPosition desiredPosition) {
     switch(desiredPosition) {
       case algae:
-        setArmMotorRotations(-12.5);
+        setArmMotorRotations(0.0);
         currPosition = ArmPosition.algae;
       break;
 
       case barge:
-        setArmMotorRotations(-4.0);
+        setArmMotorRotations(0.17);
         currPosition = ArmPosition.barge;
       break;
       
       case stow:
         if (!algaeDetected()) {
-          setArmMotorRotations(0.0);
+          setArmMotorRotations(0.25);
           currPosition = ArmPosition.stow;
         }
       break;
@@ -123,7 +125,7 @@ public class AlgaeYeeter {
     return Math.abs(getArmAngle() - setpoint) < posTol; // Checks if the motor is at the target position.
   }
 
-  // Returns the current position of the arm in motor rotations. 
+  // Returns the current position of the arm in mechanism rotations. 
   public double getArmAngle() {
     return armMotorPosition.refresh().getValueAsDouble();
   }
@@ -149,7 +151,7 @@ public class AlgaeYeeter {
     SmartDashboard.putNumber("Algae Yeeter Setpoint", setpoint);
   }
 
-  // Sets the arm to the desired position in motor rotations.
+  // Sets the arm to the desired position in mechanism rotations.
   private void setArmMotorRotations(double desiredRotations) {
     if (desiredRotations > highLimit) desiredRotations = highLimit; // If the position is greater than the high limit, set the position to the high limit.
     if (desiredRotations < lowLimit) desiredRotations = lowLimit; // If the position is less than the low limit, set the position to the low limit.
@@ -168,13 +170,15 @@ public class AlgaeYeeter {
     motorConfigs.CurrentLimits.StatorCurrentLimit = currentLimit;
   
     // MotionMagicTorqueFOC closed-loop control configuration.
-    motorConfigs.Slot0.kP = 20.0; // Units: amperes per 1 rotation of error.
+    motorConfigs.Slot0.kP = 37.0*50.0; // Units: amperes per 1 rotation of error.
     motorConfigs.Slot0.kI = 0.0; // Units: amperes per 1 rotation * 1 second of error.
-    motorConfigs.Slot0.kD = 0.0; // Units: amperes per 1 rotation / 1 second of error.
+    motorConfigs.Slot0.kD = 0.84*50.0; // Units: amperes per 1 rotation / 1 second of error.
     motorConfigs.Slot0.kG = 5.0; // output to overcome gravity
     motorConfigs.Slot0.kS = 1.0; // Units: amperes.
-    motorConfigs.MotionMagic.MotionMagicAcceleration = 1000.0; // Units: rotations per second per second.
-    motorConfigs.MotionMagic.MotionMagicCruiseVelocity = 100.0; // Units: rotations per second.
+    motorConfigs.MotionMagic.MotionMagicAcceleration = 20.0; // Units: rotations per second per second.
+    motorConfigs.MotionMagic.MotionMagicCruiseVelocity = 2.0; // Units: rotations per second.
+    motorConfigs.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+    motorConfigs.Feedback.SensorToMechanismRatio = 50.0;
   
     motor.getConfigurator().apply(motorConfigs, 0.03);
   }

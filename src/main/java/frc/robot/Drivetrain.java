@@ -213,61 +213,71 @@ class Drivetrain {
 
   // Should be called once exactly 1 period prior to the start of calls to followPath() each time a new path is followed. pathIndex starts at 0 and incements by 1 for each path loaded into loadPath().
   public void resetPathController(int pathIndex) {
-    xController.reset(getXPos(), xVel);
-    yController.reset(getYPos(), yVel);
-    angleController.reset(getAngleDistance(getFusedAng(), paths.get(pathIndex).getInitialState().heading.getDegrees())*Math.PI/180.0, angVel*Math.PI/180.0);
-    xController.setPID(1.5, 0.0, 0.0);
-    yController.setPID(1.5, 0.0, 0.0);
-    angleController.setPID(2.0, 0.0, 0.0);
-    pathTimer.restart();
+    if (paths.size() > pathIndex) {
+      xController.reset(getXPos(), xVel);
+      yController.reset(getYPos(), yVel);
+      angleController.reset(getAngleDistance(getFusedAng(), paths.get(pathIndex).getInitialState().heading.getDegrees())*Math.PI/180.0, angVel*Math.PI/180.0);
+      xController.setPID(1.5, 0.0, 0.0);
+      yController.setPID(1.5, 0.0, 0.0);
+      angleController.setPID(2.0, 0.0, 0.0);
+      pathTimer.restart();
+    }
   }
   
   // Tracks the path. Should be called each period. The path controller should be reset if followPath() is not called for a period or more.
   public void followPath(int pathIndex) {
-    // Samples the trajectory at the current time.
-    PathPlannerTrajectoryState currentGoal = paths.get(pathIndex).sample(pathTimer.get());
-    pathXPos = currentGoal.pose.getX();
-    pathYPos = isRedAlliance() ? fieldWidth - currentGoal.pose.getY() : currentGoal.pose.getY();
-    pathAngPos = currentGoal.heading.getDegrees();
-    double pathXVel = currentGoal.linearVelocity*currentGoal.heading.getCos();
-    double pathYVel = currentGoal.linearVelocity*currentGoal.heading.getSin();
-    double xVelCorrection = xController.calculate(getXPos(), pathXPos);
-    double yVelCorrection = yController.calculate(getYPos(), pathYPos);
-    double angleDistance = getAngleDistance(getFusedAng(), pathAngPos);
-    double angVelSetpoint = angleController.calculate(angleDistance*Math.PI/180.0, 0.0);
-    double xVelSetpoint = pathXVel + xVelCorrection;
-    double yVelSetpoint = pathYVel + yVelCorrection;
+    if (paths.size() > pathIndex) {
+      // Samples the trajectory at the current time.
+      PathPlannerTrajectoryState currentGoal = paths.get(pathIndex).sample(pathTimer.get());
+      pathXPos = currentGoal.pose.getX();
+      pathYPos = isRedAlliance() ? fieldWidth - currentGoal.pose.getY() : currentGoal.pose.getY();
+      pathAngPos = currentGoal.heading.getDegrees();
+      double pathXVel = currentGoal.linearVelocity*currentGoal.heading.getCos();
+      double pathYVel = currentGoal.linearVelocity*currentGoal.heading.getSin();
+      double xVelCorrection = xController.calculate(getXPos(), pathXPos);
+      double yVelCorrection = yController.calculate(getYPos(), pathYPos);
+      double angleDistance = getAngleDistance(getFusedAng(), pathAngPos);
+      double angVelSetpoint = angleController.calculate(angleDistance*Math.PI/180.0, 0.0);
+      double xVelSetpoint = pathXVel + xVelCorrection;
+      double yVelSetpoint = pathYVel + yVelCorrection;
 
-    // Checks to see if all 3 targets have been achieved. Sets velocities to 0 to prevent twitchy robot motions at near 0 velocities.
-    atDriveGoal = atPathEndpoint(pathIndex);
-    if (atDriveGoal) {
-      xVelSetpoint = 0.0;
-      yVelSetpoint = 0.0;
-      angVelSetpoint = 0.0;
-    }
+      // Checks to see if all 3 targets have been achieved. Sets velocities to 0 to prevent twitchy robot motions at near 0 velocities.
+      atDriveGoal = atPathEndpoint(pathIndex);
+      if (atDriveGoal) {
+        xVelSetpoint = 0.0;
+        yVelSetpoint = 0.0;
+        angVelSetpoint = 0.0;
+      }
 
-    // Caps the velocities if the PID controllers return values above the specified maximums.
-    if (Math.abs(xVelSetpoint) > maxVelAuto) {
-      xVelSetpoint = xVelSetpoint > 0.0 ?  maxVelAuto : -maxVelAuto;
-    }
-    if (Math.abs(yVelSetpoint) > maxVelAuto) {
-      yVelSetpoint = yVelSetpoint > 0.0 ? maxVelAuto : -maxVelAuto;
-    }
-    if (Math.abs(angVelSetpoint) > maxAngVelAuto) {
-      angVelSetpoint = angVelSetpoint > 0.0 ? maxAngVelAuto : -maxAngVelAuto;
-    }
+      // Caps the velocities if the PID controllers return values above the specified maximums.
+      if (Math.abs(xVelSetpoint) > maxVelAuto) {
+        xVelSetpoint = xVelSetpoint > 0.0 ?  maxVelAuto : -maxVelAuto;
+      }
+      if (Math.abs(yVelSetpoint) > maxVelAuto) {
+        yVelSetpoint = yVelSetpoint > 0.0 ? maxVelAuto : -maxVelAuto;
+      }
+      if (Math.abs(angVelSetpoint) > maxAngVelAuto) {
+        angVelSetpoint = angVelSetpoint > 0.0 ? maxAngVelAuto : -maxAngVelAuto;
+      }
 
-    drive(xVelSetpoint, yVelSetpoint, angVelSetpoint, true, 0.0, 0.0);
+      drive(xVelSetpoint, yVelSetpoint, angVelSetpoint, true, 0.0, 0.0);
+    } else {
+      drive(0.0, 0.0, 0.0, false, 0.0, 0.0);
+    }
   }
   
   // Tells whether the robot has reached the endpoint of the path, within the specified tolerance.
   // pathIndex: Which path to check, pathXTol and pathYTol: the allowable difference in position in meters, pathAngTol: the allowable difference in angle in degrees
   public boolean atPathEndpoint(int pathIndex) {
+    if (paths.size() > pathIndex) {
     PathPlannerTrajectoryState endState = paths.get(pathIndex).getEndState();
     double endStateYPos = isRedAlliance() ? fieldWidth - endState.pose.getY() : endState.pose.getY();
     return Math.abs(getFusedAng() - endState.heading.getDegrees()) < angTol 
       && Math.abs(getXPos() - endState.pose.getX()) < posTol 
       && Math.abs(getYPos() - endStateYPos) < posTol;
+    } else {
+      return false;
+    }
   }
 
   // Updates the position of the robot on the field. Should be called each period to remain accurate. Tends to noticably drift for periods of time >15 sec.
@@ -292,17 +302,19 @@ class Drivetrain {
   // Incorporates vision information to determine the position of the robot on the field. Should be used only when vision information is deemed to be highly reliable (>1 april tag, close to april tag...)
   // limelightIndex indicates the camera to use. 0 is corresponds to the first entry in the limelights[] array. 
   public void addVisionEstimate(int limelightIndex) {
-    PoseEstimate botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(limelights[limelightIndex]); // Transforms the vision position estimate to the appropriate coordinate system for the robot's alliance color
-    double SD = 0.5; // How much variance there is in the LL vision information. Lower numbers indicate more trustworthy data.
-    if (botpose.tagCount >= 1) { // At least 1 AprilTag is detected.
-      if (botpose.avgTagArea*botpose.tagCount > 2.0 && Math.sqrt(Math.pow(getXVel(), 2) + Math.pow(getYVel(), 2)) < 0.5 && getAngVel() < 45.0) { // The robot is relatively stationary and the AprilTag is very close to the robot.
-        SD = 0.1; // Reduces the standard deviation of the vision estimate.
-        accurateCalibrationTimer.restart();
-      }
-      odometry.setVisionMeasurementStdDevs(VecBuilder.fill(SD, SD, Double.MAX_VALUE));
-      odometry.addVisionMeasurement(new Pose2d(botpose.pose.getX(), botpose.pose.getY(), Rotation2d.fromDegrees(getFusedAng())), botpose.timestampSeconds);  
-      calibrationTimer.restart();
-    } 
+    if (limelights.length > limelightIndex) {
+      PoseEstimate botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(limelights[limelightIndex]); // Transforms the vision position estimate to the appropriate coordinate system for the robot's alliance color
+      double SD = 0.5; // How much variance there is in the LL vision information. Lower numbers indicate more trustworthy data.
+      if (botpose.tagCount >= 1) { // At least 1 AprilTag is detected.
+        if (botpose.avgTagArea*botpose.tagCount > 2.0 && Math.sqrt(Math.pow(getXVel(), 2) + Math.pow(getYVel(), 2)) < 0.5 && getAngVel() < 45.0) { // The robot is relatively stationary and the AprilTag is very close to the robot.
+          SD = 0.1; // Reduces the standard deviation of the vision estimate.
+          accurateCalibrationTimer.restart();
+        }
+        odometry.setVisionMeasurementStdDevs(VecBuilder.fill(SD, SD, Double.MAX_VALUE));
+        odometry.addVisionMeasurement(new Pose2d(botpose.pose.getX(), botpose.pose.getY(), Rotation2d.fromDegrees(getFusedAng())), botpose.timestampSeconds);  
+        calibrationTimer.restart();
+      } 
+    }
   }
 
   // Should be called during disabledInit(). Wipes previous calibration data from the calibrator.
@@ -315,15 +327,17 @@ class Drivetrain {
   // Should be called during disabled(). Calibrates the robot's starting position based on any April Tags in sight of the Limelight.
   // limelightIndex indicates the camera to use. 0 is corresponds to the first entry in the limelights[] array. 
   public void addCalibrationEstimate(int limelightIndex) {
-    PoseEstimate botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed(limelights[limelightIndex]); // Transforms the vision position estimate to the appropriate coordinate system for the robot's alliance color
-    if (botpose.tagCount > 0) { // Checks to see whether there is at least 1 vision target and the LL has provided a new frame.
-      calibrationArray[0][calibrationIndex] = botpose.pose.getX(); // Adds an x-position entry to the calibrationPosition array. 
-      calibrationArray[1][calibrationIndex] = botpose.pose.getY(); // Adds a y-position entry to the calibrationPosition array. 
-      calibrationArray[2][calibrationIndex] = botpose.pose.getRotation().getDegrees(); // Adds a angle-position entry to the calibrationPosition array. 
-      calibrationIndex = (calibrationIndex + 1) % maxCalibrationFrames; // Handles the looping of the calibrationIndex variable. 
-      if (calibrationFrames < maxCalibrationFrames) calibrationFrames++;  // Increments calibrationPoints until the calibrationPosition array is full.
-      calibrationTimer.restart();
-    } 
+    if (limelights.length > limelightIndex) {
+      PoseEstimate botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed(limelights[limelightIndex]); // Transforms the vision position estimate to the appropriate coordinate system for the robot's alliance color
+      if (botpose.tagCount > 0) { // Checks to see whether there is at least 1 vision target and the LL has provided a new frame.
+        calibrationArray[0][calibrationIndex] = botpose.pose.getX(); // Adds an x-position entry to the calibrationPosition array. 
+        calibrationArray[1][calibrationIndex] = botpose.pose.getY(); // Adds a y-position entry to the calibrationPosition array. 
+        calibrationArray[2][calibrationIndex] = botpose.pose.getRotation().getDegrees(); // Adds a angle-position entry to the calibrationPosition array. 
+        calibrationIndex = (calibrationIndex + 1) % maxCalibrationFrames; // Handles the looping of the calibrationIndex variable. 
+        if (calibrationFrames < maxCalibrationFrames) calibrationFrames++;  // Increments calibrationPoints until the calibrationPosition array is full.
+        calibrationTimer.restart();
+      } 
+    }
   }
 
   // Should be called during autoInit() or teleopInit() to update the robot's starting position based on its April Tag calibration
