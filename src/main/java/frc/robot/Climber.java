@@ -38,6 +38,7 @@ public class Climber {
   public void setSpeed(double speed) {
     if (getPosition() < lowLimit && speed < 0.0)  speed = 0.0; // Turns the motor off if the climber is at its bottom limit and a down command is given.
     if (getPosition() > highLimit && speed > 0.0) speed = 0.0; // Turns the motor off if the climber is at its top limit and an up command is given.
+    if (speed > 0.0 && isLatched()) speed = 0.0; // Turns the motor off if the climber is latched and an up command is given.
     climbMasterMotor.setControl(climbMasterMotorDutyCycleRequest.withOutput(speed)); // Sets the speed of the motor according to the command given.
   }
 
@@ -48,7 +49,7 @@ public class Climber {
 
   // Opens the latch, allowing the climber to move freely.
   public void openLatch() {
-    latch.set(0.7);
+    latch.set(1.0);
     isLatched = false;
   }
 

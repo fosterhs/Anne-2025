@@ -76,9 +76,9 @@ public class Robot extends TimedRobot {
 
     // Causes the candleStrobeState variable to oscillate between true and false every 5 periods (0.1 seconds).
     period++;
-    if (period % 5 == 0) candleStrobeState = !candleStrobeState;
+    if (period % 2 == 0) candleStrobeState = !candleStrobeState;
   
-    if (swerve.getAccurateCalibrationTimer() < 1.0 && candleStrobeState) { // Strobes the lights for 1 second after an accurate vision calibration is made.
+    if (swerve.getAccurateCalibrationTimer() < 0.2 && candleStrobeState) { // Strobes the lights for 1 second after an accurate vision calibration is made.
       leftCandle.setLEDs(0, 0, 0, 0, 0, 8);
       rightCandle.setLEDs(0, 0, 0, 0, 0, 8);
     } else if (currScoreMode == scoreMode.Branch) { // White color for Branch mode.
@@ -273,15 +273,14 @@ public class Robot extends TimedRobot {
     }
 
     // The left center button (button 7) cycles through the 3 scoring modes of the robot.
-    if (operator.getRawButtonPressed(7) && currScoreMode == scoreMode.Branch) {
+    boolean buttonSevenPressed = operator.getRawButtonPressed(7);
+    if (buttonSevenPressed && currScoreMode == scoreMode.Branch) {
       currScoreMode = scoreMode.L1;
       SmartDashboard.putString("currScoreMode", "L1");
-    }
-    if (operator.getRawButtonPressed(7) && currScoreMode == scoreMode.L1) {
+    } else if (buttonSevenPressed && currScoreMode == scoreMode.L1) {
       currScoreMode = scoreMode.Algae;
       SmartDashboard.putString("currScoreMode", "Algae");
-    }
-    if (operator.getRawButtonPressed(7) && currScoreMode == scoreMode.Algae) {
+    } else if (buttonSevenPressed && currScoreMode == scoreMode.Algae) {
       currScoreMode = scoreMode.Branch;
       SmartDashboard.putString("currScoreMode", "Branch");
     }
@@ -336,7 +335,9 @@ public class Robot extends TimedRobot {
     if (operator.getRightTriggerAxis() > 0.25) elevator.setLevel(Level.highAlgae); // Right Trigger
     if (algaeYeeter.getArmPosition() == ArmPosition.stow) {
       if (operator.getRawButtonPressed(5)) elevator.setLevel(Level.bottom); // Left bumper button
-    }  
+    } else {
+      operator.getRawButtonPressed(5); // Deliberately does nothing.
+    }
 
     // Controls the spitter
     if (operator.getRawButtonPressed(6)) coralSpitter.spit(); // Right bumper button
@@ -409,12 +410,13 @@ public class Robot extends TimedRobot {
         }
       } 
     }
+    System.out.println(nearestScoreIndex);
   }
 
   // Calculates all of the scoring locations on the field.
   public void calcScoringPoses() {
     scoringPositionsX[0] = (144.0-26.0/2.0-3.375)*0.0254; // X-coordinates of the coral scoring location in meters. Based on the scoring location closest to the alliance wall with the larger y-coordinate on the blue alliance.
-    scoringPositionsY[0] = Drivetrain.fieldWidth/2.0 + 12.94*0.0254/2.0 - 6.0*0.0254; // Y-coordinates of the coral scoring location in meters. Based on the scoring location closest to the alliance wall with the larger y-coordinate on the blue alliance.
+    scoringPositionsY[0] = Drivetrain.fieldWidth/2.0 + 12.94*0.0254/2.0 - 10.5*0.0254; // Y-coordinates of the coral scoring location in meters. Based on the scoring location closest to the alliance wall with the larger y-coordinate on the blue alliance.
     scoringHeadings[0] = 0.0; // Heading of the robot at the coral scoring location in degrees. Based on the scoring location closest to the alliance wall with the larger y-coordinate on the blue alliance.
 
     // Calculates the scoring positions of the remaining 5 faces of the reef by rotating the coordinates of the 0th index by 60 degrees.
@@ -428,7 +430,7 @@ public class Robot extends TimedRobot {
     
     // Calculates the scoring position of the other scoring position on the same face of the reef by using an x-offset and a y-offset.
     scoringPositionsX[6] = (144.0-26.0/2.0-3.375)*0.0254; // X-coordinates of the coral scoring location in meters. Based on the scoring location closest to the alliance wall with the smaller y-coordinate on the blue alliance.
-    scoringPositionsY[6] = Drivetrain.fieldWidth/2.0 - 12.94*0.0254/2.0 - 6.0*0.0254; // Y-coordinates of the coral scoring location in meters. Based on the scoring location closest to the alliance wall with the smaller y-coordinate on the blue alliance.
+    scoringPositionsY[6] = Drivetrain.fieldWidth/2.0 - 12.94*0.0254/2.0 - 10.5*0.0254; // Y-coordinates of the coral scoring location in meters. Based on the scoring location closest to the alliance wall with the smaller y-coordinate on the blue alliance.
     scoringHeadings[6] = 0.0; // Heading of the robot at the coral scoring location in degrees. Based on the scoring location closest to the alliance wall with the smaller y-coordinate on the blue alliance.
 
     // Calculates the scoring positions of the remaining 5 faces of the reef by rotating the coordinates of the 6th index by 60 degrees.

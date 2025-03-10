@@ -67,7 +67,7 @@ class Drivetrain {
   private final StatusSignal<AngularVelocity> pigeonYawRate; // Stores the yaw velocity measured by the pigeon.
 
   // Limelight Variables
-  public final String[] limelights = {}; // Stores the names of all limelights on the robot.
+  public final String[] limelights = {"limelight-left", "limelight-right"}; // Stores the names of all limelights on the robot.
   private final int maxCalibrationFrames = 50; // The number of LL frames that will be averaged to determine the position of the robot when it is disabled() or being calibrated.
   private final int minCalibrationFrames = 3; // The minimum amount of LL frames that must be processed to accept a calibration.
   private double[][] calibrationArray = new double[3][maxCalibrationFrames]; // An array that stores the LL botpose for the most recent frames, up to the number of frames specified by maxCalibrationFrames
