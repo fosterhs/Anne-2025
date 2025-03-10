@@ -60,7 +60,6 @@ public class Robot extends TimedRobot {
     autoChooser.addOption(auto3, auto3);
     SmartDashboard.putData("Autos", autoChooser);
 
-    SmartDashboard.putString("currScoreMode", "Branch");
     swerve.loadPath("Test", 0.0, 0.0, 0.0, 0.0); // Loads a Path Planner generated path into the path follower code in the drivetrain.
     runAll(); // Helps prevent loop overruns on startup by running every command before the match starts.
   }
@@ -276,13 +275,10 @@ public class Robot extends TimedRobot {
     boolean buttonSevenPressed = operator.getRawButtonPressed(7);
     if (buttonSevenPressed && currScoreMode == scoreMode.Branch) {
       currScoreMode = scoreMode.L1;
-      SmartDashboard.putString("currScoreMode", "L1");
     } else if (buttonSevenPressed && currScoreMode == scoreMode.L1) {
       currScoreMode = scoreMode.Algae;
-      SmartDashboard.putString("currScoreMode", "Algae");
     } else if (buttonSevenPressed && currScoreMode == scoreMode.Algae) {
       currScoreMode = scoreMode.Branch;
-      SmartDashboard.putString("currScoreMode", "Branch");
     }
     
     coralSpitter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the coralSpitter to function correctly.
@@ -375,8 +371,8 @@ public class Robot extends TimedRobot {
 
   // Publishes information to the dashboard.
   public void updateDash() {
-    SmartDashboard.putNumber("Speed Scale Factor", speedScaleFactor);
-    SmartDashboard.putNumber("Auto Stage", autoStage);
+    //SmartDashboard.putNumber("Speed Scale Factor", speedScaleFactor);
+    //SmartDashboard.putNumber("Auto Stage", autoStage);
   }
 
   // Updates nearestScoreIndex to reflect the closest scoring location to the robot.

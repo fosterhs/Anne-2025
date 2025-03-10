@@ -440,33 +440,33 @@ class Drivetrain {
   
   // Publishes information to the dashboard. Should be called each period.
   public void updateDash() {
-    SmartDashboard.putNumber("Vision Calibration Timer", getCalibrationTimer());
-    SmartDashboard.putBoolean("atDriveGoal", atDriveGoal);
-    SmartDashboard.putNumber("Front Left Swerve Module Position", frontLeftModule.getDriveMotorPos());
-    SmartDashboard.putNumber("Front Right Swerve Module Position", frontRightModule.getDriveMotorPos());
-    SmartDashboard.putNumber("Back Right Swerve Module Position", backRightModule.getDriveMotorPos());
-    SmartDashboard.putNumber("Back Left Swerve Module Position", backLeftModule.getDriveMotorPos());
-    SmartDashboard.putNumber("Front Left Swerve Module Wheel Encoder Angle", frontLeftModule.getWheelAngle());
-    SmartDashboard.putNumber("Front Right Swerve Module Wheel Encoder Angle", frontRightModule.getWheelAngle());
-    SmartDashboard.putNumber("Back Right Swerve Module Wheel Encoder Angle", backRightModule.getWheelAngle());
-    SmartDashboard.putNumber("Back Left Swerve Module Wheel Encoder Angle", backLeftModule.getWheelAngle());
-    SmartDashboard.putNumber("Robot X Position", getXPos());
-    SmartDashboard.putNumber("Robot Y Position", getYPos());
-    SmartDashboard.putNumber("Robot Angular Position (Fused)", getFusedAng());
-    SmartDashboard.putNumber("Robot Angular Position (Gyro)", getGyroAng());
-    SmartDashboard.putNumber("Robot Pitch", getGyroPitch());
-    SmartDashboard.putNumber("Robot Roll", getGyroRoll());
-    SmartDashboard.putNumber("Robot Demanded X Velocity", getXVel());
-    SmartDashboard.putNumber("Robot Demanded Y Velocity", getYVel());
-    SmartDashboard.putNumber("Robot Demanded Angular Velocity", getAngVel());
-    SmartDashboard.putNumber("Path X Position", pathXPos);
-    SmartDashboard.putNumber("Path Y Position", pathYPos);
-    SmartDashboard.putNumber("Path Angular Position", pathAngPos);
-    SmartDashboard.putNumber("Path Position Error", getPathPosError());
-    SmartDashboard.putNumber("Path Angle Error", getPathAngleError());
-    SmartDashboard.putBoolean("Path At Endpoint", atPathEndpoint(0));
-    SmartDashboard.putBoolean("isRedAllaince", isRedAlliance());
-    SmartDashboard.putBoolean("isBlueAllaince", isBlueAlliance());   
+    //SmartDashboard.putNumber("Vision Calibration Timer", getCalibrationTimer());
+    //SmartDashboard.putBoolean("atDriveGoal", atDriveGoal);
+    //SmartDashboard.putNumber("Front Left Swerve Module Position", frontLeftModule.getDriveMotorPos());
+    //SmartDashboard.putNumber("Front Right Swerve Module Position", frontRightModule.getDriveMotorPos());
+    //SmartDashboard.putNumber("Back Right Swerve Module Position", backRightModule.getDriveMotorPos());
+    //SmartDashboard.putNumber("Back Left Swerve Module Position", backLeftModule.getDriveMotorPos());
+    //SmartDashboard.putNumber("Front Left Swerve Module Wheel Encoder Angle", frontLeftModule.getWheelAngle());
+    //SmartDashboard.putNumber("Front Right Swerve Module Wheel Encoder Angle", frontRightModule.getWheelAngle());
+    //SmartDashboard.putNumber("Back Right Swerve Module Wheel Encoder Angle", backRightModule.getWheelAngle());
+    //SmartDashboard.putNumber("Back Left Swerve Module Wheel Encoder Angle", backLeftModule.getWheelAngle());
+    //SmartDashboard.putNumber("Robot X Position", getXPos());
+    //SmartDashboard.putNumber("Robot Y Position", getYPos());
+    //SmartDashboard.putNumber("Robot Angular Position (Fused)", getFusedAng());
+    //SmartDashboard.putNumber("Robot Angular Position (Gyro)", getGyroAng());
+    //SmartDashboard.putNumber("Robot Pitch", getGyroPitch());
+    //SmartDashboard.putNumber("Robot Roll", getGyroRoll());
+    //SmartDashboard.putNumber("Robot Demanded X Velocity", getXVel());
+    //SmartDashboard.putNumber("Robot Demanded Y Velocity", getYVel());
+    //SmartDashboard.putNumber("Robot Demanded Angular Velocity", getAngVel());
+    //SmartDashboard.putNumber("Path X Position", pathXPos);
+    //SmartDashboard.putNumber("Path Y Position", pathYPos);
+    //SmartDashboard.putNumber("Path Angular Position", pathAngPos);
+    //SmartDashboard.putNumber("Path Position Error", getPathPosError());
+    //SmartDashboard.putNumber("Path Angle Error", getPathAngleError());
+    //SmartDashboard.putBoolean("Path At Endpoint", atPathEndpoint(0));
+    //SmartDashboard.putBoolean("isRedAllaince", isRedAlliance());
+    //SmartDashboard.putBoolean("isBlueAllaince", isBlueAlliance());   
   }
 
   // Calculates the shortest distance between two points on a 360 degree circle. CW is + and CCW is -

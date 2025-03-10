@@ -91,9 +91,9 @@ class Elevator {
 
   // Updates the SmartDashboard with information about the elevator.
   public void updateDash() {
-    SmartDashboard.putNumber("Elevator Position", getPosition());
-    SmartDashboard.putBoolean("Elevator AtSetpoint", atSetpoint());
-    SmartDashboard.putNumber("Elevator Setpoint", setpoint);
+    //SmartDashboard.putNumber("Elevator Position", getPosition());
+    //SmartDashboard.putBoolean("Elevator AtSetpoint", atSetpoint());
+    //SmartDashboard.putNumber("Elevator Setpoint", setpoint);
   }
 
   // Sets the position of the elevator motor in meters.

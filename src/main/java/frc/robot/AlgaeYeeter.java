@@ -141,13 +141,13 @@ public class AlgaeYeeter {
 
   // Updates the SmartDashboard with information about the algae yeeter.
   public void updateDash() {
-    SmartDashboard.putBoolean("Algae Yeeter algaeDetected", algaeDetected());
-    SmartDashboard.putNumber("Algae Yeeter getArmAngle", getArmAngle());
-    SmartDashboard.putBoolean("Algae Yeeter armAtSetpoint", armAtSetpoint());
-    SmartDashboard.putBoolean("Algae Yeeter isYeeting", isYeeting());
-    SmartDashboard.putNumber("Algae Yeeter Intake Timer", getExhaustTimer());
-    SmartDashboard.putNumber("Algae Yeeter Exhaust Timer", getIntakeTimer());
-    SmartDashboard.putNumber("Algae Yeeter Setpoint", setpoint);
+    //SmartDashboard.putBoolean("Algae Yeeter algaeDetected", algaeDetected());
+    //SmartDashboard.putNumber("Algae Yeeter getArmAngle", getArmAngle());
+    //SmartDashboard.putBoolean("Algae Yeeter armAtSetpoint", armAtSetpoint());
+    //SmartDashboard.putBoolean("Algae Yeeter isYeeting", isYeeting());
+    //SmartDashboard.putNumber("Algae Yeeter Intake Timer", getExhaustTimer());
+    //SmartDashboard.putNumber("Algae Yeeter Exhaust Timer", getIntakeTimer());
+    //SmartDashboard.putNumber("Algae Yeeter Setpoint", setpoint);
   }
 
   // Sets the arm to the desired position in mechanism rotations.

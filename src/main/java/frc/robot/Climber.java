@@ -71,8 +71,8 @@ public class Climber {
 
   // Updates the SmartDashboard with information about the climber.
   public void updateDash() {
-    SmartDashboard.putBoolean("Climber isLatched", isLatched());
-    SmartDashboard.putNumber("Climber getPosition", getPosition());
+    //SmartDashboard.putBoolean("Climber isLatched", isLatched());
+    //SmartDashboard.putNumber("Climber getPosition", getPosition());
   }
 
   private void configMotor(TalonFX motor, boolean invert, double currentLimit) {

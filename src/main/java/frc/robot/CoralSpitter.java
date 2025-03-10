@@ -87,12 +87,12 @@ public class CoralSpitter {
 
   // Updates the SmartDashboard with information about the coralSpitter.
   public void updateDash() { 
-    SmartDashboard.putBoolean("Spitter getIntakeSensor", getIntakeSensor());
-    SmartDashboard.putBoolean("Spitter getExhaustSensor", getExhaustSensor());
-    SmartDashboard.putBoolean("Spitter coralDetected", coralDetected());
-    SmartDashboard.putBoolean("Spitter isSpitting", isSpitting());
-    SmartDashboard.putNumber("Spitter Intake Timer", getIntakeTimer());
-    SmartDashboard.putNumber("Spitter Exhaust Timer", getExhaustTimer());
+    //SmartDashboard.putBoolean("Spitter getIntakeSensor", getIntakeSensor());
+    //SmartDashboard.putBoolean("Spitter getExhaustSensor", getExhaustSensor());
+    //SmartDashboard.putBoolean("Spitter coralDetected", coralDetected());
+    //SmartDashboard.putBoolean("Spitter isSpitting", isSpitting());
+    //SmartDashboard.putNumber("Spitter Intake Timer", getIntakeTimer());
+    //SmartDashboard.putNumber("Spitter Exhaust Timer", getExhaustTimer());
   }
 
   private void configMotor(TalonFX motor, boolean invert, double currentLimit) {
