@@ -272,12 +272,12 @@ public class Robot extends TimedRobot {
     }
 
     // The left center button (button 7) cycles through the 3 scoring modes of the robot.
-    boolean buttonSevenPressed = operator.getRawButtonPressed(7);
-    if (buttonSevenPressed && currScoreMode == scoreMode.Branch) {
+    boolean operatorButtonSevenPressed = operator.getRawButtonPressed(7);
+    if (operatorButtonSevenPressed && currScoreMode == scoreMode.Branch) {
       currScoreMode = scoreMode.L1;
-    } else if (buttonSevenPressed && currScoreMode == scoreMode.L1) {
+    } else if (operatorButtonSevenPressed && currScoreMode == scoreMode.L1) {
       currScoreMode = scoreMode.Algae;
-    } else if (buttonSevenPressed && currScoreMode == scoreMode.Algae) {
+    } else if (operatorButtonSevenPressed && currScoreMode == scoreMode.Algae) {
       currScoreMode = scoreMode.Branch;
     }
     
@@ -303,7 +303,6 @@ public class Robot extends TimedRobot {
       swerve.xLock(); // Locks the swerve modules (for defense).
     } else if (driver.getRawButtonPressed(6)) { // Right bumper button
       calcNearestScoringPose(); // Calculates the closest scoring position.
-      System.out.println(nearestScoreIndex);
       swerve.resetDriveController(scoringHeadings[nearestScoreIndex]); // Prepares the robot to drive to the closest scoring position.
     } else if (driver.getRawButton(6)) { // Right bumper button
       swerve.driveTo(scoringPositionsX[nearestScoreIndex], scoringPositionsY[nearestScoreIndex], scoringHeadings[nearestScoreIndex]); // Drives to the closest scoring position.
@@ -334,6 +333,7 @@ public class Robot extends TimedRobot {
     } else {
       operator.getRawButtonPressed(5); // Deliberately does nothing.
     }
+    elevator.adjust(MathUtil.applyDeadband(-operator.getLeftY(), 0.1)); // Allows the operator to adjust the height of the elevator.
 
     // Controls the spitter
     if (operator.getRawButtonPressed(6)) coralSpitter.spit(); // Right bumper button
@@ -349,7 +349,7 @@ public class Robot extends TimedRobot {
     }
 
     // Controls the algae yeeter.
-    if (elevator.getLevel() != Level.bottom) {
+    if (elevator.getLevel() != Level.bottom && elevator.getPosition() > 10.0) {
       if (operator.getPOV() == 180) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.algae); // D pad down
       if (operator.getPOV() == 90) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.barge); // D pad left
     }
@@ -406,7 +406,6 @@ public class Robot extends TimedRobot {
         }
       } 
     }
-    System.out.println(nearestScoreIndex);
   }
 
   // Calculates all of the scoring locations on the field.
