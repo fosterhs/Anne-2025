@@ -19,7 +19,7 @@ class Elevator {
   private final StatusSignal<Angle> elevatorMasterMotorPosition; // Stores the position of the master elevator motor.
   public enum Level {L1, L2, L3, L4, lowAlgae, highAlgae, bottom} // A list containing important elevator heights that are pre-programmed.
   private final double highLimit = 131.5; // The high limit of the elevator motor in motor rotations.
-  private final double lowLimit = 0.5; // The low limit of the elevator motor in motor rotations.
+  private double lowLimit = 0.5; // The low limit of the elevator motor in motor rotations.
   private final double posTol = 0.5; // How much error is acceptable between the setpoint and the current position of the elevator in motor rotations.
   private final double adjustRate = 0.2; // The speed at which adjustments to the elevator position are made. Increase for faster adjustments.
   private double setpoint = 0.0; // The position that the elevator motor is trying to reach in motor rotations.
@@ -81,6 +81,11 @@ class Elevator {
     if (setpoint > highLimit) setpoint = highLimit; // If the position is greater than the high limit, set the position to the high limit.
     if (setpoint < lowLimit) setpoint = lowLimit; // If the position is less than the low limit, set the position to the low limit.
     elevatorMasterMotor.setControl(elevatorMotorPositionRequest.withPosition(setpoint)); 
+  }
+
+  // Adjusts the low limit of the elevator based on whether the algae mechanism is up or down.
+  public void setLowLimit(double _lowLimit) {
+    lowLimit = _lowLimit;
   }
 
   // Checks if the motor is at the target position.

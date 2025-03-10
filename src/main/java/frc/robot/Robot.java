@@ -328,7 +328,7 @@ public class Robot extends TimedRobot {
     } else {
       operator.getRawButtonPressed(5); // Deliberately does nothing.
     }
-    elevator.adjust(MathUtil.applyDeadband(-operator.getLeftY(), 0.1)); // Allows the operator to adjust the height of the elevator.
+    elevator.adjust(MathUtil.applyDeadband(-operator.getRightY(), 0.1)); // Allows the operator to adjust the height of the elevator.
 
     // Controls the spitter
     if (operator.getRawButtonPressed(6)) coralSpitter.spit(); // Right bumper button
@@ -344,11 +344,20 @@ public class Robot extends TimedRobot {
     }
 
     // Controls the algae yeeter.
-    if (elevator.getLevel() != Level.bottom && elevator.getPosition() > 10.0) {
-      if (operator.getPOV() == 180) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.algae); // D pad down
-      if (operator.getPOV() == 90) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.barge); // D pad left
+    if (elevator.getPosition() > 15.0) {
+      if (operator.getPOV() == 180) {
+        algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.algae); // D pad down
+        elevator.setLowLimit(15.0);
+      }
+      if (operator.getPOV() == 90) {
+        algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.barge); // D pad left
+        elevator.setLowLimit(15.0);
+      }
     }
-    if (operator.getPOV() == 0) algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.stow); // D pad up
+    if (operator.getPOV() == 0) {
+      algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.stow); // D pad up
+      elevator.setLowLimit(0.5);
+    }
     if (operator.getPOV() == 270) algaeYeeter.yeet(); // D pad right
   }
   
