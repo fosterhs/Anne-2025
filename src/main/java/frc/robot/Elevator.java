@@ -39,12 +39,12 @@ class Elevator {
   public void setLevel(Level desiredLevel) {
     switch(desiredLevel) {
       case L1:
-        setMotorRotations(12.0);
+        setMotorRotations(14.0);
         currLevel = Level.L1;
       break;
 
       case L2:
-        setMotorRotations(37.0); 
+        setMotorRotations(39.0); 
         currLevel = Level.L2;
       break;
 
@@ -59,12 +59,12 @@ class Elevator {
       break;
 
       case lowAlgae:
-        setMotorRotations(85.0);
+        setMotorRotations(68.0);
         currLevel = Level.lowAlgae;
       break;
 
       case highAlgae:
-        setMotorRotations(124.0);
+        setMotorRotations(108.0);
         currLevel = Level.highAlgae;
       break;
 
@@ -105,7 +105,7 @@ class Elevator {
 
   // Updates the SmartDashboard with information about the elevator.
   public void updateDash() {
-    //SmartDashboard.putNumber("Elevator Position", getPosition());
+    SmartDashboard.putNumber("Elevator Position", getPosition());
     //SmartDashboard.putBoolean("Elevator AtSetpoint", atSetpoint());
     //SmartDashboard.putNumber("Elevator Setpoint", setpoint);
   }
