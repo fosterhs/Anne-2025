@@ -30,7 +30,7 @@ public class AlgaeYeeter {
   private final Timer algaeIntakeTimer = new Timer(); // Keeps track of how long has passed since an algae was first detected.
   private final Timer algaeExhaustTimer = new Timer(); // Keeps track of how long has passed since an algae has stopped being detected.
   private final double exhaustDelay = 1.0; // How long the wheels will continue running for after an algae is no longer detected in seconds.
-  private final double intakeDelay = 1.0; // How long the wheels will wait before stopping to spin after an algae is detected.
+  private final double intakeDelay = 0.3; // How long the wheels will wait before stopping to spin after an algae is detected.
   public enum ArmPosition {algae, barge, stow} // A list containing important arm positions that are pre-programmed.
   private final double highLimit = 0.22; // The high limit of the arm motor in mechanism rotations.
   private final double lowLimit = 0.0; // The low limit of the arm motor in mechanism rotations.
