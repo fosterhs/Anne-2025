@@ -80,17 +80,16 @@ public class Robot extends TimedRobot {
     if (swerve.getAccurateCalibrationTimer() < 0.2 && candleStrobeState) { // Strobes the lights for 1 second after an accurate vision calibration is made.
       leftCandle.setLEDs(0, 0, 0, 0, 0, 8);
       rightCandle.setLEDs(0, 0, 0, 0, 0, 8);
-    } else if (currScoreMode == scoreMode.Branch) { // White color for Branch mode.
-      leftCandle.setLEDs(255, 255, 255, 0, 0, 8);
-      rightCandle.setLEDs(255, 255, 255, 0, 0, 8);
-    } else if (currScoreMode == scoreMode.L1) { // Purple color for L1 mode.
-      leftCandle.setLEDs(255, 0, 255, 0, 0, 8);
-      rightCandle.setLEDs(255, 0, 255, 0, 0, 8);
+    } else if (currScoreMode == scoreMode.Branch) { // Blue color for Branch mode.
+      leftCandle.setLEDs(0, 0, 255, 0, 0, 8);
+      rightCandle.setLEDs(0, 0, 255, 0, 0, 8);
+    } else if (currScoreMode == scoreMode.L1) { // Red color for L1 mode.
+      leftCandle.setLEDs(255, 0, 0, 0, 0, 8);
+      rightCandle.setLEDs(255, 0, 0, 0, 0, 8);
     } else if (currScoreMode == scoreMode.Algae) { // Green color for Algae Mode.
       leftCandle.setLEDs(0, 255, 0, 0, 0, 8);
       rightCandle.setLEDs(0, 255, 0, 0, 0, 8);
     }
-    
   }
 
   public void autonomousInit() {
@@ -266,15 +265,9 @@ public class Robot extends TimedRobot {
       driver.setRumble(RumbleType.kBothRumble, 0.0);
     }
 
-    // The left center button (button 7) cycles through the 3 scoring modes of the robot.
-    boolean operatorButtonSevenPressed = operator.getRawButtonPressed(7);
-    if (operatorButtonSevenPressed && currScoreMode == scoreMode.Branch) {
-      currScoreMode = scoreMode.L1;
-    } else if (operatorButtonSevenPressed && currScoreMode == scoreMode.L1) {
-      currScoreMode = scoreMode.Algae;
-    } else if (operatorButtonSevenPressed && currScoreMode == scoreMode.Algae) {
-      currScoreMode = scoreMode.Branch;
-    }
+    if (driver.getPOV() == 0) currScoreMode = scoreMode.Algae; // D-Pad up
+    if (driver.getPOV() == 90) currScoreMode = scoreMode.Branch; // D-pad left
+    if (driver.getPOV() == 180) currScoreMode = scoreMode.L1; // D-pad down
     
     coralSpitter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the coralSpitter to function correctly.
     algaeYeeter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the algaeYeeter to function correctly.
@@ -548,6 +541,7 @@ public class Robot extends TimedRobot {
     if (elevator.getLevel() == Level.bottom) System.out.println("elevator at bottom");
     System.out.println("elevator atSetpoint: " + elevator.atSetpoint());
     System.out.println("elevator getPosition: " + elevator.getPosition());
+    elevator.setLowLimit(0.5);
     elevator.updateDash();
 
     climber.setSpeed(0.0);

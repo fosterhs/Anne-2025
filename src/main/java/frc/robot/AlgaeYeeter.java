@@ -174,7 +174,7 @@ public class AlgaeYeeter {
     motorConfigs.Slot0.kD = 42.0; // Units: amperes per 1 rotation / 1 second of error.
     motorConfigs.Slot0.kG = 2.0; // output to overcome gravity
     motorConfigs.Slot0.kS = 1.0; // Units: amperes.
-    motorConfigs.MotionMagic.MotionMagicJerk = 25.0; // Units: mechanism  per second per second per second.
+    motorConfigs.MotionMagic.MotionMagicJerk = 25.0; // Units: mechanism per second per second per second.
     motorConfigs.MotionMagic.MotionMagicAcceleration = 5.0; // Units: mechanism rotations per second per second.
     motorConfigs.MotionMagic.MotionMagicCruiseVelocity = 2.0; // Units: mechanism rotations per second.
     motorConfigs.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
