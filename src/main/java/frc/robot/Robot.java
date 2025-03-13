@@ -510,6 +510,7 @@ public class Robot extends TimedRobot {
     System.out.println("swerve atPathEndpoint: " + swerve.atPathEndpoint(0));
     System.out.println("swerve getAngVel: " + swerve.getAngVel());
     System.out.println("swerve getCalibrationTimer: " + swerve.getCalibrationTimer());
+    System.out.println("swerve getAccurateCalibrationTimer: " + swerve.getAccurateCalibrationTimer());
     System.out.println("swerve getFusedAng: " + swerve.getFusedAng());
     System.out.println("swerve getGyroAng: " + swerve.getGyroAng());
     System.out.println("swerve getGyroPitch: " + swerve.getGyroPitch());

@@ -26,8 +26,8 @@ class Elevator {
   private Level currLevel = Level.bottom; // Stores the last commanded position of the arm.
 
   public Elevator() {
-    configMotor(elevatorMasterMotor, true); // Configures the motor with counterclockwise rotation positive and 120A current limit.
-    configMotor(elevatorSlaveMotor, false); // Configures the motor with clockwise rotation positive and 120A current limit.
+    configMotor(elevatorMasterMotor, true); // Configures the motor.
+    configMotor(elevatorSlaveMotor, false); // Configures the motor.
     elevatorMasterMotor.setPosition(0.0, 0.03); // Sets the position of the motor to 0.
     elevatorMasterMotorPosition = elevatorMasterMotor.getPosition();
     BaseStatusSignal.setUpdateFrequencyForAll(250.0, elevatorMasterMotorPosition);

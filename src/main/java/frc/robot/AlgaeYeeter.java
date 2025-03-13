@@ -40,9 +40,9 @@ public class AlgaeYeeter {
   private boolean isYeeting = false; // Returns true if the yeeter is in the process of launching an algae. 
 
   public AlgaeYeeter() {
-    configArmMotor(armMotor, false); // Configures the motor with counterclockwise rotation positive and 120A current limit. 
-    configIntakeMotor(intakeMasterMotor, true); // Configures the motor with counterclockwise rotation positive and 120A current limit. 
-    configIntakeMotor(intakeSlaveMotor, false); // Configures the motor with clockwise rotation positive and 120A current limit. 
+    configArmMotor(armMotor, false); // Configures the motor.
+    configIntakeMotor(intakeMasterMotor, true); // Configures the motor.
+    configIntakeMotor(intakeSlaveMotor, false); // Configures the motor.
     armMotor.setPosition(0.22, 0.03); // Sets the position of the motor to 0 on startup.
     armMotorPosition = armMotor.getPosition();
     BaseStatusSignal.setUpdateFrequencyForAll(250.0, armMotorPosition);
