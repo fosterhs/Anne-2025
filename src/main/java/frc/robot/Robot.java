@@ -36,16 +36,16 @@ public class Robot extends TimedRobot {
   
   // Auto Variables
   private final SendableChooser<String> autoChooser = new SendableChooser<>();
-  private static final String auto1 = "1-Piece Coral (Index 10)";
-  private static final String auto2 = "2-Piece Coral L3 (Index 10, 11)";
-  private static final String auto3 = "2-Piece Coral L3 (Index 8, 7)";
-  private static final String auto4 = "2-Piece Coral L4 (Index 10, 11)";
-  private static final String auto5 = "2-Piece Coral L4 (Index 8, 7)";
-  private static final String auto6 = "WIP";
-  private static final String auto7 = "WIP1";
-  private static final String auto8 = "WIP2";
-  private static final String auto9 = "WIP3";
-  private static final String auto10 = "WIP4";
+  private static final String auto1 = "1-Piece Coral (Index 10)"; 
+  private static final String auto2 = "1-Piece Coral (Index 9)"; 
+  private static final String auto3 = "2-Piece Coral L3 (Index 10, 11)";
+  private static final String auto4 = "2-Piece Coral L3 (Index 8, 7)";
+  private static final String auto5 = "2-Piece Coral L4 (Index 10, 11)";
+  private static final String auto6 = "2-Piece Coral L4 (Index 8, 7)"; 
+  private static final String auto7 = "Buddy Push";
+  private static final String auto8 = "WIP2"; //Kyle- Extra Auto space, for on the go auto makeing 
+  private static final String auto9 = "WIP3"; //Kyle- Extra Auto space, for on the go auto makeing 
+  private static final String auto10 = "WIP4"; //Kyle- Extra Auto space, for on the go auto makieng
   private String autoSelected;
   private int autoStage = 1;
   private enum scoreMode {Branch, L1, Algae};
@@ -115,44 +115,46 @@ public class Robot extends TimedRobot {
       break;
 
       case auto2:
+        // AutoInit 1 code goes here.
+        swerve.resetDriveController(scoringHeadings[9]); // Prepares the robot to drive to the reef.
+      break;
+
+      case auto3:
         // AutoInit 2 code goes here.
         swerve.resetDriveController(scoringHeadings[10]); // Prepares the robot to drive to the reef.
       break;
 
-      case auto3:
+      case auto4:
         // AutoInit 3 code goes here.
         swerve.resetDriveController(scoringHeadings[8]); // Prepares the robot to drive to the reef.
       break;
 
-      case auto4:
+      case auto5:
         // AutoInit 4 code goes here.
         swerve.resetDriveController(scoringHeadings[10]); // Prepares the robot to drive to the reef.
       break;
 
-      case auto5:
-        // AutoInit 5 code goes here.
+      case auto6:
+        // AutoInit 6 code goes here.
         swerve.resetDriveController(scoringHeadings[8]); // Prepares the robot to drive to the reef.
       break;
 
-      case auto6:
-        // AutoInit 5 code goes here.
-      break;
-
       case auto7:
-        // AutoInit 5 code goes here.
+        // AutoInit 7 code goes here.
       break;
 
       case auto8:
-        // AutoInit 5 code goes here.
+        // AutoInit 8 code goes here.
       break;
 
       case auto9:
-        // AutoInit 5 code goes here.
+        // AutoInit 9 code goes here.
       break;
 
       case auto10:
-        // AutoInit 5 code goes here.
+        // AutoInit 10 code goes here.
       break;
+
     }
   }
 
@@ -190,6 +192,33 @@ public class Robot extends TimedRobot {
       break;
 
       case auto2:
+        switch (autoStage) {
+          case 1:
+            // Auto 2, Stage 1 code goes here.
+            swerve.driveTo(scoringPositionsX[9],scoringPositionsY[9],scoringHeadings[9]); // This moves the robot to the reef.
+            if (swerve.atDriveGoal()) {
+              autoStage = 2; // Advances to the next stage once the robot is at the correct location.
+            }
+          break;
+
+          case 2:
+            // Auto 2, Stage 2 code goes here.
+            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
+            elevator.setLevel(Level.L3); // This moves the elevator to the second level.
+            if (elevator.atSetpoint()) {
+              autoStage = 3; // Advances to the next stage once the elevator is at the correct level.
+            }
+          break;
+
+          case 3:
+            // Auto 2, Stage 3 code goes here.
+            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
+            coralSpitter.spit(); // Spits the coral.
+          break;
+        }
+      break;
+
+      case auto3:
         switch (autoStage) {
           case 1:
             // Auto 2, Stage 1 code goes here.
@@ -270,7 +299,7 @@ public class Robot extends TimedRobot {
         }   
       break;
 
-      case auto3:
+      case auto4:
         switch (autoStage) {
           case 1:
             // Auto 3, Stage 1 code goes here.
@@ -351,7 +380,7 @@ public class Robot extends TimedRobot {
         }
       break;
 
-      case auto4:
+      case auto5:
         switch (autoStage) {
           case 1:
             // Auto 4, Stage 1 code goes here.
@@ -432,7 +461,7 @@ public class Robot extends TimedRobot {
         }   
     break;
 
-      case auto5:
+      case auto6:
         switch (autoStage) {
           case 1:
           // Auto 3, Stage 1 code goes here.
@@ -513,15 +542,26 @@ public class Robot extends TimedRobot {
       }
     break;
 
-      case auto6:
+      case auto7:
         switch (autoStage) { 
           case 1:
-            // Auto 6, Stage 1 code goes here.
+          // Auto 6, Stage 1 code goes here.
+          swerve.driveTo( 8.234, 6.715, 180.0);
+            if (swerve.atDriveGoal()) {
+              autoStage = 2; // Advances to the next stage once the coral is ejected.
+            }
+          break;
+
+          case 2:
+          swerve.driveTo(7.0, 6.715, 180.0);
+          if (swerve.atDriveGoal()) {
+              autoStage = 3; // Advances to the next stage once the coral is ejected.
+            }
           break;
       }
     break;     
       
-      case auto7:
+      case auto8:
         switch (autoStage) { 
           case 1:
             // Auto 7, Stage 1 code goes here.
@@ -529,7 +569,7 @@ public class Robot extends TimedRobot {
       }
     break;  
 
-      case auto8:
+      case auto9:
         switch (autoStage) { 
           case 1:
             // Auto 8, Stage 1 code goes here.
@@ -537,22 +577,13 @@ public class Robot extends TimedRobot {
       }
     break;  
 
-      case auto9:
+      case auto10:
         switch (autoStage) { 
           case 1:
             // Auto 9, Stage 1 code goes here.
           break;
       }
-    break;  
-
-      case auto10:
-        switch (autoStage) { 
-          case 1:
-            // Auto 10, Stage 1 code goes here.
-          break;
-      }
-    break;  
-      
+    break;     
 
     }
   }

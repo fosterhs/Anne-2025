@@ -1,17 +1,18 @@
 package frc.robot;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
-import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CoralSpitter {
-  private final TalonFX spitMotor = new TalonFX(12, "rio");  // Initializes the motor with CAN ID of 12 connected to the roboRIO.
+  private final TalonFXS spitMotor = new TalonFXS(12, "rio");  // Initializes the motor with CAN ID of 12 connected to the roboRIO.
   private final VoltageOut spitMotorVoltageRequest = new VoltageOut(0.0).withEnableFOC(true); // Communicates voltage requests to the spit motor.
   private final DigitalInput coralIntakeSensor = new DigitalInput(0); // Initializes the sensor connected to DIO port 0 on the RoboRIO. Sensor 1 is the sensor closest to the intake.
   private final DigitalInput coralExhaustSensor = new DigitalInput(1); // Initializes the sensor connected to DIO port 1 on the RoboRIO. Sensor 2 is the sensor closest to the exhaust.
@@ -40,7 +41,7 @@ public class CoralSpitter {
     if (exhaustSensorTimer.get() > exhaustDelay) isSpitting = false; // If the timer exceeds the delay, stop spitting.
 
     if (isSpitting) {
-      spitMotor.setControl(spitMotorVoltageRequest.withOutput(1.8)); // Scores the coral
+      spitMotor.setControl(spitMotorVoltageRequest.withOutput(10.0)); // Scores the coral
     } else if (!getExhaustSensor() && intakeSensorTimer.get() > intakeDelay) {
       spitMotor.setControl(spitMotorVoltageRequest.withOutput(1.2)); // Loads the coral about halfway into the mechanism.
     } else if (!getExhaustSensor()) {
@@ -95,8 +96,8 @@ public class CoralSpitter {
     //SmartDashboard.putNumber("Spitter Exhaust Timer", getExhaustTimer());
   }
 
-  private void configMotor(TalonFX motor, boolean invert, double currentLimit) {
-    TalonFXConfiguration motorConfigs = new TalonFXConfiguration();
+  private void configMotor(TalonFXS motor, boolean invert, double currentLimit) {
+    TalonFXSConfiguration motorConfigs = new TalonFXSConfiguration();
 
     motorConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfigs.MotorOutput.Inverted = invert ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
@@ -104,6 +105,8 @@ public class CoralSpitter {
     // Current limit configuration.
     motorConfigs.CurrentLimits.StatorCurrentLimitEnable = true;
     motorConfigs.CurrentLimits.StatorCurrentLimit = currentLimit;
+
+    motorConfigs.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
 
     // VelocityVoltage closed-loop control configuration.
     motorConfigs.Slot0.kP = 0.25; // Units: volts per 1 motor rotation per second of error.
