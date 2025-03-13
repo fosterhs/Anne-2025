@@ -26,8 +26,8 @@ class Elevator {
   private Level currLevel = Level.bottom; // Stores the last commanded position of the arm.
 
   public Elevator() {
-    configMotor(elevatorMasterMotor, true, 120.0); // Configures the motor with counterclockwise rotation positive and 120A current limit.
-    configMotor(elevatorSlaveMotor, false, 120.0); // Configures the motor with clockwise rotation positive and 120A current limit.
+    configMotor(elevatorMasterMotor, true); // Configures the motor with counterclockwise rotation positive and 120A current limit.
+    configMotor(elevatorSlaveMotor, false); // Configures the motor with clockwise rotation positive and 120A current limit.
     elevatorMasterMotor.setPosition(0.0, 0.03); // Sets the position of the motor to 0.
     elevatorMasterMotorPosition = elevatorMasterMotor.getPosition();
     BaseStatusSignal.setUpdateFrequencyForAll(250.0, elevatorMasterMotorPosition);
@@ -119,15 +119,11 @@ class Elevator {
   }
 
   // Configures the motor with the given parameters.
-  private void configMotor(TalonFX motor, boolean invert, double currentLimit) {
+  private void configMotor(TalonFX motor, boolean invert) {
     TalonFXConfiguration motorConfigs = new TalonFXConfiguration();
   
     motorConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfigs.MotorOutput.Inverted = invert ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-  
-    // Current limit configuration.
-    motorConfigs.CurrentLimits.StatorCurrentLimitEnable = true;
-    motorConfigs.CurrentLimits.StatorCurrentLimit = currentLimit;
   
     // MotionMagicTorqueFOC closed-loop control configuration.
     motorConfigs.Slot0.kP = 37.0; // Units: amperes per 1 rotation of error.
@@ -135,9 +131,9 @@ class Elevator {
     motorConfigs.Slot0.kD = 2.0; // Units: amperes per 1 rotartion / 1 second of error.
     motorConfigs.Slot0.kG = 5.0; // output to overcome gravity
     motorConfigs.Slot0.kS = 3.0; // Units: amperes.
-    motorConfigs.MotionMagic.MotionMagicJerk = 3000.0; // Units: rotations.
-    motorConfigs.MotionMagic.MotionMagicAcceleration = 600.0; // Units: rotations per second per second.
-    motorConfigs.MotionMagic.MotionMagicCruiseVelocity = 5800.0/60.0; // Units: rotations per second.
+    motorConfigs.MotionMagic.MotionMagicJerk = 2900.0; // Units: rotations.
+    motorConfigs.MotionMagic.MotionMagicAcceleration = 580.0; // Units: rotations per second per second.
+    motorConfigs.MotionMagic.MotionMagicCruiseVelocity = 96.67; // Units: rotations per second.
   
     motor.getConfigurator().apply(motorConfigs, 0.03);
   }

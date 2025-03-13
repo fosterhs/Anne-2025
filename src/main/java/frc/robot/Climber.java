@@ -24,8 +24,8 @@ public class Climber {
   private boolean isLatched = false; // Stores whether the latch is engaged. Returns true if the climber is latched and locked into place.
 
   public Climber() {
-    configMotor(climbMasterMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 120A current limit.
-    configMotor(climbSlaveMotor, true, 120.0); // Configures the motor with clockwise rotation positive and 120A current limit.
+    configMotor(climbMasterMotor, false); // Configures the motor with counterclockwise rotation positive and 120A current limit.
+    configMotor(climbSlaveMotor, true); // Configures the motor with clockwise rotation positive and 120A current limit.
     climbMasterMotor.setPosition(0.0, 0.03); // Sets the position of the motor to 0 on startup.
     climbMasterMotorPosition = climbMasterMotor.getPosition();
     BaseStatusSignal.setUpdateFrequencyForAll(250.0, climbMasterMotorPosition);
@@ -75,22 +75,11 @@ public class Climber {
     //SmartDashboard.putNumber("Climber getPosition", getPosition());
   }
 
-  private void configMotor(TalonFX motor, boolean invert, double currentLimit) {
+  private void configMotor(TalonFX motor, boolean invert) {
     TalonFXConfiguration motorConfigs = new TalonFXConfiguration();
     
     motorConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfigs.MotorOutput.Inverted = invert ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-    
-    // Current limit configuration.
-    motorConfigs.CurrentLimits.StatorCurrentLimitEnable = true;
-    motorConfigs.CurrentLimits.StatorCurrentLimit = currentLimit;
-    
-    // MotionMagicTorqueFOC closed-loop control configuration.
-    motorConfigs.Slot0.kP = 37.0; // Units: amperes per 1 rotation of error.
-    motorConfigs.Slot0.kI = 0.0; // Units: amperes per 1 rotation * 1 second of error.
-    motorConfigs.Slot0.kD = 0.84; // Units: amperes per 1 rotation / 1 second of error.
-    motorConfigs.MotionMagic.MotionMagicAcceleration = 1000.0; // Units: rotations per second per second.
-    motorConfigs.MotionMagic.MotionMagicCruiseVelocity = 100.0; // Units: rotations per second.
     
     motor.getConfigurator().apply(motorConfigs, 0.03);
   }

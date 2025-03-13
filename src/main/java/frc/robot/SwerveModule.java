@@ -40,9 +40,9 @@ class SwerveModule {
     wheelEncoder = new CANcoder(encoderID, canbus);
     configEncoder(wheelEncoder, wheelEncoderZero);
     turnMotor = new TalonFX(turnID, canbus);
-    configTurnMotor(turnMotor, true, 120.0);
+    configTurnMotor(turnMotor, true);
     driveMotor = new TalonFX(driveID, canbus);
-    configDriveMotor(driveMotor, invertDrive, 120.0);
+    configDriveMotor(driveMotor, invertDrive);
     driveMotor.setPosition(0.0, 0.03);
     driveMotorPosition = driveMotor.getPosition();
     driveMotorVelocity = driveMotor.getVelocity();
@@ -89,15 +89,11 @@ class SwerveModule {
   }
 
   // Configures the swerve module's drive motor.
-  private void configDriveMotor(TalonFX motor, boolean invert, double currentLimit) {
+  private void configDriveMotor(TalonFX motor, boolean invert) {
     TalonFXConfiguration motorConfigs = new TalonFXConfiguration();
 
     motorConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfigs.MotorOutput.Inverted = invert ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-
-    // Current limit configuration.
-    motorConfigs.CurrentLimits.StatorCurrentLimitEnable = true;
-    motorConfigs.CurrentLimits.StatorCurrentLimit = currentLimit;
 
     // VelocityVoltage closed-loop control configuration.
     motorConfigs.Slot0.kP = 0.25; // Units: volts per 1 motor rotation per second of error.
@@ -110,22 +106,18 @@ class SwerveModule {
   }
 
   // Configures the swerve module's turn motor.
-  private void configTurnMotor(TalonFX motor, boolean invert, double currentLimit) {
+  private void configTurnMotor(TalonFX motor, boolean invert) {
     TalonFXConfiguration motorConfigs = new TalonFXConfiguration();
 
     motorConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfigs.MotorOutput.Inverted = invert ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
 
-    // Current limit configuration.
-    motorConfigs.CurrentLimits.StatorCurrentLimitEnable = true;
-    motorConfigs.CurrentLimits.StatorCurrentLimit = currentLimit;
-
     // MotionMagicTorqueFOC closed-loop control configuration.
     motorConfigs.Slot0.kP = 800.0; // Units: amperes per 1 swerve wheel rotation of error.
     motorConfigs.Slot0.kI = 0.0; // Units: amperes per 1 swerve wheel rotation * 1 second of error.
     motorConfigs.Slot0.kD = 18.0; // Units: amperes per 1 swerve wheel rotation / 1 second of error.
-    motorConfigs.MotionMagic.MotionMagicAcceleration = 1000.0/turnGearRatio; // Units: rotations per second per second.
-    motorConfigs.MotionMagic.MotionMagicCruiseVelocity = 100.0/turnGearRatio; // Units: roations per second.
+    motorConfigs.MotionMagic.MotionMagicAcceleration = 10.0*5800.0/(60.0*turnGearRatio); // Units: rotations per second per second.
+    motorConfigs.MotionMagic.MotionMagicCruiseVelocity = 5800.0/(60.0*turnGearRatio); // Units: roations per second.
 
     // CANcoder feedback configurations.
     motorConfigs.Feedback.FeedbackRemoteSensorID = wheelEncoder.getDeviceID();

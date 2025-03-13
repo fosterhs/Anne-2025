@@ -35,14 +35,14 @@ public class AlgaeYeeter {
   private final double highLimit = 0.22; // The high limit of the arm motor in mechanism rotations.
   private final double lowLimit = 0.0; // The low limit of the arm motor in mechanism rotations.
   private final double posTol = 0.01; // How much error is acceptable between the setpoint and the current position of the elevator in mechanism rotations.
-  private double setpoint = 0.25; // The position that the arm motor is trying to reach in mechanism rotations.
+  private double setpoint = 0.22; // The position that the arm motor is trying to reach in mechanism rotations.
   private ArmPosition currPosition = ArmPosition.stow; // Stores the last commanded position of the arm.
   private boolean isYeeting = false; // Returns true if the yeeter is in the process of launching an algae. 
 
   public AlgaeYeeter() {
-    configArmMotor(armMotor, false, 120.0); // Configures the motor with counterclockwise rotation positive and 120A current limit. 
-    configIntakeMotor(intakeMasterMotor, true, 120.0); // Configures the motor with counterclockwise rotation positive and 120A current limit. 
-    configIntakeMotor(intakeSlaveMotor, false, 120.0); // Configures the motor with clockwise rotation positive and 120A current limit. 
+    configArmMotor(armMotor, false); // Configures the motor with counterclockwise rotation positive and 120A current limit. 
+    configIntakeMotor(intakeMasterMotor, true); // Configures the motor with counterclockwise rotation positive and 120A current limit. 
+    configIntakeMotor(intakeSlaveMotor, false); // Configures the motor with clockwise rotation positive and 120A current limit. 
     armMotor.setPosition(0.22, 0.03); // Sets the position of the motor to 0 on startup.
     armMotorPosition = armMotor.getPosition();
     BaseStatusSignal.setUpdateFrequencyForAll(250.0, armMotorPosition);
@@ -158,15 +158,11 @@ public class AlgaeYeeter {
     setpoint = desiredRotations;
   }
 
-  private void configArmMotor(TalonFX motor, boolean invert, double currentLimit) {
+  private void configArmMotor(TalonFX motor, boolean invert) {
     TalonFXConfiguration motorConfigs = new TalonFXConfiguration();
   
     motorConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfigs.MotorOutput.Inverted = invert ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-  
-    // Current limit configuration.
-    motorConfigs.CurrentLimits.StatorCurrentLimitEnable = true;
-    motorConfigs.CurrentLimits.StatorCurrentLimit = currentLimit;
   
     // MotionMagicTorqueFOC closed-loop control configuration.
     motorConfigs.Slot0.kP = 3700.0; // Units: amperes per 1 rotation of error.
@@ -174,31 +170,20 @@ public class AlgaeYeeter {
     motorConfigs.Slot0.kD = 42.0; // Units: amperes per 1 rotation / 1 second of error.
     motorConfigs.Slot0.kG = 2.0; // output to overcome gravity
     motorConfigs.Slot0.kS = 1.0; // Units: amperes.
-    motorConfigs.MotionMagic.MotionMagicJerk = 25.0; // Units: mechanism per second per second per second.
-    motorConfigs.MotionMagic.MotionMagicAcceleration = 5.0; // Units: mechanism rotations per second per second.
-    motorConfigs.MotionMagic.MotionMagicCruiseVelocity = 2.0; // Units: mechanism rotations per second.
+    motorConfigs.MotionMagic.MotionMagicJerk = 24.17; // Units: mechanism per second per second per second.
+    motorConfigs.MotionMagic.MotionMagicAcceleration = 4.83; // Units: mechanism rotations per second per second.
+    motorConfigs.MotionMagic.MotionMagicCruiseVelocity = 1.93; // Units: mechanism rotations per second.
     motorConfigs.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
     motorConfigs.Feedback.SensorToMechanismRatio = 50.0;
   
     motor.getConfigurator().apply(motorConfigs, 0.03);
   }
 
-  private void configIntakeMotor(TalonFX motor, boolean invert, double currentLimit) {
+  private void configIntakeMotor(TalonFX motor, boolean invert) {
     TalonFXConfiguration motorConfigs = new TalonFXConfiguration();
   
     motorConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfigs.MotorOutput.Inverted = invert ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-  
-    // Current limit configuration.
-    motorConfigs.CurrentLimits.StatorCurrentLimitEnable = true;
-    motorConfigs.CurrentLimits.StatorCurrentLimit = currentLimit;
-  
-    // VelocityVoltage closed-loop control configuration.
-    motorConfigs.Slot0.kP = 0.25; // Units: volts per 1 motor rotation per second of error.
-    motorConfigs.Slot0.kI = 0.5; // Units: volts per 1 motor rotation per second * 1 second of error.
-    motorConfigs.Slot0.kD = 0.0; // Units: volts per 1 motor rotation per second / 1 second of error.
-    motorConfigs.Slot0.kV = 0.12; // The amount of voltage required to create 1 motor rotation per second.
-    motorConfigs.Slot0.kS = 0.16; // The amount of voltage required to barely overcome static friction.
   
     motor.getConfigurator().apply(motorConfigs, 0.03);
   }     
