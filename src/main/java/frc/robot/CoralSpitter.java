@@ -10,7 +10,6 @@ import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CoralSpitter {
   private final TalonFXS spitMotor = new TalonFXS(12, "rio");  // Initializes the motor with CAN ID of 12 connected to the roboRIO.
