@@ -48,8 +48,6 @@ public class Robot extends TimedRobot {
   private static final String auto10 = "WIP2"; // Extra Auto space, for on the go auto makieng
   private String autoSelected;
   private int autoStage = 1;
-  private enum scoreMode {Branch, L1, Algae};
-  private scoreMode currScoreMode = scoreMode.Branch;
 
   // Auto Aim Variables
   private final double reefX = 176.75*0.0254; // The x-coordinate of the center of the reef in meters.
@@ -59,6 +57,8 @@ public class Robot extends TimedRobot {
   private double[] scoringHeadings = new double[30]; // Contains all scoring headings of the robot.
   private double[] scoreDistances = new double[30]; // Stores the distance to each scoring location from the currenly position of the robot. Updated when scoreCalc() is called.
   private int nearestScoreIndex = 0; // Array index corresponding to the closest scoring location to the current position of the robot. Updated when scoreCalc() is called.
+  private enum scoreMode {Branch, L1, Algae};
+  private scoreMode currScoreMode = scoreMode.Branch;
 
   public void robotInit() { 
     // Configures the auto chooser on the dashboard.
