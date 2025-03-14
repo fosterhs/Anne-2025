@@ -18,7 +18,7 @@ public class Climber {
   private final StatusSignal<Angle> climbMotorPosition; // Stores the position of the climb motor.
   private final Servo latch = new Servo(0); // Initializes the servo motor connected to PWM port 0 on the RoboRIO.
   private final double lowLimit = 0.0; // The lowest point in the climbers range of motion in motor rotations.
-  private final double highLimit = 122.0; // The highest point in the climbers range of motion in motor rotations.
+  private final double highLimit = 160.0; // The highest point in the climbers range of motion in motor rotations.
   private boolean isLatched = false; // Stores whether the latch is engaged. Returns true if the climber is latched and locked into place.
 
   public Climber() {
@@ -51,7 +51,7 @@ public class Climber {
 
   // Closes the latch, locking the climber into place.
   public void closeLatch() {
-    latch.set(0.2);
+    latch.set(0.3);
     isLatched = true;
   }
 
