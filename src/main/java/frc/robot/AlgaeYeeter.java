@@ -14,7 +14,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import com.ctre.phoenix6.controls.VoltageOut;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class AlgaeYeeter {
   private final TalonFX armMotor = new TalonFX(13, "rio"); // Initializes the motor with CAN ID of 13 connected to the roboRIO. 
@@ -86,7 +85,7 @@ public class AlgaeYeeter {
       break;
 
       case barge:
-        setArmMotorRotations(0.15);
+        setArmMotorRotations(0.17);
         currPosition = ArmPosition.barge;
       break;
       
