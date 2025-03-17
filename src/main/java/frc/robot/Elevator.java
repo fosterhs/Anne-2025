@@ -19,7 +19,7 @@ class Elevator {
   public enum Level {L1, L2, L3, L4, lowAlgae, highAlgae, bottom} // A list containing important elevator heights that are pre-programmed.
   private final double highLimit = 131.5; // The high limit of the elevator motor in motor rotations.
   private double lowLimit = 0.5; // The low limit of the elevator motor in motor rotations.
-  private final double posTol = 0.5; // How much error is acceptable between the setpoint and the current position of the elevator in motor rotations.
+  private final double posTol = 0.8; // How much error is acceptable between the setpoint and the current position of the elevator in motor rotations.
   private final double adjustRate = 0.2; // The speed at which adjustments to the elevator position are made. Increase for faster adjustments.
   private double setpoint = 0.0; // The position that the elevator motor is trying to reach in motor rotations.
   private Level currLevel = Level.bottom; // Stores the last commanded position of the arm.

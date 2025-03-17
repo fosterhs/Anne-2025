@@ -85,7 +85,7 @@ public class AlgaeYeeter {
       break;
 
       case barge:
-        setArmMotorRotations(0.17);
+        setArmMotorRotations(0.15);
         currPosition = ArmPosition.barge;
       break;
       

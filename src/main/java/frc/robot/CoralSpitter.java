@@ -41,7 +41,7 @@ public class CoralSpitter {
     if (exhaustSensorTimer.get() > exhaustDelay) isSpitting = false; // If the timer exceeds the delay, stop spitting.
 
     if (isSpitting) {
-      spitMotor.setControl(spitMotorVoltageRequest.withOutput(12.0)); // Scores the coral
+      spitMotor.setControl(spitMotorVoltageRequest.withOutput(1.8)); // Scores the coral
     } else if (!getExhaustSensor() && intakeSensorTimer.get() > intakeDelay) {
       spitMotor.setControl(spitMotorVoltageRequest.withOutput(1.8)); // Loads the coral about halfway into the mechanism.
     } else if (!getExhaustSensor()) {

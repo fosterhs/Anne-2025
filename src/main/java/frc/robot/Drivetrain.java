@@ -71,7 +71,7 @@ class Drivetrain {
   private final int minCalibrationFrames = 3; // The minimum amount of LL frames that must be processed to accept a calibration.
   private double[][] calibrationArray = new double[3][maxCalibrationFrames]; // An array that stores the LL botpose for the most recent frames, up to the number of frames specified by maxCalibrationFrames
   private int calibrationIndex = 0; // The index of the most recent entry into the calibrationPosition array. The index begins at 0 and goes up to calibrationFrames-1, after which it returns to 0 and repeats.
-  private int calibrationFrames = 0; // The current number of frames stored in the calibrationPosition array. 
+  public int calibrationFrames = 0; // The current number of frames stored in the calibrationPosition array. 
   private final Timer calibrationTimer = new Timer(); // Keeps track of how long it has been since the robot's position has been updated using vision.
   private final Timer accurateCalibrationTimer = new Timer(); // Keeps track of how long it has been since the robot's position has been updated using a highly trusted vision reading.
 
@@ -300,9 +300,14 @@ class Drivetrain {
   
   // Incorporates vision information to determine the position of the robot on the field. Should be used only when vision information is deemed to be highly reliable (>1 april tag, close to april tag...)
   // limelightIndex indicates the camera to use. 0 is corresponds to the first entry in the limelights[] array. 
-  public void addVisionEstimate(int limelightIndex) {
+  public void addVisionEstimate(int limelightIndex, boolean megaTag2) {
     if (limelights.length > limelightIndex) {
-      PoseEstimate botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(limelights[limelightIndex]); // Transforms the vision position estimate to the appropriate coordinate system for the robot's alliance color
+      PoseEstimate botpose;
+      if (megaTag2) {
+        botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(limelights[limelightIndex]); // Transforms the vision position estimate to the appropriate coordinate system for the robot's alliance color
+      } else {
+        botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed(limelights[limelightIndex]);
+      }
       double SD = 0.5; // How much variance there is in the LL vision information. Lower numbers indicate more trustworthy data.
       if (botpose.tagCount >= 1) { // At least 1 AprilTag is detected.
         if (botpose.avgTagArea*botpose.tagCount > 2.0 && Math.sqrt(Math.pow(getXVel(), 2) + Math.pow(getYVel(), 2)) < 0.5 && getAngVel() < 45.0) { // The robot is relatively stationary and the AprilTag is very close to the robot.

@@ -21,7 +21,7 @@ public class Climber {
   private boolean isLatched = false; // Stores whether the latch is engaged. Returns true if the climber is latched and locked into place.
 
   public Climber() {
-    configMotor(climbMotor, false); // Configures the motor.
+    configMotor(climbMotor, true); // Configures the motor.
     climbMotor.setPosition(0.0, 0.03); // Sets the position of the motor to 0 on startup.
     climbMotorPosition = climbMotor.getPosition();
     BaseStatusSignal.setUpdateFrequencyForAll(250.0, climbMotorPosition);
@@ -44,13 +44,13 @@ public class Climber {
 
   // Opens the latch, allowing the climber to move freely.
   public void openLatch() {
-    latch.set(1.0);
+    latch.set(0.7);
     isLatched = false;
   }
 
   // Closes the latch, locking the climber into place.
   public void closeLatch() {
-    latch.set(0.3);
+    latch.set(0.0);
     isLatched = true;
   }
 
@@ -67,7 +67,7 @@ public class Climber {
   // Updates the SmartDashboard with information about the climber.
   public void updateDash() {
     //SmartDashboard.putBoolean("Climber isLatched", isLatched());
-    SmartDashboard.putNumber("Climber getPosition", getPosition());
+    //SmartDashboard.putNumber("Climber getPosition", getPosition());
   }
 
   private void configMotor(TalonFX motor, boolean invert) {
