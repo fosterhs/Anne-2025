@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.AlgaeYeeter.ArmPosition;
 import frc.robot.Elevator.Level;
-import frc.robot.LimelightHelpers.PoseEstimate;
 
 public class Robot extends TimedRobot {
   private final XboxController driver = new XboxController(0); // Initializes the driver controller.
@@ -21,7 +20,7 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter yAccLimiter = new SlewRateLimiter(Drivetrain.maxAccTeleop / Drivetrain.maxVelTeleop);
   private final SlewRateLimiter angAccLimiter = new SlewRateLimiter(Drivetrain.maxAngAccTeleop / Drivetrain.maxAngVelTeleop);
 
-  private double speedScaleFactor = 1.0; // Scales the speed of the robot that results from controller inputs. 1.0 corresponds to full speed. 0.0 is fully stopped.
+  private double speedScaleFactor = 0.6; // Scales the speed of the robot that results from controller inputs. 1.0 corresponds to full speed. 0.0 is fully stopped.
   private boolean swerveLock = false; // Controls whether the swerve drive is in x-lock (for defense) or is driving. 
 
   // Initializes the different subsystems of the robot.
@@ -49,6 +48,7 @@ public class Robot extends TimedRobot {
   private static final String auto10 = "WIP2"; // Extra Auto space, for on the go auto makieng
   private String autoSelected;
   private int autoStage = 1;
+  private boolean autoCompleted = false;
 
   // Auto Aim Variables
   private final double reefX = 176.75*0.0254; // The x-coordinate of the center of the reef in meters.
@@ -60,7 +60,6 @@ public class Robot extends TimedRobot {
   private int nearestScoreIndex = 0; // Array index corresponding to the closest scoring location to the current position of the robot. Updated when scoreCalc() is called.
   private enum scoreMode {Branch, L1, Algae};
   private scoreMode currScoreMode = scoreMode.Branch;
-  boolean useLeftCamera = true;
 
   public void robotInit() { 
     // Configures the auto chooser on the dashboard.
@@ -109,7 +108,8 @@ public class Robot extends TimedRobot {
   }
 
   public void autonomousInit() {
-    swerve.pushCalibration(); // Updates the robot's position on the field.
+    autoCompleted = true;
+    swerve.pushCalibration(true, 180.0); // Updates the robot's position on the field.
     coralSpitter.init(); // Should be called in autoInit() and teleopInit(). Required for the coralSpitter to function correctly.
     algaeYeeter.init(); // Should be called in autoInit() and teleopInit(). Required for the algaeYeeter to function correctly.
     autoStage = 1;
@@ -167,7 +167,7 @@ public class Robot extends TimedRobot {
 
   public void autonomousPeriodic() {
     swerve.updateOdometry(); // Keeps track of the position of the robot on the field. Must be called each period.
-    swerve.updateVisionHeading(); // Updates the Limelights with the robot heading (for MegaTag2).
+    swerve.updateVisionHeading(false, 0.0); // Updates the Limelights with the robot heading (for MegaTag2).
     for (int limelightIndex = 0; limelightIndex < swerve.limelights.length; limelightIndex++) { // Iterates through each limelight.
       swerve.addVisionEstimate(limelightIndex, true); // Checks to see ifs there are reliable April Tags in sight of the Limelight and updates the robot position on the field.
     }
@@ -601,9 +601,7 @@ public class Robot extends TimedRobot {
             // Auto 3, Stage 1 code goes here.
             swerve.driveTo(scoringPositionsX[4],scoringPositionsY[4],scoringHeadings[4]); // This moves the robot to the reef.
             if (swerve.atDriveGoal()) {
-              PoseEstimate botposeLeft = swerve.isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(swerve.limelights[0]) : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(swerve.limelights[0]); 
-              PoseEstimate botposeRight = swerve.isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(swerve.limelights[1]) : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(swerve.limelights[1]); 
-              useLeftCamera = botposeLeft.avgTagArea*botposeLeft.tagCount > botposeRight.avgTagArea*botposeRight.tagCount; 
+              swerve.calcPriorityLimelightIndex();
               swerve.resetCalibration(); // Begins calculating the position of the robot on the field based on visible April Tags.
               autoStage = 2; // Advances to the next stage once the robot is at the correct location.
             }
@@ -611,13 +609,9 @@ public class Robot extends TimedRobot {
 
           case 2: 
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            if (useLeftCamera) {
-              swerve.addCalibrationEstimate(0); 
-            } else {
-              swerve.addCalibrationEstimate(1); 
-            }
+            swerve.addCalibrationEstimate(swerve.getPriorityLimelightIndex(), true);
             if (swerve.calibrationFrames > 10) {
-              swerve.pushCalibration();
+              swerve.pushCalibration(true, swerve.getFusedAng());
               autoStage = 3;
             }
           break;
@@ -669,9 +663,7 @@ public class Robot extends TimedRobot {
           case 8:
             swerve.driveTo(scoringPositionsX[5],scoringPositionsY[5],scoringHeadings[5]); // This moves the robot to the reef.
             if (swerve.atDriveGoal()) {
-              PoseEstimate botposeLeft = swerve.isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(swerve.limelights[0]) : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(swerve.limelights[0]); 
-              PoseEstimate botposeRight = swerve.isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(swerve.limelights[1]) : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(swerve.limelights[1]); 
-              useLeftCamera = botposeLeft.avgTagArea*botposeLeft.tagCount > botposeRight.avgTagArea*botposeRight.tagCount; 
+              swerve.calcPriorityLimelightIndex();
               swerve.resetCalibration(); // Begins calculating the position of the robot on the field based on visible April Tags.
               autoStage = 9; // Advances to the next stage once the robot is at the correct location.
             }
@@ -679,13 +671,9 @@ public class Robot extends TimedRobot {
 
           case 9: 
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            if (useLeftCamera) {
-              swerve.addCalibrationEstimate(0); 
-            } else {
-              swerve.addCalibrationEstimate(1); 
-            }
+            swerve.addCalibrationEstimate(swerve.getPriorityLimelightIndex(), true);
             if (swerve.calibrationFrames > 10) {
-              swerve.pushCalibration();
+              swerve.pushCalibration(true, swerve.getFusedAng());
               autoStage = 10;
             }
           break;
@@ -734,14 +722,14 @@ public class Robot extends TimedRobot {
   }
   
   public void teleopInit() {
-    swerve.pushCalibration(); // Updates the robot's position on the field.
+    swerve.pushCalibration(true, swerve.getFusedAng()); // Updates the robot's position on the field.
     coralSpitter.init(); // Should be called in autoInit() and teleopInit(). Required for the coralSpitter to function correctly.
     algaeYeeter.init(); // Should be called in autoInit() and teleopInit(). Required for the algaeYeeter to function correctly.
   }
 
   public void teleopPeriodic() {
     swerve.updateOdometry(); // Keeps track of the position of the robot on the field. Must be called each period.
-    swerve.updateVisionHeading(); // Updates the Limelights with the robot heading (for MegaTag2).
+    swerve.updateVisionHeading(false, 0.0); // Updates the Limelights with the robot heading (for MegaTag2).
     for (int limelightIndex = 0; limelightIndex < swerve.limelights.length; limelightIndex++) { // Iterates through each limelight.
       swerve.addVisionEstimate(limelightIndex, true); // Checks to see ifs there are reliable April Tags in sight of the Limelight and updates the robot position on the field.
     }
@@ -763,9 +751,8 @@ public class Robot extends TimedRobot {
     coralSpitter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the coralSpitter to function correctly.
     algaeYeeter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the algaeYeeter to function correctly.
 
-    if (driver.getRawButtonPressed(4)) speedScaleFactor = 1.0; // Y Button sets the drivetrain in full speed mode.
-    if (driver.getRawButtonPressed(2)) speedScaleFactor = 0.6; // B button sets the drivetrain in medium speed mode.
-    if (driver.getRawButtonPressed(1)) speedScaleFactor = 0.15; // A button sets the drivetrain in low speed mode.
+    if (driver.getRawButtonPressed(1)) speedScaleFactor = 1.0; // A button sets boost mode. (100% speed up from default of 60%).
+    if (driver.getRawButtonPressed(2)) speedScaleFactor = 0.6; // B Button sets default mode (60% of full speed).
     
     // Applies a deadband to controller inputs. Also limits the acceleration of controller inputs.
     double xVel = xAccLimiter.calculate(MathUtil.applyDeadband(-driver.getLeftY(), 0.05)*speedScaleFactor)*Drivetrain.maxVelTeleop;
@@ -791,35 +778,52 @@ public class Robot extends TimedRobot {
 
     // The following 3 calls allow the user to calibrate the position of the robot based on April Tag information. Should be called when the robot is stationary. Button 7 is "View", the right center button.
     if (driver.getRawButtonPressed(7)) {
-      PoseEstimate botposeLeft = swerve.isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(swerve.limelights[0]) : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(swerve.limelights[0]); 
-      PoseEstimate botposeRight = swerve.isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(swerve.limelights[1]) : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(swerve.limelights[1]); 
-      useLeftCamera = botposeLeft.avgTagArea*botposeLeft.tagCount > botposeRight.avgTagArea*botposeRight.tagCount; 
+      swerve.calcPriorityLimelightIndex();
       swerve.resetCalibration(); // Begins calculating the position of the robot on the field based on visible April Tags.
     }
-    if (driver.getRawButton(7)) { // Left center button
-      if (useLeftCamera) {
-        swerve.addCalibrationEstimate(0); 
-      } else {
-        swerve.addCalibrationEstimate(1); 
-      }
-    }
-    if (driver.getRawButtonReleased(7)) swerve.pushCalibration(); // Updates the position of the robot on the field based on previous calculations.  
+    if (driver.getRawButton(7)) swerve.addCalibrationEstimate(swerve.getPriorityLimelightIndex(), false); // Left center button
+
+    if (driver.getRawButtonReleased(7)) swerve.pushCalibration(false, 0.0); // Updates the position of the robot on the field based on previous calculations.  
 
     if (driver.getRawButtonPressed(8)) swerve.resetGyro(); // Right center button re-zeros the angle reading of the gyro to the current angle of the robot. Should be called if the gyroscope readings are no longer well correlated with the field.
     
     // Controls the level of the elevator.
-    if (operator.getRawButtonPressed(1)) elevator.setLevel(Level.L1); // A button
-    if (operator.getRawButtonPressed(2)) elevator.setLevel(Level.L2); // B button
-    if (operator.getRawButtonPressed(3)) elevator.setLevel(Level.L3); // X button
-    if (operator.getRawButtonPressed(4)) elevator.setLevel(Level.L4); // Y button 
-    if (operator.getLeftTriggerAxis() > 0.25) elevator.setLevel(Level.lowAlgae); // Left Trigger
-    if (operator.getRightTriggerAxis() > 0.25) elevator.setLevel(Level.highAlgae); // Right Trigger
-    if (algaeYeeter.getArmPosition() == ArmPosition.stow) {
-      if (operator.getRawButtonPressed(5)) elevator.setLevel(Level.bottom); // Left bumper button
-    } else {
-      operator.getRawButtonPressed(5); // Deliberately does nothing.
+    if (operator.getRawButtonPressed(2)) {
+      elevator.setLevel(Level.L2); // B button
+      speedScaleFactor = 0.15;
+    } 
+    if (operator.getRawButtonPressed(3)) {
+      elevator.setLevel(Level.L3); // X button
+      speedScaleFactor = 0.15;
     }
-    elevator.adjust(MathUtil.applyDeadband(-operator.getRightY(), 0.1)); // Allows the operator to adjust the height of the elevator.
+    if (operator.getRawButtonPressed(4)) {
+      elevator.setLevel(Level.L4); // Y button 
+      speedScaleFactor = 0.15;
+    }
+    if (operator.getLeftTriggerAxis() > 0.25) {
+      elevator.setLevel(Level.lowAlgae); // Left Trigger
+      speedScaleFactor = 0.15;
+    }
+    if (operator.getRightTriggerAxis() > 0.25) {
+      elevator.setLevel(Level.highAlgae); // Right Trigger
+      speedScaleFactor = 0.15;
+    }
+    if (operator.getRawButtonPressed(1)) {
+      elevator.setLevel(Level.L1); // A button
+      speedScaleFactor = 0.6;
+    }
+    if (operator.getRawButtonPressed(5)) {
+      elevator.setLevel(Level.bottom); // Left bumper button
+      speedScaleFactor = 0.6;
+    }
+    if (MathUtil.applyDeadband(operator.getRightY(), 0.1) >= 0.1) {
+      elevator.adjust(-operator.getRightY()); // Allows the operator to adjust the height of the elevator.
+      if (elevator.getPosition() > 20.0) {
+        speedScaleFactor = 0.15;
+      } else {
+        speedScaleFactor = 0.6;
+      }
+    }
 
     // Controls the spitter
     if (operator.getRawButtonPressed(6)) coralSpitter.spit(); // Right bumper button
@@ -835,7 +839,7 @@ public class Robot extends TimedRobot {
     }
 
     // Controls the algae yeeter.
-    if (elevator.getPosition() > 15.0) {
+    if (elevator.getPosition() > 14.0) {
       if (operator.getPOV() == 180) {
         algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.algae); // D pad down
         elevator.setLowLimit(15.0);
@@ -853,20 +857,18 @@ public class Robot extends TimedRobot {
   }
   
   public void disabledInit() { 
-    PoseEstimate botposeLeft = swerve.isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(swerve.limelights[0]) : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(swerve.limelights[0]); 
-    PoseEstimate botposeRight = swerve.isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(swerve.limelights[1]) : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(swerve.limelights[1]); 
-    useLeftCamera = botposeLeft.avgTagArea*botposeLeft.tagCount > botposeRight.avgTagArea*botposeRight.tagCount; 
+    swerve.calcPriorityLimelightIndex();
     swerve.resetCalibration(); // Begins calculating the position of the robot on the field based on visible April Tags.
   }
 
   public void disabledPeriodic() {
     swerve.updateOdometry(); // Keeps track of the position of the robot on the field. Must be called each period.
-    swerve.updateVisionHeading(); // Updates the Limelights with the robot heading (for MegaTag2).
-    if (useLeftCamera) {
-      swerve.addCalibrationEstimate(0); 
+    if (!autoCompleted) {
+      swerve.updateVisionHeading(true, 180.0);
     } else {
-      swerve.addCalibrationEstimate(1); 
+      swerve.updateVisionHeading(false, 0.0); // Updates the Limelights with the robot heading (for MegaTag2).
     }
+    swerve.addCalibrationEstimate(swerve.getPriorityLimelightIndex(), true);
   }
 
   // Publishes information to the dashboard.
@@ -1001,11 +1003,11 @@ public class Robot extends TimedRobot {
     swerve.driveTo(1.0, -2.0, -75.0);
     swerve.resetPathController(0);
     swerve.followPath(0);
-    swerve.addCalibrationEstimate(0);
-    swerve.pushCalibration();
+    swerve.addCalibrationEstimate(0, false);
+    swerve.pushCalibration(true, 180.0);
     swerve.resetCalibration();
     swerve.resetGyro();
-    swerve.updateVisionHeading();
+    swerve.updateVisionHeading(true, 180.0);
     swerve.addVisionEstimate(0, true);
     swerve.updateOdometry();
     swerve.drive(0.01, 0.0, 0.0, true, 0.0, 0.0);
@@ -1028,6 +1030,8 @@ public class Robot extends TimedRobot {
     System.out.println("swerve isRedAlliance: " + swerve.isRedAlliance());
     System.out.println("swerve getGyroPitch: " + swerve.getGyroPitch());
     System.out.println("swerve getAngleDist: " + swerve.getAngleDistance(30.0, -120.0));
+    swerve.calcPriorityLimelightIndex();
+    System.out.println("swerve getPriorityLimelightIndex: " + swerve.getPriorityLimelightIndex());
     swerve.updateDash();
 
     coralSpitter.init();
