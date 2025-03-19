@@ -20,7 +20,8 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter yAccLimiter = new SlewRateLimiter(Drivetrain.maxAccTeleop / Drivetrain.maxVelTeleop);
   private final SlewRateLimiter angAccLimiter = new SlewRateLimiter(Drivetrain.maxAngAccTeleop / Drivetrain.maxAngVelTeleop);
 
-  private double speedScaleFactor = 0.6; // Scales the speed of the robot that results from controller inputs. 1.0 corresponds to full speed. 0.0 is fully stopped.
+  private boolean boostMode = false;
+  private double speedScaleFactor = 0.75; // Scales the speed of the robot that results from controller inputs. 1.0 corresponds to full speed. 0.0 is fully stopped.
   private boolean swerveLock = false; // Controls whether the swerve drive is in x-lock (for defense) or is driving. 
 
   // Initializes the different subsystems of the robot.
@@ -751,13 +752,21 @@ public class Robot extends TimedRobot {
     coralSpitter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the coralSpitter to function correctly.
     algaeYeeter.periodic(); // Should be called in autoPeroidic() and teleopPeriodic(). Required for the algaeYeeter to function correctly.
 
-    if (driver.getRawButtonPressed(1)) speedScaleFactor = 1.0; // A button sets boost mode. (100% speed up from default of 60%).
-    if (driver.getRawButtonPressed(2)) speedScaleFactor = 0.6; // B Button sets default mode (60% of full speed).
+    if (driver.getRawButtonPressed(1)) boostMode = true; // A button sets boost mode. (100% speed up from default of 60%).
+    if (driver.getRawButtonPressed(2)) boostMode = false; // B Button sets default mode (60% of full speed).
+
+    if (elevator.getPosition() > 16.0) {
+      speedScaleFactor = 0.15;
+    } else if (boostMode) {
+      speedScaleFactor = 1.0;
+    } else {
+      speedScaleFactor = 0.75;
+    }
     
     // Applies a deadband to controller inputs. Also limits the acceleration of controller inputs.
     double xVel = xAccLimiter.calculate(MathUtil.applyDeadband(-driver.getLeftY(), 0.05)*speedScaleFactor)*Drivetrain.maxVelTeleop;
     double yVel = yAccLimiter.calculate(MathUtil.applyDeadband(-driver.getLeftX(), 0.05)*speedScaleFactor)*Drivetrain.maxVelTeleop;
-    double angVel = angAccLimiter.calculate(MathUtil.applyDeadband(-driver.getRightX(), 0.05)*speedScaleFactor)*Drivetrain.maxAngVelTeleop;
+    double angVel = angAccLimiter.calculate(MathUtil.applyDeadband(-driver.getRightX(), 0.05)/4.0)*Drivetrain.maxAngVelTeleop;
 
     if (driver.getRawButton(3)) { // X button
       swerveLock = true; // Pressing the X-button causes the swerve modules to lock (for defense).
@@ -790,39 +799,35 @@ public class Robot extends TimedRobot {
     // Controls the level of the elevator.
     if (operator.getRawButtonPressed(2)) {
       elevator.setLevel(Level.L2); // B button
-      speedScaleFactor = 0.15;
+      boostMode = false;
     } 
     if (operator.getRawButtonPressed(3)) {
       elevator.setLevel(Level.L3); // X button
-      speedScaleFactor = 0.15;
+      boostMode = false;
     }
     if (operator.getRawButtonPressed(4)) {
       elevator.setLevel(Level.L4); // Y button 
-      speedScaleFactor = 0.15;
+      boostMode = false;
     }
     if (operator.getLeftTriggerAxis() > 0.25) {
       elevator.setLevel(Level.lowAlgae); // Left Trigger
-      speedScaleFactor = 0.15;
+      boostMode = false;
     }
     if (operator.getRightTriggerAxis() > 0.25) {
       elevator.setLevel(Level.highAlgae); // Right Trigger
-      speedScaleFactor = 0.15;
+      boostMode = false;
     }
     if (operator.getRawButtonPressed(1)) {
       elevator.setLevel(Level.L1); // A button
-      speedScaleFactor = 0.6;
     }
     if (operator.getRawButtonPressed(5)) {
       elevator.setLevel(Level.bottom); // Left bumper button
-      speedScaleFactor = 0.6;
     }
-    if (MathUtil.applyDeadband(operator.getRightY(), 0.1) >= 0.1) {
+    if (Math.abs(MathUtil.applyDeadband(operator.getRightY(), 0.1)) >= 0.1) {
       elevator.adjust(-operator.getRightY()); // Allows the operator to adjust the height of the elevator.
-      if (elevator.getPosition() > 20.0) {
-        speedScaleFactor = 0.15;
-      } else {
-        speedScaleFactor = 0.6;
-      }
+      if (elevator.getPosition() > 16.0) {
+        boostMode = false;
+      } 
     }
 
     // Controls the spitter

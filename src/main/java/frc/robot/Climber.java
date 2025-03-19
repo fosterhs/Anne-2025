@@ -10,6 +10,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber {
   private final TalonFX climbMotor = new TalonFX(16, "canivore"); // Initializes the motor with CAN ID of 11 connected to the canivore. 
@@ -17,7 +18,7 @@ public class Climber {
   private final StatusSignal<Angle> climbMotorPosition; // Stores the position of the climb motor.
   private final Servo latch = new Servo(0); // Initializes the servo motor connected to PWM port 0 on the RoboRIO.
   private final double lowLimit = 0.0; // The lowest point in the climbers range of motion in motor rotations.
-  private final double highLimit = 160.0; // The highest point in the climbers range of motion in motor rotations.
+  private final double highLimit = 148.0; // The highest point in the climbers range of motion in motor rotations.
   private boolean isLatched = false; // Stores whether the latch is engaged. Returns true if the climber is latched and locked into place.
 
   public Climber() {
@@ -67,7 +68,7 @@ public class Climber {
   // Updates the SmartDashboard with information about the climber.
   public void updateDash() {
     //SmartDashboard.putBoolean("Climber isLatched", isLatched());
-    //SmartDashboard.putNumber("Climber getPosition", getPosition());
+    SmartDashboard.putNumber("Climber getPosition", getPosition());
   }
 
   private void configMotor(TalonFX motor, boolean invert) {
