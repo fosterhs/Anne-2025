@@ -780,7 +780,11 @@ public class Robot extends TimedRobot {
       calcNearestScoringPose(); // Calculates the closest scoring position.
       swerve.resetDriveController(scoringHeadings[nearestScoreIndex]); // Prepares the robot to drive to the closest scoring position.
     } else if (driver.getRawButton(6)) { // Right bumper button
-      swerve.driveTo(scoringPositionsX[nearestScoreIndex], scoringPositionsY[nearestScoreIndex], scoringHeadings[nearestScoreIndex]); // Drives to the closest scoring position.
+      if (nearestScoreIndex < 18) {
+        swerve.driveTo(scoringPositionsX[nearestScoreIndex], scoringPositionsY[nearestScoreIndex], scoringHeadings[nearestScoreIndex]); // Drives to the closest scoring position.
+      } else {
+        swerve.aimDrive(xVel, yVel, scoringHeadings[nearestScoreIndex], true);
+      }
     } else {
       swerve.drive(xVel, yVel, angVel, true, 0.0, 0.0); // Drive at the velocity demanded by the controller.
     }
@@ -791,7 +795,6 @@ public class Robot extends TimedRobot {
       swerve.resetCalibration(); // Begins calculating the position of the robot on the field based on visible April Tags.
     }
     if (driver.getRawButton(7)) swerve.addCalibrationEstimate(swerve.getPriorityLimelightIndex(), false); // Left center button
-
     if (driver.getRawButtonReleased(7)) swerve.pushCalibration(false, 0.0); // Updates the position of the robot on the field based on previous calculations.  
 
     if (driver.getRawButtonPressed(8)) swerve.resetGyro(); // Right center button re-zeros the angle reading of the gyro to the current angle of the robot. Should be called if the gyroscope readings are no longer well correlated with the field.

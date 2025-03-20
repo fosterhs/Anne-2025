@@ -38,7 +38,7 @@ class Elevator {
   public void setLevel(Level desiredLevel) {
     switch(desiredLevel) {
       case L1:
-        setMotorRotations(14.0);
+        setMotorRotations(20.0);
         currLevel = Level.L1;
       break;
 

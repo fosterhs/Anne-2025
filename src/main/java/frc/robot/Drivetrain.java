@@ -25,7 +25,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.LimelightHelpers.PoseEstimate;
 
@@ -312,7 +311,11 @@ class Drivetrain {
       double[] tagArea = new double[limelights.length];
       for (int index = 0; index < limelights.length; index++) {
         PoseEstimate botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelights[index]) : LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(limelights[index]); 
-        tagArea[index] = botpose.avgTagArea*botpose.tagCount;
+        if (botpose != null) {
+          tagArea[index] = botpose.avgTagArea*botpose.tagCount;          
+        } else {
+          tagArea[index] = 0.0;
+        }
       }
 
       // Determines which camera has the largest amount of area covered by April Tags.
@@ -345,15 +348,17 @@ class Drivetrain {
       } else {
         botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed(limelights[limelightIndex]);
       }
-      double SD = 0.5; // How much variance there is in the LL vision information. Lower numbers indicate more trustworthy data.
-      if (botpose.tagCount >= 1) { // At least 1 AprilTag is detected.
-        if (botpose.avgTagArea*botpose.tagCount > 2.0 && Math.sqrt(Math.pow(getXVel(), 2) + Math.pow(getYVel(), 2)) < 0.5 && getAngVel() < 45.0) { // The robot is relatively stationary and the AprilTag is very close to the robot.
-          SD = 0.1; // Reduces the standard deviation of the vision estimate.
-          accurateCalibrationTimer.restart();
+      if (botpose != null) {
+        double SD = 0.5; // How much variance there is in the LL vision information. Lower numbers indicate more trustworthy data.
+        if (botpose.tagCount >= 1) { // At least 1 AprilTag is detected.
+          if (botpose.avgTagArea*botpose.tagCount > 2.0 && Math.sqrt(Math.pow(getXVel(), 2) + Math.pow(getYVel(), 2)) < 0.5 && getAngVel() < 45.0) { // The robot is relatively stationary and the AprilTag is very close to the robot.
+            SD = 0.1; // Reduces the standard deviation of the vision estimate.
+            accurateCalibrationTimer.restart();
+          }
+          odometry.setVisionMeasurementStdDevs(VecBuilder.fill(SD, SD, Double.MAX_VALUE));
+          odometry.addVisionMeasurement(new Pose2d(botpose.pose.getX(), botpose.pose.getY(), Rotation2d.fromDegrees(getFusedAng())), botpose.timestampSeconds);  
+          calibrationTimer.restart();
         }
-        odometry.setVisionMeasurementStdDevs(VecBuilder.fill(SD, SD, Double.MAX_VALUE));
-        odometry.addVisionMeasurement(new Pose2d(botpose.pose.getX(), botpose.pose.getY(), Rotation2d.fromDegrees(getFusedAng())), botpose.timestampSeconds);  
-        calibrationTimer.restart();
       } 
     }
   }
@@ -375,14 +380,16 @@ class Drivetrain {
       } else {
         botpose = isBlueAlliance() ? LimelightHelpers.getBotPoseEstimate_wpiBlue(limelights[limelightIndex]) : LimelightHelpers.getBotPoseEstimate_wpiRed(limelights[limelightIndex]);
       }
-      if (botpose.tagCount > 0) { // Checks to see whether there is at least 1 vision target and the LL has provided a new frame.
-        calibrationArray[0][calibrationIndex] = botpose.pose.getX(); // Adds an x-position entry to the calibrationPosition array. 
-        calibrationArray[1][calibrationIndex] = botpose.pose.getY(); // Adds a y-position entry to the calibrationPosition array. 
-        calibrationArray[2][calibrationIndex] = botpose.pose.getRotation().getDegrees(); // Adds a angle-position entry to the calibrationPosition array. 
-        calibrationIndex = (calibrationIndex + 1) % maxCalibrationFrames; // Handles the looping of the calibrationIndex variable. 
-        if (calibrationFrames < maxCalibrationFrames) calibrationFrames++;  // Increments calibrationPoints until the calibrationPosition array is full.
-        calibrationTimer.restart();
-      } 
+      if (botpose != null) {
+        if (botpose.tagCount > 0) { // Checks to see whether there is at least 1 vision target and the LL has provided a new frame.
+          calibrationArray[0][calibrationIndex] = botpose.pose.getX(); // Adds an x-position entry to the calibrationPosition array. 
+          calibrationArray[1][calibrationIndex] = botpose.pose.getY(); // Adds a y-position entry to the calibrationPosition array. 
+          calibrationArray[2][calibrationIndex] = botpose.pose.getRotation().getDegrees(); // Adds a angle-position entry to the calibrationPosition array. 
+          calibrationIndex = (calibrationIndex + 1) % maxCalibrationFrames; // Handles the looping of the calibrationIndex variable. 
+          if (calibrationFrames < maxCalibrationFrames) calibrationFrames++;  // Increments calibrationPoints until the calibrationPosition array is full.
+          calibrationTimer.restart();
+        } 
+      }
     }
   }
 
@@ -426,7 +433,7 @@ class Drivetrain {
   
   // Returns the angular position of the robot in degrees. The angular position is referenced to the starting angle of the robot. CCW is positive. Will return 0 in the case of a gyro failure.
   public double getGyroAng() {
-    return BaseStatusSignal.getLatencyCompensatedValueAsDouble(pigeonYaw, pigeonYawRate, 0.02)*1.008403361344538;
+    return BaseStatusSignal.getLatencyCompensatedValueAsDouble(pigeonYaw, pigeonYawRate, 0.02);
   }
 
   // Returns the pitch of the robot in degrees. An elevated front is positive. An elevated rear is negative.
@@ -441,12 +448,20 @@ class Drivetrain {
 
   // Returns true if the robot is on the red alliance.
   public boolean isRedAlliance() {
-    return DriverStation.getAlliance().get().equals(Alliance.Red);
+    if (DriverStation.getAlliance().isPresent()) {
+      return DriverStation.getAlliance().get().equals(Alliance.Red);
+    } else {
+      return false;
+    }
   }
 
   // Returns true if the robot is on the blue alliance.
   public boolean isBlueAlliance() {
-    return DriverStation.getAlliance().get().equals(Alliance.Blue);
+    if (DriverStation.getAlliance().isPresent()) {
+      return DriverStation.getAlliance().get().equals(Alliance.Blue);
+    } else {
+      return false;
+    }
   }
 
   // Returns the last commanded x-velocity of the robot in meters per second.
@@ -501,9 +516,9 @@ class Drivetrain {
     //SmartDashboard.putNumber("Front Right Swerve Module Wheel Encoder Angle", frontRightModule.getWheelAngle());
     //SmartDashboard.putNumber("Back Right Swerve Module Wheel Encoder Angle", backRightModule.getWheelAngle());
     //SmartDashboard.putNumber("Back Left Swerve Module Wheel Encoder Angle", backLeftModule.getWheelAngle());
-    SmartDashboard.putNumber("Robot X Position", getXPos());
-    SmartDashboard.putNumber("Robot Y Position", getYPos());
-    SmartDashboard.putNumber("Robot Angular Position (Fused)", getFusedAng());
+    //SmartDashboard.putNumber("Robot X Position", getXPos());
+    //SmartDashboard.putNumber("Robot Y Position", getYPos());
+    //SmartDashboard.putNumber("Robot Angular Position (Fused)", getFusedAng());
     //SmartDashboard.putNumber("Robot Angular Position (Gyro)", getGyroAng());
     //SmartDashboard.putNumber("Robot Pitch", getGyroPitch());
     //SmartDashboard.putNumber("Robot Roll", getGyroRoll());
