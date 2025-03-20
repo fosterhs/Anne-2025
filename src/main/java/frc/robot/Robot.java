@@ -39,10 +39,10 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> autoChooser = new SendableChooser<>();
   private static final String auto1 = "WIP1"; 
   private static final String auto2 = "1-Piece Coral L4 (Index 3) Center"; 
-  private static final String auto3 = "2-Piece Coral L2/L4 (Index 4, 5) Left Side";
-  private static final String auto4 = "2-Piece Coral L2/L4 (Index 2, 1) Right Side";
-  private static final String auto5 = "2-Piece Coral L4 (Index 4, 5) Left Side";
-  private static final String auto6 = "2-Piece Coral L4 (Index 2, 1) Right Side"; 
+  private static final String auto3 = "3-Piece Coral L2/L4/L4 (Index 4, 5, 11) Left Side";
+  private static final String auto4 = "3-Piece Coral L2/L4/L4 (Index 2, 1, 7) Right Side";
+  private static final String auto5 = "3-Piece Coral L4/L4/L4 (Index 4, 5, 11) Left Side";
+  private static final String auto6 = "3-Piece Coral L4/L4/L4 (Index 2, 1, 7) Right Side"; 
   private static final String auto7 = "Buddy Push";
   private static final String auto8 = "WIP2"; 
   private static final String auto9 = "WIP3"; 
@@ -294,7 +294,52 @@ public class Robot extends TimedRobot {
           case 9:
             // Auto 3, Stage 9 code goes here.
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            elevator.setLevel(Level.bottom); // This moves the elevator to the bottom position.   
+            elevator.setLevel(Level.bottom); // This moves the elevator to the bottom position.  
+            if (elevator.atSetpoint()) {
+              swerve.resetDriveController(scoringHeadings[27]);
+              autoStage = 10; // Advances to the next stage once the elevator is at the correct level.
+            } 
+          break;
+
+          case 10:
+            // Auto 3, Stage 10 code goes here.
+            swerve.driveTo(scoringPositionsX[27],scoringPositionsY[27],scoringHeadings[27]); // This moves the robot to the source.
+            if (coralSpitter.coralDetected()) {
+              swerve.resetDriveController(scoringHeadings[11]);
+              autoStage = 11; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
+            }
+          break;
+
+          case 11:
+            // Auto 3, Stage 11 code goes here.
+            swerve.driveTo(scoringPositionsX[11],scoringPositionsY[11],scoringHeadings[11]); // This moves the robot to the reef.
+            if (swerve.atDriveGoal()) {
+              autoStage = 12; // Advances to the next stage once the robot is in the correct location.
+            }
+          break;
+
+          case 12:
+            // Auto 3, Stage 12 code goes here.
+            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
+            elevator.setLevel(Level.L4); // This moves the elevator to the second level.
+            if (elevator.atSetpoint()) {
+              autoStage = 13; // Advances to the next stage once the elevator is at the correct level.
+            }
+          break;
+
+          case 13:
+            // Auto 3, Stage 13 code goes here.
+            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
+            coralSpitter.spit(); // Spits the coral.
+            if (!coralSpitter.isSpitting()) {
+              autoStage = 14; // Advances to the next stage once the coral is ejected.
+            }
+          break;
+
+          case 14:
+            // Auto 3, Stage 14 code goes here.
+            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
+            elevator.setLevel(Level.bottom); // This moves the elevator to the bottom position.  
           break;
         }   
       break;
@@ -375,7 +420,52 @@ public class Robot extends TimedRobot {
           case 9:
             // Auto 4, Stage 9 code goes here.
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            elevator.setLevel(Level.bottom); // This moves the elevator to the bottom position.   
+            elevator.setLevel(Level.bottom); // This moves the elevator to the bottom position.  
+            if (elevator.atSetpoint()) {
+              swerve.resetDriveController(scoringHeadings[25]);
+              autoStage = 10; // Advances to the next stage once the elevator is at the correct level.
+            } 
+          break;
+
+          case 10:
+            // Auto 4, Stage 10 code goes here.
+            swerve.driveTo(scoringPositionsX[25],scoringPositionsY[25],scoringHeadings[25]); // This moves the robot to the source.
+            if (coralSpitter.coralDetected()) {
+              swerve.resetDriveController(scoringHeadings[7]);
+              autoStage = 11; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
+            }
+          break;
+
+          case 11:
+            // Auto 4, Stage 11 code goes here.
+            swerve.driveTo(scoringPositionsX[7],scoringPositionsY[7],scoringHeadings[7]); // This moves the robot to the reef.
+            if (swerve.atDriveGoal()) {
+              autoStage = 12; // Advances to the next stage once the robot is in the correct location.
+            }
+          break;
+
+          case 12:
+            // Auto 4, Stage 12 code goes here.
+            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
+            elevator.setLevel(Level.L4); // This moves the elevator to the second level.
+            if (elevator.atSetpoint()) {
+              autoStage = 13; // Advances to the next stage once the elevator is at the correct level.
+            }
+          break;
+
+          case 13:
+            // Auto 4, Stage 13 code goes here.
+            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
+            coralSpitter.spit(); // Spits the coral.
+            if (!coralSpitter.isSpitting()) {
+              autoStage = 14; // Advances to the next stage once the coral is ejected.
+            }
+          break;
+
+          case 14:
+            // Auto 4, Stage 14 code goes here.
+            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
+            elevator.setLevel(Level.bottom); // This moves the elevator to the bottom position.  
           break;
         }
       break;
@@ -456,7 +546,52 @@ public class Robot extends TimedRobot {
           case 9:
             // Auto 5, Stage 9 code goes here.
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            elevator.setLevel(Level.bottom); // This moves the elevator to the bottom position.   
+            elevator.setLevel(Level.bottom); // This moves the elevator to the bottom position.  
+            if (elevator.atSetpoint()) {
+              swerve.resetDriveController(scoringHeadings[27]);
+              autoStage = 10; // Advances to the next stage once the elevator is at the correct level.
+            } 
+          break;
+
+          case 10:
+            // Auto 5, Stage 10 code goes here.
+            swerve.driveTo(scoringPositionsX[27],scoringPositionsY[27],scoringHeadings[27]); // This moves the robot to the source.
+            if (coralSpitter.coralDetected()) {
+              swerve.resetDriveController(scoringHeadings[11]);
+              autoStage = 11; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
+            }
+          break;
+
+          case 11:
+            // Auto 5, Stage 11 code goes here.
+            swerve.driveTo(scoringPositionsX[11],scoringPositionsY[11],scoringHeadings[11]); // This moves the robot to the reef.
+            if (swerve.atDriveGoal()) {
+              autoStage = 12; // Advances to the next stage once the robot is in the correct location.
+            }
+          break;
+
+          case 12:
+            // Auto 5, Stage 12 code goes here.
+            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
+            elevator.setLevel(Level.L4); // This moves the elevator to the second level.
+            if (elevator.atSetpoint()) {
+              autoStage = 13; // Advances to the next stage once the elevator is at the correct level.
+            }
+          break;
+
+          case 13:
+            // Auto 5, Stage 13 code goes here.
+            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
+            coralSpitter.spit(); // Spits the coral.
+            if (!coralSpitter.isSpitting()) {
+              autoStage = 14; // Advances to the next stage once the coral is ejected.
+            }
+          break;
+
+          case 14:
+            // Auto 5, Stage 14 code goes here.
+            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
+            elevator.setLevel(Level.bottom); // This moves the elevator to the bottom position.  
           break;
         }   
       break;
@@ -537,7 +672,52 @@ public class Robot extends TimedRobot {
           case 9:
             // Auto 6, Stage 9 code goes here.
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            elevator.setLevel(Level.bottom); // This moves the elevator to the bottom position.   
+            elevator.setLevel(Level.bottom); // This moves the elevator to the bottom position.  
+            if (elevator.atSetpoint()) {
+              swerve.resetDriveController(scoringHeadings[25]);
+              autoStage = 10; // Advances to the next stage once the elevator is at the correct level.
+            } 
+          break;
+
+          case 10:
+            // Auto 6, Stage 10 code goes here.
+            swerve.driveTo(scoringPositionsX[25],scoringPositionsY[25],scoringHeadings[25]); // This moves the robot to the source.
+            if (coralSpitter.coralDetected()) {
+              swerve.resetDriveController(scoringHeadings[7]);
+              autoStage = 11; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
+            }
+          break;
+
+          case 11:
+            // Auto 6, Stage 11 code goes here.
+            swerve.driveTo(scoringPositionsX[7],scoringPositionsY[7],scoringHeadings[7]); // This moves the robot to the reef.
+            if (swerve.atDriveGoal()) {
+              autoStage = 12; // Advances to the next stage once the robot is in the correct location.
+            }
+          break;
+
+          case 12:
+            // Auto 6, Stage 12 code goes here.
+            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
+            elevator.setLevel(Level.L4); // This moves the elevator to the second level.
+            if (elevator.atSetpoint()) {
+              autoStage = 13; // Advances to the next stage once the elevator is at the correct level.
+            }
+          break;
+
+          case 13:
+            // Auto 6, Stage 13 code goes here.
+            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
+            coralSpitter.spit(); // Spits the coral.
+            if (!coralSpitter.isSpitting()) {
+              autoStage = 14; // Advances to the next stage once the coral is ejected.
+            }
+          break;
+
+          case 14:
+            // Auto 6, Stage 14 code goes here.
+            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
+            elevator.setLevel(Level.bottom); // This moves the elevator to the bottom position.  
           break;
         }
       break;
