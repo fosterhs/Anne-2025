@@ -21,7 +21,7 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter angAccLimiter = new SlewRateLimiter(Drivetrain.maxAngAccTeleop / Drivetrain.maxAngVelTeleop);
 
   private boolean boostMode = false;
-  private double speedScaleFactor = 0.75; // Scales the speed of the robot that results from controller inputs. 1.0 corresponds to full speed. 0.0 is fully stopped.
+  private double speedScaleFactor = 0.6; // Scales the speed of the robot that results from controller inputs. 1.0 corresponds to full speed. 0.0 is fully stopped.
   private boolean swerveLock = false; // Controls whether the swerve drive is in x-lock (for defense) or is driving. 
 
   // Initializes the different subsystems of the robot.
@@ -37,16 +37,16 @@ public class Robot extends TimedRobot {
   
   // Auto Variables
   private final SendableChooser<String> autoChooser = new SendableChooser<>();
-  private static final String auto1 = "1-Piece Coral L2 (Index 4) Left Side"; 
+  private static final String auto1 = "WIP1"; 
   private static final String auto2 = "1-Piece Coral L4 (Index 3) Center"; 
   private static final String auto3 = "2-Piece Coral L2/L4 (Index 4, 5) Left Side";
   private static final String auto4 = "2-Piece Coral L2/L4 (Index 2, 1) Right Side";
   private static final String auto5 = "2-Piece Coral L4 (Index 4, 5) Left Side";
   private static final String auto6 = "2-Piece Coral L4 (Index 2, 1) Right Side"; 
   private static final String auto7 = "Buddy Push";
-  private static final String auto8 = "1-Piece Coral L2 (Index 2) Right Side"; 
-  private static final String auto9 = "2-Piece Coral L2/L4 (Index 4, 5) Left Side (Calibration Routine)"; // Extra Auto space, for on the go auto makeing 
-  private static final String auto10 = "WIP2"; // Extra Auto space, for on the go auto makieng
+  private static final String auto8 = "WIP2"; 
+  private static final String auto9 = "WIP3"; 
+  private static final String auto10 = "WIP4";
   private String autoSelected;
   private int autoStage = 1;
   private boolean autoCompleted = false;
@@ -118,7 +118,6 @@ public class Robot extends TimedRobot {
     switch (autoSelected) {
       case auto1:
         // AutoInit 1 code goes here.
-        swerve.resetDriveController(scoringHeadings[4]); // Prepares the robot to drive to the reef.
       break;
 
       case auto2:
@@ -152,12 +151,10 @@ public class Robot extends TimedRobot {
 
       case auto8:
         // AutoInit 8 code goes here.
-        swerve.resetDriveController(scoringHeadings[2]); // Prepares the robot to drive to the reef.
       break;
 
       case auto9:
         // AutoInit 9 code goes here.
-        swerve.resetDriveController(scoringHeadings[4]);
       break;
 
       case auto10:
@@ -179,25 +176,10 @@ public class Robot extends TimedRobot {
         switch (autoStage) {
           case 1:
             // Auto 1, Stage 1 code goes here.
-            swerve.driveTo(scoringPositionsX[4],scoringPositionsY[4],scoringHeadings[4]); // This moves the robot to the reef.
-            if (swerve.atDriveGoal()) {
-              autoStage = 2; // Advances to the next stage once the robot is at the correct location.
-            }
           break;
 
           case 2:
             // Auto 1, Stage 2 code goes here.
-            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            elevator.setLevel(Level.L2); // This moves the elevator to the second level.
-            if (elevator.atSetpoint()) {
-              autoStage = 3; // Advances to the next stage once the elevator is at the correct level.
-            }
-          break;
-
-          case 3:
-            // Auto 1, Stage 3 code goes here.
-            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            coralSpitter.spit(); // Spits the coral.
           break;
         }
       break;
@@ -573,25 +555,10 @@ public class Robot extends TimedRobot {
         switch (autoStage) {
           case 1:
             // Auto 8, Stage 1 code goes here.
-            swerve.driveTo(scoringPositionsX[2],scoringPositionsY[2],scoringHeadings[2]); // This moves the robot to the reef.
-            if (swerve.atDriveGoal()) {
-              autoStage = 2; // Advances to the next stage once the robot is at the correct location.
-            }
           break;
 
           case 2:
             // Auto 8, Stage 2 code goes here.
-            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            elevator.setLevel(Level.L2); // This moves the elevator to the second level.
-            if (elevator.atSetpoint()) {
-              autoStage = 3; // Advances to the next stage once the elevator is at the correct level.
-            }
-          break;
-
-          case 3:
-            // Auto 8, Stage 3 code goes here.
-            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            coralSpitter.spit(); // Spits the coral.
           break;
         }
       break;  
@@ -599,115 +566,11 @@ public class Robot extends TimedRobot {
       case auto9:
         switch (autoStage) {
           case 1:
-            // Auto 3, Stage 1 code goes here.
-            swerve.driveTo(scoringPositionsX[4],scoringPositionsY[4],scoringHeadings[4]); // This moves the robot to the reef.
-            if (swerve.atDriveGoal()) {
-              swerve.calcPriorityLimelightIndex();
-              swerve.resetCalibration(); // Begins calculating the position of the robot on the field based on visible April Tags.
-              autoStage = 2; // Advances to the next stage once the robot is at the correct location.
-            }
+            // Auto 9, Stage 1 code goes here.
           break;
 
-          case 2: 
-            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            swerve.addCalibrationEstimate(swerve.getPriorityLimelightIndex(), true);
-            if (swerve.calibrationFrames > 10) {
-              swerve.pushCalibration(true, swerve.getFusedAng());
-              autoStage = 3;
-            }
-          break;
-
-          case 3:
-            swerve.driveTo(scoringPositionsX[4],scoringPositionsY[4],scoringHeadings[4]); // This moves the robot to the reef.
-            if (swerve.atDriveGoal()) {
-              autoStage = 4;
-            }
-          break;
-            
-          case 4:
-            // Auto 3, Stage 2 code goes here.
-            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            elevator.setLevel(Level.L2); // This moves the elevator to the second level.
-            if (elevator.atSetpoint()) {
-              autoStage = 5; // Advances to the next stage once the elevator is at the correct level.
-            }
-          break;
-
-          case 5:
-            // Auto 3, Stage 3 code goes here.
-            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            coralSpitter.spit(); // Spits the coral.
-            if (!coralSpitter.isSpitting()) {
-              autoStage = 6; // Advances to the next stage once the coral is ejected.
-            }
-          break;
-
-          case 6:
-            // Auto 3, Stage 4 code goes here.
-            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            elevator.setLevel(Level.bottom); // This moves the elevator to the Bottom level.
-            if (elevator.atSetpoint()) {
-              swerve.resetDriveController(scoringHeadings[27]);
-              autoStage = 7; // Advances to the next stage once the elevator is at the correct level.
-            }
-          break;
-
-          case 7:
-            // Auto 3, Stage 5 code goes here.
-            swerve.driveTo(scoringPositionsX[27],scoringPositionsY[27],scoringHeadings[27]); // This moves the robot to the source.
-            if (coralSpitter.coralDetected()) {
-              swerve.resetDriveController(scoringHeadings[5]);
-              autoStage = 8; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
-            }
-          break;
-          
-          case 8:
-            swerve.driveTo(scoringPositionsX[5],scoringPositionsY[5],scoringHeadings[5]); // This moves the robot to the reef.
-            if (swerve.atDriveGoal()) {
-              swerve.calcPriorityLimelightIndex();
-              swerve.resetCalibration(); // Begins calculating the position of the robot on the field based on visible April Tags.
-              autoStage = 9; // Advances to the next stage once the robot is at the correct location.
-            }
-          break;
-
-          case 9: 
-            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            swerve.addCalibrationEstimate(swerve.getPriorityLimelightIndex(), true);
-            if (swerve.calibrationFrames > 10) {
-              swerve.pushCalibration(true, swerve.getFusedAng());
-              autoStage = 10;
-            }
-          break;
-
-          case 10:
-            swerve.driveTo(scoringPositionsX[5],scoringPositionsY[5],scoringHeadings[5]); // This moves the robot to the reef.
-            if (swerve.atDriveGoal()) {
-              autoStage = 11;
-            }
-          break;
-
-          case 11:
-            // Auto 3, Stage 7 code goes here.
-            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            elevator.setLevel(Level.L4); // This moves the elevator to the second level.
-            if (elevator.atSetpoint()) {
-              autoStage = 12; // Advances to the next stage once the elevator is at the correct level.
-            }
-          break;
-
-          case 12:
-            // Auto 3, Stage 8 code goes here.
-            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            coralSpitter.spit(); // Spits the coral.
-            if (!coralSpitter.isSpitting()) {
-              autoStage = 13; // Advances to the next stage once the coral is ejected.
-            }
-          break;
-
-          case 13:
-            // Auto 3, Stage 9 code goes here.
-            swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            elevator.setLevel(Level.bottom); // This moves the elevator to the bottom position.   
+          case 2:
+          // Auto 9, Stage 2 code goes here.
           break;
         }
       break;  
@@ -716,6 +579,10 @@ public class Robot extends TimedRobot {
         switch (autoStage) { 
           case 1:
             // Auto 10, Stage 1 code goes here.
+          break;
+
+          case 2:
+          // Auto 10, Stage 2 code goes here.
           break;
         }
       break;     
@@ -760,7 +627,7 @@ public class Robot extends TimedRobot {
     } else if (boostMode) {
       speedScaleFactor = 1.0;
     } else {
-      speedScaleFactor = 0.75;
+      speedScaleFactor = 0.6;
     }
     
     // Applies a deadband to controller inputs. Also limits the acceleration of controller inputs.
