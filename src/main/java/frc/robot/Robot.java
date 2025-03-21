@@ -64,13 +64,13 @@ public class Robot extends TimedRobot {
 
   public void robotInit() { 
     // Configures the auto chooser on the dashboard.
-    autoChooser.setDefaultOption(auto1, auto1);
-    autoChooser.addOption(auto2, auto2);
-    autoChooser.addOption(auto3, auto3);
+    autoChooser.setDefaultOption(auto3, auto3);
     autoChooser.addOption(auto4, auto4);
     autoChooser.addOption(auto5, auto5);
     autoChooser.addOption(auto6, auto6);
+    autoChooser.addOption(auto2, auto2);
     autoChooser.addOption(auto7, auto7);
+    autoChooser.addOption(auto1, auto1);
     autoChooser.addOption(auto8, auto8);
     autoChooser.addOption(auto9, auto9);
     autoChooser.addOption(auto10, auto10);
@@ -802,7 +802,7 @@ public class Robot extends TimedRobot {
     if (driver.getRawButtonPressed(1)) boostMode = true; // A button sets boost mode. (100% speed up from default of 60%).
     if (driver.getRawButtonPressed(2)) boostMode = false; // B Button sets default mode (60% of full speed).
 
-    if (elevator.getPosition() > 16.0) {
+    if (elevator.getPosition() > 10.0) {
       speedScaleFactor = 0.15;
     } else if (boostMode) {
       speedScaleFactor = 1.0;
@@ -875,7 +875,7 @@ public class Robot extends TimedRobot {
     }
     if (Math.abs(MathUtil.applyDeadband(operator.getRightY(), 0.1)) >= 0.1) {
       elevator.adjust(-operator.getRightY()); // Allows the operator to adjust the height of the elevator.
-      if (elevator.getPosition() > 16.0) {
+      if (elevator.getPosition() > 10.0) {
         boostMode = false;
       } 
     }
@@ -894,14 +894,14 @@ public class Robot extends TimedRobot {
     }
 
     // Controls the algae yeeter.
-    if (elevator.getPosition() > 14.0) {
+    if (elevator.getPosition() > 6.5) {
       if (operator.getPOV() == 180) {
         algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.algae); // D pad down
-        elevator.setLowLimit(15.0);
+        elevator.setLowLimit(7.5);
       }
       if (operator.getPOV() == 90) {
         algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.barge); // D pad left
-        elevator.setLowLimit(15.0);
+        elevator.setLowLimit(7.5);
       }
     }
     if (operator.getPOV() == 0) {
