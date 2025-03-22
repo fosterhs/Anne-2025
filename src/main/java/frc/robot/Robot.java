@@ -110,7 +110,6 @@ public class Robot extends TimedRobot {
 
   public void autonomousInit() {
     autoCompleted = true;
-    swerve.pushCalibration(true, 180.0); // Updates the robot's position on the field.
     coralSpitter.init(); // Should be called in autoInit() and teleopInit(). Required for the coralSpitter to function correctly.
     algaeYeeter.init(); // Should be called in autoInit() and teleopInit(). Required for the algaeYeeter to function correctly.
     autoStage = 1;
@@ -122,31 +121,37 @@ public class Robot extends TimedRobot {
 
       case auto2:
         // AutoInit 2 code goes here.
+        swerve.pushCalibration(true, 90.0); // Updates the robot's position on the field.
         swerve.resetDriveController(scoringHeadings[3]); // Prepares the robot to drive to the reef.
       break;
 
       case auto3:
         // AutoInit 3 code goes here.
+        swerve.pushCalibration(true, 180.0); // Updates the robot's position on the field.
         swerve.resetDriveController(scoringHeadings[4]); // Prepares the robot to drive to the reef.
       break;
 
       case auto4:
         // AutoInit 4 code goes here.
+        swerve.pushCalibration(true, 90.0); // Updates the robot's position on the field.
         swerve.resetDriveController(scoringHeadings[2]); // Prepares the robot to drive to the reef.
       break;
 
       case auto5:
         // AutoInit 5 code goes here.
+        swerve.pushCalibration(true, 180.0); // Updates the robot's position on the field.
         swerve.resetDriveController(scoringHeadings[4]); // Prepares the robot to drive to the reef.
       break;
 
       case auto6:
         // AutoInit 6 code goes here.
+        swerve.pushCalibration(true, 90.0); // Updates the robot's position on the field.
         swerve.resetDriveController(scoringHeadings[2]); // Prepares the robot to drive to the reef.
       break;
 
       case auto7:
         // AutoInit 7 code goes here.
+        swerve.pushCalibration(true, 180.0); // Updates the robot's position on the field.
       break;
 
       case auto8:
@@ -918,8 +923,13 @@ public class Robot extends TimedRobot {
 
   public void disabledPeriodic() {
     swerve.updateOdometry(); // Keeps track of the position of the robot on the field. Must be called each period.
+    autoSelected = autoChooser.getSelected();
     if (!autoCompleted) {
-      swerve.updateVisionHeading(true, 180.0);
+      if (autoSelected == auto2 || autoSelected == auto4 || autoSelected == auto6) {
+        swerve.updateVisionHeading(true, 90.0);
+      } else {
+        swerve.updateVisionHeading(true, 180.0);
+      }
     } else {
       swerve.updateVisionHeading(false, 0.0); // Updates the Limelights with the robot heading (for MegaTag2).
     }
