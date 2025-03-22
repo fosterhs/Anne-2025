@@ -62,8 +62,8 @@ public class AlgaeYeeter {
     if (algaeExhaustTimer.get() > exhaustDelay || currPosition == ArmPosition.stow) isYeeting = false;
 
     if (isYeeting) {
-      intakeMasterMotor.setControl(intakeMasterMotorVoltageRequest.withOutput(-12.0)); // Sets the intake motors to exhaust at 12 volts.
-      intakeSlaveMotor.setControl(intakeSlaveMotorVoltageRequest.withOutput(-12.0));
+      intakeMasterMotor.setControl(intakeMasterMotorTorqueRequest.withOutput(-225.0)); // Sets the intake motors to exhaust at 12 volts.
+      intakeSlaveMotor.setControl(intakeSlaveMotorTorqueRequest.withOutput(-225.0));
     } else if (currPosition == ArmPosition.stow) {
       intakeMasterMotor.setControl(intakeMasterMotorVoltageRequest.withOutput(0.0)); // Sets the intake motors off.
       intakeSlaveMotor.setControl(intakeSlaveMotorVoltageRequest.withOutput(0.0));

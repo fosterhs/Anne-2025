@@ -78,6 +78,7 @@ public class Robot extends TimedRobot {
     autoChooser.addOption(auto10, auto10);
     SmartDashboard.putData("Autos", autoChooser);
 
+    coralTimer.restart();
     swerve.loadPath("Test", 0.0, 0.0, 0.0, 0.0); // Loads a Path Planner generated path into the path follower code in the drivetrain.
     runAll(); // Helps prevent loop overruns on startup by running every command before the match starts.
   }
@@ -206,6 +207,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.L4); // This moves the elevator to the second level.
             if (elevator.atSetpoint()) {
+              coralSpitter.spit(); // Spits the coral.
               autoStage = 3; // Advances to the next stage once the elevator is at the correct level.
             }
           break;
@@ -213,7 +215,6 @@ public class Robot extends TimedRobot {
           case 3:
             // Auto 2, Stage 3 code goes here.
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            coralSpitter.spit(); // Spits the coral.
             if (!coralSpitter.isSpitting()) {
               autoStage = 4; 
             }
@@ -240,6 +241,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.L2); // This moves the elevator to the second level.
             if (elevator.atSetpoint()) {
+              coralSpitter.spit(); // Spits the coral.
               autoStage = 3; // Advances to the next stage once the elevator is at the correct level.
             }
           break;
@@ -247,7 +249,6 @@ public class Robot extends TimedRobot {
           case 3:
             // Auto 3, Stage 3 code goes here.
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            coralSpitter.spit(); // Spits the coral.
             if (!coralSpitter.isSpitting()) {
               autoStage = 4; // Advances to the next stage once the coral is ejected.
             }
@@ -286,6 +287,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.L4); // This moves the elevator to the second level.
             if (elevator.atSetpoint()) {
+              coralSpitter.spit(); // Spits the coral.
               autoStage = 8; // Advances to the next stage once the elevator is at the correct level.
             }
           break;
@@ -293,7 +295,6 @@ public class Robot extends TimedRobot {
           case 8:
             // Auto 3, Stage 8 code goes here.
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            coralSpitter.spit(); // Spits the coral.
             if (!coralSpitter.isSpitting()) {
               autoStage = 9; // Advances to the next stage once the coral is ejected.
             }
@@ -332,6 +333,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.L4); // This moves the elevator to the second level.
             if (elevator.atSetpoint()) {
+              coralSpitter.spit(); // Spits the coral.
               autoStage = 13; // Advances to the next stage once the elevator is at the correct level.
             }
           break;
@@ -339,7 +341,6 @@ public class Robot extends TimedRobot {
           case 13:
             // Auto 3, Stage 13 code goes here.
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            coralSpitter.spit(); // Spits the coral.
             if (!coralSpitter.isSpitting()) {
               autoStage = 14; // Advances to the next stage once the coral is ejected.
             }
@@ -368,6 +369,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.L2); // This moves the elevator to the second level.
             if (elevator.atSetpoint()) {
+              coralSpitter.spit(); // Spits the coral.
               autoStage = 3; // Advances to the next stage once the elevator is at the correct level.
             }
           break;
@@ -375,7 +377,6 @@ public class Robot extends TimedRobot {
           case 3:
             // Auto 4, Stage 3 code goes here.
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            coralSpitter.spit(); // Spits the coral.
             if (!coralSpitter.isSpitting()) {
               autoStage = 4; // Advances to the next stage once the coral is ejected.
             }
@@ -414,6 +415,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.L4); // This moves the elevator to the second level.
             if (elevator.atSetpoint()) {
+              coralSpitter.spit(); // Spits the coral.
               autoStage = 8; // Advances to the next stage once the elevator is at the correct level.
             }
           break;
@@ -421,7 +423,6 @@ public class Robot extends TimedRobot {
           case 8:
             // Auto 4, Stage 8 code goes here.
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            coralSpitter.spit(); // Spits the coral.
             if (!coralSpitter.isSpitting()) {
               autoStage = 9; // Advances to the next stage once the coral is ejected.
             }
@@ -460,6 +461,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.L4); // This moves the elevator to the second level.
             if (elevator.atSetpoint()) {
+              coralSpitter.spit(); // Spits the coral.
               autoStage = 13; // Advances to the next stage once the elevator is at the correct level.
             }
           break;
@@ -467,7 +469,6 @@ public class Robot extends TimedRobot {
           case 13:
             // Auto 4, Stage 13 code goes here.
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            coralSpitter.spit(); // Spits the coral.
             if (!coralSpitter.isSpitting()) {
               autoStage = 14; // Advances to the next stage once the coral is ejected.
             }
@@ -496,6 +497,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.L4); // This moves the elevator to the second level.
             if (elevator.atSetpoint()) {
+              coralSpitter.spit(); // Spits the coral.
               autoStage = 3; // Advances to the next stage once the elevator is at the correct level.
             }
           break;
@@ -503,7 +505,6 @@ public class Robot extends TimedRobot {
           case 3:
             // Auto 5, Stage 3 code goes here.
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            coralSpitter.spit(); // Spits the coral.
             if (!coralSpitter.isSpitting()) {
               autoStage = 4; // Advances to the next stage once the coral is ejected.
             }
@@ -542,6 +543,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.L4); // This moves the elevator to the second level.
             if (elevator.atSetpoint()) {
+              coralSpitter.spit(); // Spits the coral.
               autoStage = 8; // Advances to the next stage once the elevator is at the correct level.
             }
           break;
@@ -549,7 +551,6 @@ public class Robot extends TimedRobot {
           case 8:
             // Auto 5, Stage 8 code goes here.
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            coralSpitter.spit(); // Spits the coral.
             if (!coralSpitter.isSpitting()) {
               autoStage = 9; // Advances to the next stage once the coral is ejected.
             }
@@ -588,6 +589,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.L4); // This moves the elevator to the second level.
             if (elevator.atSetpoint()) {
+              coralSpitter.spit(); // Spits the coral.
               autoStage = 13; // Advances to the next stage once the elevator is at the correct level.
             }
           break;
@@ -595,7 +597,6 @@ public class Robot extends TimedRobot {
           case 13:
             // Auto 5, Stage 13 code goes here.
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            coralSpitter.spit(); // Spits the coral.
             if (!coralSpitter.isSpitting()) {
               autoStage = 14; // Advances to the next stage once the coral is ejected.
             }
@@ -624,6 +625,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.L4); // This moves the elevator to the second level.
             if (elevator.atSetpoint()) {
+              coralSpitter.spit(); // Spits the coral.
               autoStage = 3; // Advances to the next stage once the elevator is at the correct level.
             }
           break;
@@ -631,7 +633,6 @@ public class Robot extends TimedRobot {
           case 3:
             // Auto 6, Stage 3 code goes here.
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            coralSpitter.spit(); // Spits the coral.
             if (!coralSpitter.isSpitting()) {
               autoStage = 4; // Advances to the next stage once the coral is ejected.
             }
@@ -670,6 +671,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.L4); // This moves the elevator to the second level.
             if (elevator.atSetpoint()) {
+              coralSpitter.spit(); // Spits the coral.
               autoStage = 8; // Advances to the next stage once the elevator is at the correct level.
             }
           break;
@@ -677,7 +679,6 @@ public class Robot extends TimedRobot {
           case 8:
             // Auto 6, Stage 8 code goes here.
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            coralSpitter.spit(); // Spits the coral.
             if (!coralSpitter.isSpitting()) {
               autoStage = 9; // Advances to the next stage once the coral is ejected.
             }
@@ -716,6 +717,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.L4); // This moves the elevator to the second level.
             if (elevator.atSetpoint()) {
+              coralSpitter.spit(); // Spits the coral.
               autoStage = 13; // Advances to the next stage once the elevator is at the correct level.
             }
           break;
@@ -723,7 +725,6 @@ public class Robot extends TimedRobot {
           case 13:
             // Auto 6, Stage 13 code goes here.
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
-            coralSpitter.spit(); // Spits the coral.
             if (!coralSpitter.isSpitting()) {
               autoStage = 14; // Advances to the next stage once the coral is ejected.
             }
@@ -816,7 +817,7 @@ public class Robot extends TimedRobot {
 
     if (driver.getRawButtonPressed(1)) boostMode = true; // A button sets boost mode. (100% speed up from default of 60%).
     if (driver.getRawButtonPressed(2)) boostMode = false; // B Button sets default mode (60% of full speed).
-    if (elevator.getPosition() > 6.5) {
+    if (elevator.getPosition() > 10.0) {
       speedScaleFactor = 0.15;
       boostMode = false;
     } else if (boostMode) {
@@ -862,30 +863,14 @@ public class Robot extends TimedRobot {
     if (driver.getRawButtonPressed(8)) swerve.resetGyro(); // Right center button re-zeros the angle reading of the gyro to the current angle of the robot. Should be called if the gyroscope readings are no longer well correlated with the field.
     
     // Controls the level of the elevator.
-    if (operator.getRawButtonPressed(2)) {
-      elevator.setLevel(Level.L2); // B button
-    } 
-    if (operator.getRawButtonPressed(3)) {
-      elevator.setLevel(Level.L3); // X button
-    }
-    if (operator.getRawButtonPressed(4)) {
-      elevator.setLevel(Level.L4); // Y button 
-    }
-    if (operator.getLeftTriggerAxis() > 0.25) {
-      elevator.setLevel(Level.lowAlgae); // Left Trigger
-    }
-    if (operator.getRightTriggerAxis() > 0.25) {
-      elevator.setLevel(Level.highAlgae); // Right Trigger
-    }
-    if (operator.getRawButtonPressed(1)) {
-      elevator.setLevel(Level.L1); // A button
-    }
-    if (operator.getRawButtonPressed(5)) {
-      elevator.setLevel(Level.bottom); // Left bumper button
-    }
-    if (Math.abs(MathUtil.applyDeadband(operator.getRightY(), 0.1)) >= 0.1) {
-      elevator.adjust(-operator.getRightY()); // Allows the operator to adjust the height of the elevator.
-    }
+    if (operator.getRawButtonPressed(2)) elevator.setLevel(Level.L2); // B button
+    if (operator.getRawButtonPressed(3)) elevator.setLevel(Level.L3); // X button
+    if (operator.getRawButtonPressed(4)) elevator.setLevel(Level.L4); // Y button 
+    if (operator.getLeftTriggerAxis() > 0.25) elevator.setLevel(Level.lowAlgae); // Left Trigger
+    if (operator.getRightTriggerAxis() > 0.25) elevator.setLevel(Level.highAlgae); // Right Trigger
+    if (operator.getRawButtonPressed(1)) elevator.setLevel(Level.L1); // A button
+    if (operator.getRawButtonPressed(5)) elevator.setLevel(Level.bottom); // Left bumper button
+    if (Math.abs(MathUtil.applyDeadband(operator.getRightY(), 0.1)) >= 0.1) elevator.adjust(-operator.getRightY()); // Allows the operator to adjust the height of the elevator.
 
     // Controls the spitter
     if (operator.getRawButtonPressed(6)) coralSpitter.spit(); // Right bumper button
