@@ -100,7 +100,8 @@ public class AlgaeYeeter {
 
   // Tells the algaeYeeter to begin the process of ejecting an algae. 
   public void yeet() { 
-    isYeeting = algaeDetected();
+    algaeExhaustTimer.restart();
+    isYeeting = true;
   }
 
   // Returns the last requested position of the arm.

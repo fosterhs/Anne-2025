@@ -10,6 +10,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber {
   private final TalonFX climbMotor = new TalonFX(16, "canivore"); // Initializes the motor with CAN ID of 11 connected to the canivore. 
@@ -66,7 +67,7 @@ public class Climber {
 
   // Updates the SmartDashboard with information about the climber.
   public void updateDash() {
-    //SmartDashboard.putBoolean("Climber isLatched", isLatched());
+    SmartDashboard.putBoolean("Climber isLatched", isLatched());
     //SmartDashboard.putNumber("Climber getPosition", getPosition());
   }
 

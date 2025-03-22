@@ -4,6 +4,7 @@ import com.ctre.phoenix.led.CANdle;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -38,11 +39,11 @@ public class Robot extends TimedRobot {
   // Auto Variables
   private final SendableChooser<String> autoChooser = new SendableChooser<>();
   private static final String auto1 = "WIP1"; 
-  private static final String auto2 = "1-Piece Coral L4 (Index 3) Center"; 
-  private static final String auto3 = "3-Piece Coral L2/L4/L4 (Index 4, 5, 11) Left Side";
-  private static final String auto4 = "3-Piece Coral L2/L4/L4 (Index 2, 1, 7) Right Side";
-  private static final String auto5 = "3-Piece Coral L4/L4/L4 (Index 4, 5, 11) Left Side";
-  private static final String auto6 = "3-Piece Coral L4/L4/L4 (Index 2, 1, 7) Right Side"; 
+  private static final String auto2 = "1-Piece Coral L4 (Index 3) Center (90 Start Heading)"; 
+  private static final String auto3 = "3-Piece Coral L2/L4/L4 (Index 4, 5, 11) Left Side (180 Start Heading)";
+  private static final String auto4 = "3-Piece Coral L2/L4/L4 (Index 2, 1, 7) Right Side (90 Start Heading)";
+  private static final String auto5 = "3-Piece Coral L4/L4/L4 (Index 4, 5, 11) Left Side (180 Start Heading)";
+  private static final String auto6 = "3-Piece Coral L4/L4/L4 (Index 2, 1, 7) Right Side (90 Start Heading)"; 
   private static final String auto7 = "Buddy Push";
   private static final String auto8 = "WIP2"; 
   private static final String auto9 = "WIP3"; 
@@ -50,6 +51,7 @@ public class Robot extends TimedRobot {
   private String autoSelected;
   private int autoStage = 1;
   private boolean autoCompleted = false;
+  private Timer coralTimer = new Timer();
 
   // Auto Aim Variables
   private final double reefX = 176.75*0.0254; // The x-coordinate of the center of the reef in meters.
@@ -257,6 +259,7 @@ public class Robot extends TimedRobot {
             elevator.setLevel(Level.bottom); // This moves the elevator to the Bottom level.
             if (elevator.atSetpoint()) {
               swerve.resetDriveController(scoringHeadings[27]);
+              coralTimer.restart();
               autoStage = 5; // Advances to the next stage once the elevator is at the correct level.
             }
           break;
@@ -264,7 +267,7 @@ public class Robot extends TimedRobot {
           case 5:
             // Auto 3, Stage 5 code goes here.
             swerve.driveTo(scoringPositionsX[27],scoringPositionsY[27],scoringHeadings[27]); // This moves the robot to the source.
-            if (coralSpitter.coralDetected()) {
+            if (coralSpitter.coralDetected() || coralTimer.get() > 5.0) {
               swerve.resetDriveController(scoringHeadings[5]);
               autoStage = 6; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
             }
@@ -301,6 +304,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.bottom); // This moves the elevator to the bottom position.  
             if (elevator.atSetpoint()) {
+              coralTimer.restart();
               swerve.resetDriveController(scoringHeadings[27]);
               autoStage = 10; // Advances to the next stage once the elevator is at the correct level.
             } 
@@ -309,7 +313,7 @@ public class Robot extends TimedRobot {
           case 10:
             // Auto 3, Stage 10 code goes here.
             swerve.driveTo(scoringPositionsX[27],scoringPositionsY[27],scoringHeadings[27]); // This moves the robot to the source.
-            if (coralSpitter.coralDetected()) {
+            if (coralSpitter.coralDetected() || coralTimer.get() > 5.0) {
               swerve.resetDriveController(scoringHeadings[11]);
               autoStage = 11; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
             }
@@ -382,6 +386,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.bottom); // This moves the elevator to the Bottom level.
             if (elevator.atSetpoint()) {
+              coralTimer.restart();
               swerve.resetDriveController(scoringHeadings[25]);
               autoStage = 5; // Advances to the next stage once the elevator is at the correct level.
             }
@@ -390,7 +395,7 @@ public class Robot extends TimedRobot {
           case 5:
             // Auto 4, Stage 5 code goes here.
             swerve.driveTo(scoringPositionsX[25],scoringPositionsY[25],scoringHeadings[25]); // This moves the robot to the source.
-            if (coralSpitter.coralDetected()) {
+            if (coralSpitter.coralDetected() || coralTimer.get() > 5.0) {
               swerve.resetDriveController(scoringHeadings[1]);
               autoStage = 6; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
             }
@@ -427,6 +432,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.bottom); // This moves the elevator to the bottom position.  
             if (elevator.atSetpoint()) {
+              coralTimer.restart();
               swerve.resetDriveController(scoringHeadings[25]);
               autoStage = 10; // Advances to the next stage once the elevator is at the correct level.
             } 
@@ -435,7 +441,7 @@ public class Robot extends TimedRobot {
           case 10:
             // Auto 4, Stage 10 code goes here.
             swerve.driveTo(scoringPositionsX[25],scoringPositionsY[25],scoringHeadings[25]); // This moves the robot to the source.
-            if (coralSpitter.coralDetected()) {
+            if (coralSpitter.coralDetected() || coralTimer.get() > 5.0) {
               swerve.resetDriveController(scoringHeadings[7]);
               autoStage = 11; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
             }
@@ -508,6 +514,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.bottom); // This moves the elevator to the Bottom level.
             if (elevator.atSetpoint()) {
+              coralTimer.restart();
               swerve.resetDriveController(scoringHeadings[27]);
               autoStage = 5; // Advances to the next stage once the elevator is at the correct level.
             }
@@ -516,7 +523,7 @@ public class Robot extends TimedRobot {
           case 5:
             // Auto 5, Stage 5 code goes here.
             swerve.driveTo(scoringPositionsX[27],scoringPositionsY[27],scoringHeadings[27]); // This moves the robot to the source.
-            if (coralSpitter.coralDetected()) {
+            if (coralSpitter.coralDetected() || coralTimer.get() > 5.0) {
               swerve.resetDriveController(scoringHeadings[5]);
               autoStage = 6; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
             }
@@ -553,6 +560,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.bottom); // This moves the elevator to the bottom position.  
             if (elevator.atSetpoint()) {
+              coralTimer.restart();
               swerve.resetDriveController(scoringHeadings[27]);
               autoStage = 10; // Advances to the next stage once the elevator is at the correct level.
             } 
@@ -561,7 +569,7 @@ public class Robot extends TimedRobot {
           case 10:
             // Auto 5, Stage 10 code goes here.
             swerve.driveTo(scoringPositionsX[27],scoringPositionsY[27],scoringHeadings[27]); // This moves the robot to the source.
-            if (coralSpitter.coralDetected()) {
+            if (coralSpitter.coralDetected() || coralTimer.get() > 5.0) {
               swerve.resetDriveController(scoringHeadings[11]);
               autoStage = 11; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
             }
@@ -634,6 +642,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.bottom); // This moves the elevator to the Bottom level.
             if (elevator.atSetpoint()) {
+              coralTimer.restart();
               swerve.resetDriveController(scoringHeadings[25]);
               autoStage = 5; // Advances to the next stage once the elevator is at the correct level.
             }
@@ -642,7 +651,7 @@ public class Robot extends TimedRobot {
           case 5:
             // Auto 6, Stage 5 code goes here.
             swerve.driveTo(scoringPositionsX[25],scoringPositionsY[25],scoringHeadings[25]); // This moves the robot to the source.
-            if (coralSpitter.coralDetected()) {
+            if (coralSpitter.coralDetected() || coralTimer.get() > 5.0) {
               swerve.resetDriveController(scoringHeadings[1]);
               autoStage = 6; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
             }
@@ -679,6 +688,7 @@ public class Robot extends TimedRobot {
             swerve.drive(0.0, 0.0, 0.0, false, 0.0, 0.0); // Holds the robot still.
             elevator.setLevel(Level.bottom); // This moves the elevator to the bottom position.  
             if (elevator.atSetpoint()) {
+              coralTimer.restart();
               swerve.resetDriveController(scoringHeadings[25]);
               autoStage = 10; // Advances to the next stage once the elevator is at the correct level.
             } 
@@ -687,7 +697,7 @@ public class Robot extends TimedRobot {
           case 10:
             // Auto 6, Stage 10 code goes here.
             swerve.driveTo(scoringPositionsX[25],scoringPositionsY[25],scoringHeadings[25]); // This moves the robot to the source.
-            if (coralSpitter.coralDetected()) {
+            if (coralSpitter.coralDetected() || coralTimer.get() > 5.0) {
               swerve.resetDriveController(scoringHeadings[7]);
               autoStage = 11; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
             }
@@ -806,9 +816,9 @@ public class Robot extends TimedRobot {
 
     if (driver.getRawButtonPressed(1)) boostMode = true; // A button sets boost mode. (100% speed up from default of 60%).
     if (driver.getRawButtonPressed(2)) boostMode = false; // B Button sets default mode (60% of full speed).
-
-    if (elevator.getPosition() > 10.0) {
+    if (elevator.getPosition() > 6.5) {
       speedScaleFactor = 0.15;
+      boostMode = false;
     } else if (boostMode) {
       speedScaleFactor = 1.0;
     } else {
@@ -854,23 +864,18 @@ public class Robot extends TimedRobot {
     // Controls the level of the elevator.
     if (operator.getRawButtonPressed(2)) {
       elevator.setLevel(Level.L2); // B button
-      boostMode = false;
     } 
     if (operator.getRawButtonPressed(3)) {
       elevator.setLevel(Level.L3); // X button
-      boostMode = false;
     }
     if (operator.getRawButtonPressed(4)) {
       elevator.setLevel(Level.L4); // Y button 
-      boostMode = false;
     }
     if (operator.getLeftTriggerAxis() > 0.25) {
       elevator.setLevel(Level.lowAlgae); // Left Trigger
-      boostMode = false;
     }
     if (operator.getRightTriggerAxis() > 0.25) {
       elevator.setLevel(Level.highAlgae); // Right Trigger
-      boostMode = false;
     }
     if (operator.getRawButtonPressed(1)) {
       elevator.setLevel(Level.L1); // A button
@@ -880,9 +885,6 @@ public class Robot extends TimedRobot {
     }
     if (Math.abs(MathUtil.applyDeadband(operator.getRightY(), 0.1)) >= 0.1) {
       elevator.adjust(-operator.getRightY()); // Allows the operator to adjust the height of the elevator.
-      if (elevator.getPosition() > 10.0) {
-        boostMode = false;
-      } 
     }
 
     // Controls the spitter
@@ -938,6 +940,7 @@ public class Robot extends TimedRobot {
 
   // Publishes information to the dashboard.
   public void updateDash() {
+    SmartDashboard.putBoolean("Boost Mode", boostMode);
     //SmartDashboard.putNumber("Speed Scale Factor", speedScaleFactor);
     //SmartDashboard.putNumber("Auto Stage", autoStage);
   }
