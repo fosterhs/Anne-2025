@@ -17,7 +17,7 @@ public class Climber {
   private final DutyCycleOut climbMotorDutyCycleRequest = new DutyCycleOut(0.0).withEnableFOC(true); // Communicates duty cycle control requests to the climb motor.
   private final StatusSignal<Angle> climbMotorPosition; // Stores the position of the climb motor.
   private final Servo latch = new Servo(0); // Initializes the servo motor connected to PWM port 0 on the RoboRIO.
-  private final double lowLimit = 0.0; // The lowest point in the climbers range of motion in motor rotations.
+  private final double lowLimit = -14.8; // The lowest point in the climbers range of motion in motor rotations.
   private final double highLimit = 148.0; // The highest point in the climbers range of motion in motor rotations.
   private boolean isLatched = false; // Stores whether the latch is engaged. Returns true if the climber is latched and locked into place.
 

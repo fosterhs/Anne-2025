@@ -22,7 +22,7 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter angAccLimiter = new SlewRateLimiter(Drivetrain.maxAngAccTeleop / Drivetrain.maxAngVelTeleop);
 
   private boolean boostMode = false;
-  private double speedScaleFactor = 0.6; // Scales the speed of the robot that results from controller inputs. 1.0 corresponds to full speed. 0.0 is fully stopped.
+  private double speedScaleFactor = 0.65; // Scales the speed of the robot that results from controller inputs. 1.0 corresponds to full speed. 0.0 is fully stopped.
   private boolean swerveLock = false; // Controls whether the swerve drive is in x-lock (for defense) or is driving. 
 
   // Initializes the different subsystems of the robot.
@@ -268,7 +268,7 @@ public class Robot extends TimedRobot {
           case 5:
             // Auto 3, Stage 5 code goes here.
             swerve.driveTo(scoringPositionsX[27],scoringPositionsY[27],scoringHeadings[27]); // This moves the robot to the source.
-            if (coralSpitter.coralDetected() || coralTimer.get() > 5.0) {
+            if (coralSpitter.coralDetected() || coralTimer.get() > 3.8) {
               swerve.resetDriveController(scoringHeadings[5]);
               autoStage = 6; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
             }
@@ -314,7 +314,7 @@ public class Robot extends TimedRobot {
           case 10:
             // Auto 3, Stage 10 code goes here.
             swerve.driveTo(scoringPositionsX[27],scoringPositionsY[27],scoringHeadings[27]); // This moves the robot to the source.
-            if (coralSpitter.coralDetected() || coralTimer.get() > 5.0) {
+            if (coralSpitter.coralDetected() || coralTimer.get() > 3.8) {
               swerve.resetDriveController(scoringHeadings[11]);
               autoStage = 11; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
             }
@@ -396,7 +396,7 @@ public class Robot extends TimedRobot {
           case 5:
             // Auto 4, Stage 5 code goes here.
             swerve.driveTo(scoringPositionsX[25],scoringPositionsY[25],scoringHeadings[25]); // This moves the robot to the source.
-            if (coralSpitter.coralDetected() || coralTimer.get() > 5.0) {
+            if (coralSpitter.coralDetected() || coralTimer.get() > 3.8) {
               swerve.resetDriveController(scoringHeadings[1]);
               autoStage = 6; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
             }
@@ -442,7 +442,7 @@ public class Robot extends TimedRobot {
           case 10:
             // Auto 4, Stage 10 code goes here.
             swerve.driveTo(scoringPositionsX[25],scoringPositionsY[25],scoringHeadings[25]); // This moves the robot to the source.
-            if (coralSpitter.coralDetected() || coralTimer.get() > 5.0) {
+            if (coralSpitter.coralDetected() || coralTimer.get() > 3.8) {
               swerve.resetDriveController(scoringHeadings[7]);
               autoStage = 11; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
             }
@@ -524,7 +524,7 @@ public class Robot extends TimedRobot {
           case 5:
             // Auto 5, Stage 5 code goes here.
             swerve.driveTo(scoringPositionsX[27],scoringPositionsY[27],scoringHeadings[27]); // This moves the robot to the source.
-            if (coralSpitter.coralDetected() || coralTimer.get() > 5.0) {
+            if (coralSpitter.coralDetected() || coralTimer.get() > 3.8) {
               swerve.resetDriveController(scoringHeadings[5]);
               autoStage = 6; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
             }
@@ -570,7 +570,7 @@ public class Robot extends TimedRobot {
           case 10:
             // Auto 5, Stage 10 code goes here.
             swerve.driveTo(scoringPositionsX[27],scoringPositionsY[27],scoringHeadings[27]); // This moves the robot to the source.
-            if (coralSpitter.coralDetected() || coralTimer.get() > 5.0) {
+            if (coralSpitter.coralDetected() || coralTimer.get() > 3.8) {
               swerve.resetDriveController(scoringHeadings[11]);
               autoStage = 11; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
             }
@@ -652,7 +652,7 @@ public class Robot extends TimedRobot {
           case 5:
             // Auto 6, Stage 5 code goes here.
             swerve.driveTo(scoringPositionsX[25],scoringPositionsY[25],scoringHeadings[25]); // This moves the robot to the source.
-            if (coralSpitter.coralDetected() || coralTimer.get() > 5.0) {
+            if (coralSpitter.coralDetected() || coralTimer.get() > 3.8) {
               swerve.resetDriveController(scoringHeadings[1]);
               autoStage = 6; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
             }
@@ -698,7 +698,7 @@ public class Robot extends TimedRobot {
           case 10:
             // Auto 6, Stage 10 code goes here.
             swerve.driveTo(scoringPositionsX[25],scoringPositionsY[25],scoringHeadings[25]); // This moves the robot to the source.
-            if (coralSpitter.coralDetected() || coralTimer.get() > 5.0) {
+            if (coralSpitter.coralDetected() || coralTimer.get() > 3.8) {
               swerve.resetDriveController(scoringHeadings[7]);
               autoStage = 11; // Advances to the next stage once the robot has driven to the source and coral is detected in the intake.
             }
@@ -823,7 +823,7 @@ public class Robot extends TimedRobot {
     } else if (boostMode) {
       speedScaleFactor = 1.0;
     } else {
-      speedScaleFactor = 0.6;
+      speedScaleFactor = 0.65;
     }
     
     // Applies a deadband to controller inputs. Also limits the acceleration of controller inputs.
@@ -863,17 +863,17 @@ public class Robot extends TimedRobot {
     if (driver.getRawButtonPressed(8)) swerve.resetGyro(); // Right center button re-zeros the angle reading of the gyro to the current angle of the robot. Should be called if the gyroscope readings are no longer well correlated with the field.
     
     // Controls the level of the elevator.
+    if (operator.getRawButtonPressed(1)) elevator.setLevel(Level.L1); // A button
     if (operator.getRawButtonPressed(2)) elevator.setLevel(Level.L2); // B button
     if (operator.getRawButtonPressed(3)) elevator.setLevel(Level.L3); // X button
     if (operator.getRawButtonPressed(4)) elevator.setLevel(Level.L4); // Y button 
+    if (operator.getRawButtonPressed(5)) elevator.setLevel(Level.bottom); // Left bumper button
     if (operator.getLeftTriggerAxis() > 0.25) elevator.setLevel(Level.lowAlgae); // Left Trigger
     if (operator.getRightTriggerAxis() > 0.25) elevator.setLevel(Level.highAlgae); // Right Trigger
-    if (operator.getRawButtonPressed(1)) elevator.setLevel(Level.L1); // A button
-    if (operator.getRawButtonPressed(5)) elevator.setLevel(Level.bottom); // Left bumper button
     if (Math.abs(MathUtil.applyDeadband(operator.getRightY(), 0.1)) >= 0.1) elevator.adjust(-operator.getRightY()); // Allows the operator to adjust the height of the elevator.
 
     // Controls the spitter
-    if (operator.getRawButtonPressed(6)) coralSpitter.spit(); // Right bumper button
+    if (operator.getRawButton(6)) coralSpitter.spit(); // Right bumper button
    
     // Controls the climber
     climber.setSpeed(MathUtil.applyDeadband(-operator.getLeftY(), 0.1)); // Left stick Y
@@ -966,7 +966,7 @@ public class Robot extends TimedRobot {
   // Calculates all of the scoring locations on the field.
   public void calcScoringPoses() {
     scoringPositionsX[0] = (144.0-26.0/2.0-3.375)*0.0254; // X-coordinates of the coral scoring location in meters. Based on the scoring location closest to the alliance wall with the larger y-coordinate on the blue alliance.
-    scoringPositionsY[0] = Drivetrain.fieldWidth/2.0 + 12.94*0.0254/2.0 - 10.5*0.0254; // Y-coordinates of the coral scoring location in meters. Based on the scoring location closest to the alliance wall with the larger y-coordinate on the blue alliance.
+    scoringPositionsY[0] = Drivetrain.fieldWidth/2.0 + 12.94*0.0254/2.0 - 10.25*0.0254; // Y-coordinates of the coral scoring location in meters. Based on the scoring location closest to the alliance wall with the larger y-coordinate on the blue alliance.
     scoringHeadings[0] = 0.0; // Heading of the robot at the coral scoring location in degrees. Based on the scoring location closest to the alliance wall with the larger y-coordinate on the blue alliance.
 
     // Calculates the scoring positions of the remaining 5 faces of the reef by rotating the coordinates of the 0th index by 60 degrees.
@@ -980,7 +980,7 @@ public class Robot extends TimedRobot {
     
     // Calculates the scoring position of the other scoring position on the same face of the reef by using an x-offset and a y-offset.
     scoringPositionsX[6] = (144.0-26.0/2.0-3.375)*0.0254; // X-coordinates of the coral scoring location in meters. Based on the scoring location closest to the alliance wall with the smaller y-coordinate on the blue alliance.
-    scoringPositionsY[6] = Drivetrain.fieldWidth/2.0 - 12.94*0.0254/2.0 - 10.5*0.0254; // Y-coordinates of the coral scoring location in meters. Based on the scoring location closest to the alliance wall with the smaller y-coordinate on the blue alliance.
+    scoringPositionsY[6] = Drivetrain.fieldWidth/2.0 - 12.94*0.0254/2.0 - 10.25*0.0254; // Y-coordinates of the coral scoring location in meters. Based on the scoring location closest to the alliance wall with the smaller y-coordinate on the blue alliance.
     scoringHeadings[6] = 0.0; // Heading of the robot at the coral scoring location in degrees. Based on the scoring location closest to the alliance wall with the smaller y-coordinate on the blue alliance.
 
     // Calculates the scoring positions of the remaining 5 faces of the reef by rotating the coordinates of the 6th index by 60 degrees.
@@ -1021,12 +1021,12 @@ public class Robot extends TimedRobot {
     }
     
     // These 4 scoring locations correspond to the source. There are 2 scoring locations at each of the 2 sources, for a total of 4. 
-    scoringPositionsX[24] = 0.770; // X-position of the first scoring location at the source nearest the origin in meters.
-    scoringPositionsY[24] = 1.312; // Y-position of the first scoring location at the source nearest the origin in meters.
+    scoringPositionsX[24] = 1.037; // X-position of the first scoring location at the source nearest the origin in meters.
+    scoringPositionsY[24] = 0.885; // Y-position of the first scoring location at the source nearest the origin in meters.
     scoringHeadings[24] = 144.0; // Heading of the first scoring location at the source nearest the origin. The source makes 54 and 36 degree angles with the coordinate axes.
 
-    scoringPositionsX[25] = 1.539; // X-position of the second scoring location at the source nearest the origin in meters.
-    scoringPositionsY[25] = 0.715; // Y-position of the second scoring location at the source nearest the origin in meters.
+    scoringPositionsX[25] = 1.037; // X-position of the second scoring location at the source nearest the origin in meters.
+    scoringPositionsY[25] = 0.885; // Y-position of the second scoring location at the source nearest the origin in meters.
     scoringHeadings[25] = scoringHeadings[24]; // This is automatically calculated. Does not need to be edited.
 
     scoringPositionsX[26] = scoringPositionsX[24]; // This is automatically calculated. Does not need to be edited.
