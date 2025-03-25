@@ -21,8 +21,9 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter yAccLimiter = new SlewRateLimiter(Drivetrain.maxAccTeleop / Drivetrain.maxVelTeleop);
   private final SlewRateLimiter angAccLimiter = new SlewRateLimiter(Drivetrain.maxAngAccTeleop / Drivetrain.maxAngVelTeleop);
 
-  private boolean boostMode = false;
-  private double speedScaleFactor = 0.65; // Scales the speed of the robot that results from controller inputs. 1.0 corresponds to full speed. 0.0 is fully stopped.
+  private double speedScaleFactor = 0.65; // Scales the translational speed of the robot that results from controller inputs. 1.0 corresponds to full speed. 0.0 is fully stopped.
+  private double rotationScaleFactor = 0.3; // Scales the rotational speed of the robot that results from controller inputs. 1.0 corresponds to full speed. 0.0 is fully stopped.
+  private boolean boostMode = false; // Stores whether the robot is at 100% speed (boost mode), or at ~65% speed (normal mode).
   private boolean swerveLock = false; // Controls whether the swerve drive is in x-lock (for defense) or is driving. 
 
   // Initializes the different subsystems of the robot.
@@ -829,7 +830,7 @@ public class Robot extends TimedRobot {
     // Applies a deadband to controller inputs. Also limits the acceleration of controller inputs.
     double xVel = xAccLimiter.calculate(MathUtil.applyDeadband(-driver.getLeftY(), 0.05)*speedScaleFactor)*Drivetrain.maxVelTeleop;
     double yVel = yAccLimiter.calculate(MathUtil.applyDeadband(-driver.getLeftX(), 0.05)*speedScaleFactor)*Drivetrain.maxVelTeleop;
-    double angVel = angAccLimiter.calculate(MathUtil.applyDeadband(-driver.getRightX(), 0.05)/4.0)*Drivetrain.maxAngVelTeleop;
+    double angVel = angAccLimiter.calculate(MathUtil.applyDeadband(-driver.getRightX(), 0.05)*rotationScaleFactor)*Drivetrain.maxAngVelTeleop;
 
     if (driver.getRawButton(3)) { // X button
       swerveLock = true; // Pressing the X-button causes the swerve modules to lock (for defense).
@@ -863,18 +864,53 @@ public class Robot extends TimedRobot {
     if (driver.getRawButtonPressed(8)) swerve.resetGyro(); // Right center button re-zeros the angle reading of the gyro to the current angle of the robot. Should be called if the gyroscope readings are no longer well correlated with the field.
     
     // Controls the level of the elevator.
+    if (Math.abs(MathUtil.applyDeadband(operator.getRightY(), 0.1)) >= 0.1) elevator.adjust(-operator.getRightY()); // Allows the operator to adjust the height of the elevator.
     if (operator.getRawButtonPressed(1)) elevator.setLevel(Level.L1); // A button
     if (operator.getRawButtonPressed(2)) elevator.setLevel(Level.L2); // B button
     if (operator.getRawButtonPressed(3)) elevator.setLevel(Level.L3); // X button
-    if (operator.getRawButtonPressed(4)) elevator.setLevel(Level.L4); // Y button 
+    if (operator.getRawButtonPressed(4)) { // Y button 
+      elevator.setLevel(Level.L4);
+      if (algaeYeeter.algaeDetected()) { // Automatically moves the algae yeeter to the barge position if algae is detected.
+        algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.barge);
+        elevator.setLowLimit(7.5);
+      }
+    }
     if (operator.getRawButtonPressed(5)) elevator.setLevel(Level.bottom); // Left bumper button
-    if (operator.getLeftTriggerAxis() > 0.25) elevator.setLevel(Level.lowAlgae); // Left Trigger
-    if (operator.getRightTriggerAxis() > 0.25) elevator.setLevel(Level.highAlgae); // Right Trigger
-    if (Math.abs(MathUtil.applyDeadband(operator.getRightY(), 0.1)) >= 0.1) elevator.adjust(-operator.getRightY()); // Allows the operator to adjust the height of the elevator.
+    if (operator.getLeftTriggerAxis() > 0.25) { // Left Trigger
+      elevator.setLevel(Level.lowAlgae); 
+      algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.algae); // Automatically extends the algae yeeter.
+      elevator.setLowLimit(7.5);
+    }
+    if (operator.getRightTriggerAxis() > 0.25) { // Right Trigger
+      elevator.setLevel(Level.highAlgae); 
+      algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.algae); // Automatically extends the algae yeeter.
+      elevator.setLowLimit(7.5);
+    }
+
+    // Controls the algae yeeter.
+    if (operator.getPOV() == 180) {
+      algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.algae); // D pad down
+      elevator.setLowLimit(7.5);
+      if (elevator.getPosition() < 7.5) {
+        elevator.setLevel(Level.bottom);
+      }
+    }
+    if (operator.getPOV() == 90) {
+      algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.barge); // D pad left
+      elevator.setLowLimit(7.5);
+      if (elevator.getPosition() < 7.5) {
+        elevator.setLevel(Level.bottom);
+      }
+    }
+    if (operator.getPOV() == 0) {
+      algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.stow); // D pad up
+      elevator.setLowLimit(0.5);
+    }
+    if (operator.getPOV() == 270) algaeYeeter.yeet(); // D pad right
 
     // Controls the spitter
     if (operator.getRawButton(6)) coralSpitter.spit(); // Right bumper button
-   
+
     // Controls the climber
     climber.setSpeed(MathUtil.applyDeadband(-operator.getLeftY(), 0.1)); // Left stick Y
     if (operator.getRawButtonPressed(8)) { // Right center button
@@ -884,23 +920,6 @@ public class Robot extends TimedRobot {
         climber.closeLatch();
       }
     }
-
-    // Controls the algae yeeter.
-    if (elevator.getPosition() > 6.5) {
-      if (operator.getPOV() == 180) {
-        algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.algae); // D pad down
-        elevator.setLowLimit(7.5);
-      }
-      if (operator.getPOV() == 90) {
-        algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.barge); // D pad left
-        elevator.setLowLimit(7.5);
-      }
-    }
-    if (operator.getPOV() == 0) {
-      algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.stow); // D pad up
-      elevator.setLowLimit(0.5);
-    }
-    if (operator.getPOV() == 270) algaeYeeter.yeet(); // D pad right
   }
   
   public void disabledInit() { 
