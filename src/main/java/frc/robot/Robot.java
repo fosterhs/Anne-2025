@@ -865,14 +865,35 @@ public class Robot extends TimedRobot {
     
     // Controls the level of the elevator.
     if (Math.abs(MathUtil.applyDeadband(operator.getRightY(), 0.1)) >= 0.1) elevator.adjust(-operator.getRightY()); // Allows the operator to adjust the height of the elevator.
-    if (operator.getRawButtonPressed(1)) elevator.setLevel(Level.L1); // A button
-    if (operator.getRawButtonPressed(2)) elevator.setLevel(Level.L2); // B button
-    if (operator.getRawButtonPressed(3)) elevator.setLevel(Level.L3); // X button
+    if (operator.getRawButtonPressed(1)) { // A button
+      elevator.setLevel(Level.L1);
+      if (!algaeYeeter.algaeDetected()) {
+        algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.stow); 
+        elevator.setLowLimit(0.5);
+      }
+    }
+    if (operator.getRawButtonPressed(2)) { // B button
+      elevator.setLevel(Level.L2); 
+      if (!algaeYeeter.algaeDetected()) {
+        algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.stow); 
+        elevator.setLowLimit(0.5);
+      }
+    }
+    if (operator.getRawButtonPressed(3)) { // X button
+      elevator.setLevel(Level.L3); 
+      if (!algaeYeeter.algaeDetected()) {
+        algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.stow); 
+        elevator.setLowLimit(0.5);
+      }
+    }
     if (operator.getRawButtonPressed(4)) { // Y button 
       elevator.setLevel(Level.L4);
       if (algaeYeeter.algaeDetected()) { // Automatically moves the algae yeeter to the barge position if algae is detected.
         algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.barge);
         elevator.setLowLimit(7.5);
+      } else {
+        algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.stow); 
+        elevator.setLowLimit(0.5);
       }
     }
     if (operator.getRawButtonPressed(5)) elevator.setLevel(Level.bottom); // Left bumper button
