@@ -926,6 +926,9 @@ public class Robot extends TimedRobot {
     if (operator.getPOV() == 0) {
       algaeYeeter.setArmPosition(AlgaeYeeter.ArmPosition.stow); // D pad up
       elevator.setLowLimit(0.5);
+      if (elevator.getPosition() < 8.5) {
+        elevator.setLevel(Level.bottom);
+      }
     }
     if (operator.getPOV() == 270) algaeYeeter.yeet(); // D pad right
 
