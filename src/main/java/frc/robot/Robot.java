@@ -11,7 +11,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Robot extends TimedRobot {
   private final XboxController driver = new XboxController(0); // Initializes the driver controller.
   private final XboxController operator = new XboxController(1); // Initializes the operator controller.
+  
 
+  private final TShirtLauncher launcher = new TShirtLauncher(); // Contains the Swerve Modules, Gyro, Path Follower, Target Tracking, Odometry, and Vision Calibration.
   // Limits the acceleration of the drivetrain by smoothing controller inputs.
   private final SlewRateLimiter xAccLimiter = new SlewRateLimiter(Drivetrain.maxAccTeleop / Drivetrain.maxVelTeleop);
   private final SlewRateLimiter yAccLimiter = new SlewRateLimiter(Drivetrain.maxAccTeleop / Drivetrain.maxVelTeleop);
@@ -131,6 +133,18 @@ public class Robot extends TimedRobot {
       }
     } else {
       swerve.drive(xVel, yVel, angVel, true, 0.0, 0.0); // Drive at the velocity demanded by the controller.
+    }
+
+    if (operator.getRawButton(1)) {
+      launcher.setSolenoid1(1); 
+    } else {
+      launcher.setSolenoid1(0);
+    }
+
+    if (operator.getRawButton(2)) {
+      launcher.setSolenoid1(1); 
+    } else {
+      launcher.setSolenoid1(0);
     }
 
     // The following 3 calls allow the user to calibrate the position of the robot based on April Tag information. Should be called when the robot is stationary. Button 7 is "View", the right center button.
