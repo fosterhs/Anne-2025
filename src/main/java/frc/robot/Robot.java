@@ -60,7 +60,7 @@ public class Robot extends TimedRobot {
     // Publishes information about the robot and robot subsystems to the Dashboard.
     swerve.updateDash();
     updateDash();
-
+    SmartDashboard.putNumber("launcher pot", launcher.getSensor1());
   }
 
   public void autonomousInit() {
@@ -99,6 +99,19 @@ public class Robot extends TimedRobot {
   }
 
   public void teleopPeriodic() {
+    if (operator.getRawButton(1)) {
+      launcher.setSolenoid2(1); 
+    } else {
+      launcher.setSolenoid2(0);
+    }
+
+    if (operator.getRawButton(2)) {
+      launcher.setSolenoid1(1); 
+    } else {
+      launcher.setSolenoid1(0);
+    }
+
+    
     swerve.updateOdometry(); // Keeps track of the position of the robot on the field. Must be called each period.
     swerve.updateVisionHeading(false, 0.0); // Updates the Limelights with the robot heading (for MegaTag2).
     for (int limelightIndex = 0; limelightIndex < swerve.limelights.length; limelightIndex++) { // Iterates through each limelight.
@@ -135,17 +148,7 @@ public class Robot extends TimedRobot {
       swerve.drive(xVel, yVel, angVel, true, 0.0, 0.0); // Drive at the velocity demanded by the controller.
     }
 
-    if (operator.getRawButton(1)) {
-      launcher.setSolenoid1(1); 
-    } else {
-      launcher.setSolenoid1(0);
-    }
 
-    if (operator.getRawButton(2)) {
-      launcher.setSolenoid1(1); 
-    } else {
-      launcher.setSolenoid1(0);
-    }
 
     // The following 3 calls allow the user to calibrate the position of the robot based on April Tag information. Should be called when the robot is stationary. Button 7 is "View", the right center button.
     if (driver.getRawButtonPressed(7)) {
