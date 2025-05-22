@@ -13,7 +13,6 @@ public class Robot extends TimedRobot {
   private final XboxController operator = new XboxController(1); // Initializes the operator controller.
   
 
-  private final TShirtLauncher launcher = new TShirtLauncher(); // Contains the Swerve Modules, Gyro, Path Follower, Target Tracking, Odometry, and Vision Calibration.
   // Limits the acceleration of the drivetrain by smoothing controller inputs.
   private final SlewRateLimiter xAccLimiter = new SlewRateLimiter(Drivetrain.maxAccTeleop / Drivetrain.maxVelTeleop);
   private final SlewRateLimiter yAccLimiter = new SlewRateLimiter(Drivetrain.maxAccTeleop / Drivetrain.maxVelTeleop);
@@ -26,7 +25,8 @@ public class Robot extends TimedRobot {
 
   // Initializes the different subsystems of the robot.
   private final Drivetrain swerve = new Drivetrain(); // Contains the Swerve Modules, Gyro, Path Follower, Target Tracking, Odometry, and Vision Calibration.
-  
+  private final TShirtLauncher launcher = new TShirtLauncher(); // Contains the launcher for the t-shirt cannon. This is not used in the 2024 game, but is included for completeness.
+
   // Auto Variables
   private final SendableChooser<String> autoChooser = new SendableChooser<>();
   private static final String auto1 = "WIP1"; 
@@ -105,7 +105,7 @@ public class Robot extends TimedRobot {
       launcher.setSolenoid2(0);
     }
 
-    if (operator.getRawButton(2)) {
+    if (operator.getRawButton(2) && operator.getRightTriggerAxis() > 0.1 && operator.getLeftTriggerAxis() > 0.1) {
       launcher.setSolenoid1(1); 
     } else {
       launcher.setSolenoid1(0);

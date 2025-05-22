@@ -14,7 +14,7 @@ public class TShirtLauncher {
     private final VictorSPX motor2VictorSPX = new VictorSPX(2); //Activates VictorSPS Moter 2
     private final AnalogPotentiometer voltRead = new AnalogPotentiometer(0, 5, 0); // Potentiometer on channel 0, range 0-360 degree
     
-    private final double PSIRead = (49.8 * voltRead.get()) + -26.1;
+    private double PSIRead = (49.8 * voltRead.get()) + -26.1;
 
     public TShirtLauncher() {
         // Constructor for the Luncher class
@@ -38,7 +38,7 @@ public class TShirtLauncher {
 
     // Updates the SmartDashboard with information about the Launcher.
     public void updateDash() {
-        SmartDashboard.putNumber("Analog Potentiometer", getSensor1());
+        SmartDashboard.putNumber("PSI Value", getSensor1());
+        SmartDashboard.putNumber("Volt Read", voltRead.get());
     }
-    
 }
