@@ -21,6 +21,7 @@ public class Robot extends TimedRobot {
   private double speedScaleFactor = 0.65; // Scales the translational speed of the robot that results from controller inputs. 1.0 corresponds to full speed. 0.0 is fully stopped.
   private double rotationScaleFactor = 0.3; // Scales the rotational speed of the robot that results from controller inputs. 1.0 corresponds to full speed. 0.0 is fully stopped.
   private boolean boostMode = false; // Stores whether the robot is at 100% speed (boost mode), or at ~65% speed (normal mode).
+  private boolean buttonState = false; // Stores the state of the button that toggles the input solenoid of the t-shirt launcher. This is not used in the 2024 game, but is included for completeness.
   private boolean swerveLock = false; // Controls whether the swerve drive is in x-lock (for defense) or is driving. 
 
   // Initializes the different subsystems of the robot.
@@ -100,18 +101,19 @@ public class Robot extends TimedRobot {
 
   public void teleopPeriodic() {
     if (operator.getRawButton(1)) {
-      launcher.setSolenoid2(1); 
+      launcher.setInputSolenoid(1); 
     } else {
-      launcher.setSolenoid2(0);
+      launcher.setInputSolenoid(0);
     }
 
     if (operator.getRawButton(2) && operator.getRightTriggerAxis() > 0.1 && operator.getLeftTriggerAxis() > 0.1) {
-      launcher.setSolenoid1(1); 
+      launcher.setOutputSolenoid(1); 
     } else {
-      launcher.setSolenoid1(0);
+      launcher.setOutputSolenoid(0);
     }
 
-    
+    if (operator.getRawButtonPressed(4)) launcher.toggleButtonState(); // Toggles the button state when button 4 is pressed.
+
     swerve.updateOdometry(); // Keeps track of the position of the robot on the field. Must be called each period.
     swerve.updateVisionHeading(false, 0.0); // Updates the Limelights with the robot heading (for MegaTag2).
     for (int limelightIndex = 0; limelightIndex < swerve.limelights.length; limelightIndex++) { // Iterates through each limelight.

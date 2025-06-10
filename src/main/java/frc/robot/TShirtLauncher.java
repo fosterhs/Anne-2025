@@ -13,8 +13,9 @@ public class TShirtLauncher {
     private final VictorSPX motor1VictorSPX = new VictorSPX(5); //Activates VictorSPS Moter 1
     private final VictorSPX motor2VictorSPX = new VictorSPX(2); //Activates VictorSPS Moter 2
     private final AnalogPotentiometer voltRead = new AnalogPotentiometer(0, 5, 0); // Potentiometer on channel 0, range 0-360 degree
-    
     private double PSIRead = (49.8 * voltRead.get()) + -26.1;
+    private boolean buttonState = false;
+    private double PSI = 50.0; // Set the desired PSI value for the launcher
 
     public TShirtLauncher() {
         // Constructor for the Luncher class
@@ -22,23 +23,40 @@ public class TShirtLauncher {
         motor2VictorSPX.configFactoryDefault();
     }
 
-    public void setSolenoid1(double PercentOutput) {
+    public void setOutputSolenoid(double PercentOutput) {
         // Set the speed of solenoid 1
         motor1VictorSPX.set(VictorSPXControlMode.PercentOutput, PercentOutput);
     }
 
-    public void setSolenoid2(double PercentOutput) {
+    public void setInputSolenoid(double PercentOutput) {
          // Set the speed of solenoid 2
         motor2VictorSPX.set(VictorSPXControlMode.PercentOutput, PercentOutput);
-    }
-    
-    public double getSensor1() {
+        }
+
+        public void toggleButtonState() {
+            buttonState = !buttonState; // Toggle the button state on button press
+        }
+
+        public void setPSI() {
+            // Set the PSI value for the launcher
+            if (buttonState) {
+                if (PSI > PSIRead) {
+                    setInputSolenoid(1.0); 
+                } else {
+                  setInputSolenoid(0.0); 
+                }
+            } else {
+            setInputSolenoid(0.0); // If the button is not toggled, stop the input solenoid
+            }
+        }
+        
+        public double getSensor1() {
         return PSIRead;
     }
 
     // Updates the SmartDashboard with information about the Launcher.
     public void updateDash() {
         SmartDashboard.putNumber("PSI Value", getSensor1());
-        SmartDashboard.putNumber("Volt Read", voltRead.get());
+        //SmartDashboard.putNumber("Volt Read", voltRead.get());
     }
 }
